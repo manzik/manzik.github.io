@@ -76,19 +76,19 @@
                 //pl_obj.dir.x;
                 //pl_obj.dir.y;
                 ///////////////////////////////////
-                //pl_obj.sc += sp;
-                //pl_obj.f += sp;
-                //if (pl_obj.f > losdist)
-                //{
-                //    pl_obj.att = '';
-                //    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
-                //    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
-                //}
-                //pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
-                //pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
+                pl_obj.sc += sp;
+                pl_obj.f += sp;
+                if (pl_obj.f > losdist)
+                {
+                    pl_obj.att = '';
+                    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
+                    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
+                }
+                pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
+                pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
                 ///////////////////////////////
-                pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
-                pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
+                //pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
+                //pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
             }

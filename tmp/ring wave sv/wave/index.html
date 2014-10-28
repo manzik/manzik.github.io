@@ -1,0 +1,123 @@
+<!--Be name khoda-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script>
+        var arr = [];
+        function str(y, t1, t2, t3)
+        {
+            this.y = y;
+            this.x = 0;
+            this.vx = 0;
+            this.vy = 0;
+            this.y0 = this.y;
+            this.x0 = this.x;
+        }
+        window.addEventListener("load", function ()
+        {
+            for (var i = 0; i < innerWidth/45; i++)
+            {
+                arr[i] = new str(Math.random() * 0);
+            }
+            c = document.getElementById("c");
+            c.width = innerWidth;
+            c.height = innerHeight;
+            ctx = c.getContext("2d");
+            ctx.lineWidth = 10;
+            ctx.lineJoin=""
+            render();
+        });
+        var f = 0;
+        function render()
+        {
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            f += 0.1;
+            ctx.beginPath();
+            //for (var i = 1; i < arr.length; i++)
+            //{
+            //    arr[i].t1 += (-arr[i].y * 1);
+            //    arr[i].t2 += arr[i].t1 * 0.0001;
+            //    arr[i].y += 0.1 * -arr[i].y;
+            //    ctx.lineTo(i + 0.5, arr[i].y + innerHeight / 2);
+            // //}
+            this.kp = 0.21;
+            this.kr = 0.825;
+            this.fac = 1;
+            for (var n = 0; n < arr.length; n++)
+            {
+                dvx = 0;
+                dvy = 0;
+                // Node force propagation
+                if (n == 0)
+                {
+                    dvx = arr[n + 1].x + arr[arr.length - 1].x - 2 * arr[n].x;
+                    dvy = arr[n + 1].y  + arr[arr.length - 1].y  - 2 * arr[n].y;
+                }
+                else
+                    if (n == arr.length - 1)
+                    {
+                        dvx = arr[0].x  + arr[n - 1].x  - 2 * arr[n].x;
+                        dvy = arr[0].y  + arr[n - 1].y  - 2 * arr[n].y;
+                    }
+                    else
+                    {
+                        dvx = arr[n + 1].x + arr[n - 1].x - 2 * arr[n].x;
+                        dvy = arr[n + 1].y  + arr[n - 1].y- 2 * arr[n].y;
+                    }
+
+                // propagation factor
+                dvy *= this.kp;
+                dvx *= this.kp;
+                // atenuation factor
+                arr[n].vx = (arr[n].vx + dvx) * this.kr;
+                arr[n].vy = (arr[n].vy + dvy) * this.kr;
+
+                arr[n].y = arr[n].y + arr[n].vy;
+                arr[n].vy = arr[n].vy + (-arr[n].y) / 100;	// Force to return to the Y original position
+
+                arr[n].x = arr[n].x + arr[n].vx;
+                arr[n].vx = arr[n].vx + (-arr[n].x) / 100;	// Force to return to the X original position
+                //if (n == 0)
+                //{
+                //    dx = arr[n + 1].x + arr[arr.length - 1].x - 2 * arr[n].x;
+                //    dy = arr[n + 1].y + arr[arr.length - 1].y - 2 * arr[n].y;
+                //}
+                //else
+                //    if (n == arr.length-1)
+                //    {
+                //        dx = arr[0].x + arr[n - 1].x - 2 * arr[n].x;
+                //        dy = arr[0].y + arr[n - 1].y - 2 * arr[n].y;
+                //    }
+                //    else
+                //    {
+                //        dx = arr[n + 1].x + arr[n - 1].x - 2 * arr[n].x;
+                //        dy = arr[n + 1].y + arr[n - 1].y - 2 * arr[n].y;
+                //    }
+                //// propagation factor (kp)
+                //dy *= this.kp;
+                //dx *= this.kp;
+
+                //// atenuation factor (ka)
+                //arr[n].vx = (arr[n].vx + dx) * this.ka;
+                //arr[n].vy = (arr[n].vy + dy) * this.ka;
+
+                //// Node position and aceleration
+                //arr[n].x += arr[n].vx;
+                //arr[n].y += arr[n].vy;
+
+                //// Force the node to return to the original position
+                //arr[n].vx += (-arr[n].x);
+                //arr[n].vy += (-arr[n].y) / 100;
+                ctx.lineTo(Math.sin((n) / arr.length * Math.PI * 2) * (100 + arr[n].y) + innerWidth / 2, Math.cos(n / arr.length * Math.PI * 2) * (100 + arr[n].y) + innerHeight / 2);
+            }
+            ctx.lineTo(Math.sin((0) / arr.length * Math.PI * 2) * (100 + arr[0].y) + innerWidth / 2, Math.cos(0 / arr.length * Math.PI * 2) * (100 + arr[0].y) + innerHeight / 2);
+            ctx.stroke();
+            requestAnimationFrame(render);
+        }
+    </script>
+</head>
+<body>
+    <canvas id="c" style="left:0;top:0;position:fixed;"></canvas>
+</body>
+</html>

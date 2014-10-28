@@ -1,0 +1,458 @@
+<!--Be name khoda-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        #hid {
+            color: white;
+            text-shadow: 0 0 10px black;
+        }
+
+        .f {
+            position: relative;
+            top: 0;
+        }
+    </style>
+    <script src="dat.gui.min.js"></script>
+    <script>
+        var ih = innerHeight, innerWidth, frequencyData, context = AudioContext || webkitAudioContext, context = new window.context();
+        function init()
+        {
+            try
+            {
+                analyser.connect(context.destination);
+            } catch (err) { }
+            analyser.smoothingTimeConstant = 0.8;
+            dd.style.display = "none";
+        }
+        var A;
+        function foc()
+        {
+            if (this.files && this.files[0].type.indexOf("audio") > -1)
+            {
+                var files = this.files;
+                var file = URL.createObjectURL(files[0]);
+                A.src = file;
+                A.play();
+                init();
+                if (!isr)
+                {
+                    requestAnimationFrame(render);
+                    isr = true;
+                }
+                for (var i = 0; i < 128; i++)
+                {
+                    arr[i] = new str(Math.random() * 0);
+                }
+                pff("none");
+            }
+        }
+        function pff(cl)
+        {
+            var dd = document.getElementById("dd");
+            dd.style.display = cl;
+        }
+        var audioBuffer;
+        var analyser;
+        var frequencyData = new Uint8Array(1024);
+        var contextClass = (window.AudioContext || window.webkitAudioContext);
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        var nosup;
+        if (contextClass)
+        {
+            var context = new contextClass();
+        }
+        else
+        {
+            alert("Sorry. Your current browser doesn't support Web Audio API. Please use another browser or upgrade your browser.(Google Chrome is recommended)");
+            nosup = true;
+        }
+
+        function gotStream(stream)
+        {
+            analyser = context.createAnalyser();
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.8;
+            mediaStreamSource = context.createMediaStreamSource(stream);
+            mediaStreamSource.connect(analyser);
+            if (!isr)
+            {
+                requestAnimationFrame(render);
+                isr = true;
+            }
+
+        }
+        function rec()
+        {
+            if (!A.paused)
+                A.pause();
+            navigator.getUserMedia(
+    { audio: true },
+    gotStream,
+    function (err)
+    {
+        console.log("The following error occured: " + err);
+    }
+    );
+        }
+        var arr = [];
+        function str(y, t1, t2, t3)
+        {
+            this.y = y;
+            this.x = 0;
+            this.vx = 0;
+            this.vy = 0;
+            this.y0 = this.y;
+            this.x0 = this.x;
+        }
+        var arr_oprev = [];
+        window.addEventListener("load", function ()
+        {
+            A = document.getElementById("A");
+            A.addEventListener('error', function failed(e)
+            {
+                switch (e.target.error.code)
+                {
+                    case e.target.error.MEDIA_ERR_ABORTED:
+                        alert('You aborted the audio playback.');
+                        break;
+                    case e.target.error.MEDIA_ERR_DECODE:
+                        alert('The audio playback was aborted due to a corruption problem or because the audio used features your browser did not support.');
+                        break;
+                    case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                        alert('The audio not loaded, because the file is not an audio or format is not supported.');
+                        break;
+                    default:
+                        alert('An unknown error occurred.');
+                        break;
+                }
+            }, true);
+            video = context.createMediaElementSource(A);
+            analyser = context.createAnalyser();
+            A.onplay = function ()
+            {
+                try
+                {
+                    mediaStreamSource.disconnect(analyser);
+                } catch (err) { };
+                try
+                {
+                    video.connect(analyser);
+                } catch (err) { };
+            };
+            document.getElementById("if").addEventListener("change", foc, false);
+            var dropZone = document.getElementById("dz");
+            dropZone.addEventListener('dragover', handleDragOver, false);
+            dropZone.addEventListener('drop', handleFileSelect, false);
+            var dropZone = document.getElementById("dd");
+            dropZone.addEventListener('dragover', handleDragOver, false);
+            dropZone.addEventListener('drop', handleFileSelect, false);
+            f = new opts();
+            if (nosup == true)
+            {
+                var ff = document.getElementsByClassName("f");
+
+                for (var i = 0; i < ff.length; i++)
+                {
+                    ff[i].style.display = "none";
+                }
+                document.getElementById("hid").style.display = "none";
+            }
+            else
+            {
+                var dg = new dat.GUI();
+                var ctrl1 = dg.add(f, "stc", 0, 1).name("smoothingTimeConstant").onChange(function (v) { analyser.smoothingTimeConstant = v; });
+                var ctrl3 = dg.add(f, "holding").name("holding");
+                var ctrl4 = dg.add(f, "sp", 0).name("speed");
+                //var ctrl5 = dg.add(f, "wv", 0).name("Wave");
+            }
+            
+            for (var i = 0; i < 128; i++)
+            {
+                
+                var tr = true;
+                while (tr)
+                {
+                    num = Math.round(Math.random() * 127);
+                    var tr = false;
+                    for (var j = 0; j < arr_oprev.length; j++)
+                    {
+                        if (arr_oprev[j] == num)
+                            tr = true;
+                    }
+                    
+                }
+                arr_oprev.push(num);
+                
+                arr[i] = new str(Math.random() * 0);
+                arr[i].num = num;
+            }
+            c = document.getElementById("c");
+            c.width = innerWidth;
+            c.height = innerHeight;
+            ctx = c.getContext("2d");
+            ctx.lineWidth = 1;
+            ctx.lineJoin = "";
+        });
+        var frequencyData;
+        var prev = { avg: 0, fd: [],fq:[] };
+        var arr_o = [];
+        var arr_prev = [];
+        var bar = { val: 0, holding: 500, sp: 0.08 ,hold:true};
+        function beat(a)
+        {
+            arr[Math.round(Math.random() * (arr.length - 1))].y = a*500;
+        }
+        function render()
+        {
+            analyser.getByteFrequencyData(frequencyData);
+            var avg = 0;
+            var max = 0;
+            for (var i = 0; i < 128; i++)
+            {
+                if (frequencyData[i] > max)
+                    max = frequencyData[i];
+                avg+=frequencyData[i];
+            }
+            avg /= frequencyData.length;
+            if (!bar.hold)
+            {
+                bar.val -= f.sp;
+            }
+            if (bar.val < avg&&avg!=prev.avg)
+            {
+                try
+                {
+                    clearInterval(st);
+                } catch (err) { }
+                bar.hold = true;
+                st = setTimeout(function ()
+                {
+                    bar.hold = false;
+                }, f.holding);
+                beat(avg-bar.val);
+                bar.val = avg;
+            }
+            prev.avg = avg;
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, avg*10);
+            ctx.lineTo(100, avg * 10);
+            ctx.lineTo(100, 0);
+            ctx.closePath();
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(0, bar.val * 10);
+            ctx.lineTo(100, bar.val * 10);
+            ctx.strokeStyle = "blue";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.fillStyle = "black";
+            //    for (var i = 0; i < 128; i++)
+            //    {
+            //        if (((frequencyData[i * frequencyData.length / 128] / 20) - prev.fq[i * frequencyData.length / 128])>0)
+            //        arr[arr_oprev[i]].vy += frequencyData[i * frequencyData.length / 128]*1.5;
+            //    }
+            //prev.avg = avg;
+            
+            prev.fq = JSON.parse(JSON.stringify(frequencyData));
+            ctx.beginPath();
+            //for (var i = 1; i < arr.length; i++)
+            //{
+            //    arr[i].t1 += (-arr[i].y * 1);
+            //    arr[i].t2 += arr[i].t1 * 0.0001;
+            //    arr[i].y += 0.1 * -arr[i].y;
+            //    ctx.lineTo(i + 0.5, arr[i].y + innerHeight / 2);
+            // //}
+            //0.21
+            this.kp = 0.21;
+            //0.825
+            this.kr = 0.825;
+            this.fac = 1;
+
+            for (var n = 0; n < arr.length; n++)
+            {
+                dvx = 0;
+                dvy = 0;
+                // Node force propagation
+                if (n == 0)
+                {
+                    dvx = arr[n + 1].x + arr[arr.length - 1].x - 2 * arr[n].x;
+                    dvy = arr[n + 1].y + arr[arr.length - 1].y - 2 * arr[n].y;
+                }
+                else
+                    if (n == arr.length - 1)
+                    {
+                        dvx = arr[0].x + arr[n - 1].x - 2 * arr[n].x;
+                        dvy = arr[0].y + arr[n - 1].y - 2 * arr[n].y;
+                    }
+                    else
+                    {
+                        dvx = arr[n + 1].x + arr[n - 1].x - 2 * arr[n].x;
+                        dvy = arr[n + 1].y + arr[n - 1].y - 2 * arr[n].y;
+                    }
+
+                // propagation factor
+                dvy *= this.kp;
+                dvx *= this.kp;
+                // atenuation factor
+                arr[n].vx = (arr[n].vx + dvx) * this.kr;
+                arr[n].vy = (arr[n].vy + dvy) * this.kr;
+
+                arr[n].y = arr[n].y + arr[n].vy;
+                arr[n].vy = arr[n].vy + (-arr[n].y) / 25;	// Force to return to the Y original position
+
+                arr[n].x = arr[n].x + arr[n].vx;
+                arr[n].vx = arr[n].vx + (-arr[n].x) / 25;	// Force to return to the X original position
+                //if (n == 0)
+                //{
+                //    dx = arr[n + 1].x + arr[arr.length - 1].x - 2 * arr[n].x;
+                //    dy = arr[n + 1].y + arr[arr.length - 1].y - 2 * arr[n].y;
+                //}
+                //else
+                //    if (n == arr.length-1)
+                //    {
+                //        dx = arr[0].x + arr[n - 1].x - 2 * arr[n].x;
+                //        dy = arr[0].y + arr[n - 1].y - 2 * arr[n].y;
+                //    }
+                //    else
+                //    {
+                //        dx = arr[n + 1].x + arr[n - 1].x - 2 * arr[n].x;
+                //        dy = arr[n + 1].y + arr[n - 1].y - 2 * arr[n].y;
+                //    }
+                //// propagation factor (kp)
+                //dy *= this.kp;
+                //dx *= this.kp;
+
+                //// atenuation factor (ka)
+                //arr[n].vx = (arr[n].vx + dx) * this.ka;
+                //arr[n].vy = (arr[n].vy + dy) * this.ka;
+
+                //// Node position and aceleration
+                //arr[n].x += arr[n].vx;
+                //arr[n].y += arr[n].vy;
+
+                //// Force the node to return to the original position
+                //arr[n].vx += (-arr[n].x);
+                //arr[n].vy += (-arr[n].y) / 100;
+                ctx.lineTo(Math.sin((n) / arr.length * Math.PI * 2) * (100 + arr[n].y / 10) + innerWidth / 2, Math.cos(n / arr.length * Math.PI * 2) * (100 + arr[n].y / 10) + innerHeight / 2);
+            }
+            ctx.lineTo(Math.sin((0) / arr.length * Math.PI * 2) * (100 + arr[0].y / 10) + innerWidth / 2, Math.cos(0 / arr.length * Math.PI * 2) * (100 + arr[0].y / 10) + innerHeight / 2);
+            ctx.fill();
+            requestAnimationFrame(render);
+        }
+        var avg = 0;
+        function handleDragOver(evt)
+        {
+            evt.stopPropagation();
+            evt.preventDefault();
+            evt.dataTransfer.dropEffect = 'copy';
+        }
+        var hd = false;
+        function hide()
+        {
+
+            if (document.getElementById("dd").style.display == "none")
+            {
+                hd = !hd;
+                if (hd)
+                {
+                    h = document.getElementsByClassName("f");
+                    for (var i = 0; i < h.length; i++)
+                    {
+                        h[i].style.visibility = "hidden";
+                    }
+                    document.getElementById("hid").style.visibility = "hidden";
+                    ih = innerHeight;
+                }
+                else
+                {
+                    h = document.getElementsByClassName("f");
+                    for (var i = 0; i < h.length; i++)
+                    {
+                        h[i].style.visibility = "visible";
+                    }
+                    document.getElementById("hid").style.visibility = "visible";
+                    ih = innerHeight + parseFloat(getComputedStyle(document.getElementById("container")).height);
+                }
+                ctx.fillStyle = f.bgc;
+                ctx.fillRect(0, 0, iw, innerHeight);
+                ctx.lineWidth = f.lw;
+                var mwh = Math.min(iw, ih);
+                for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
+                {
+                    ctx.beginPath();
+                    x = Math.sin(i * m) * mwh / 3 + iw / 2;
+                    y = Math.cos(i * m) * mwh / 3 + ih / 2;
+                    ctx.moveTo(x, y);
+
+                    ctx.lineTo(iw / 2, ih / 2);
+                    ctx.strokeStyle = arr[i].c;
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+            }
+        }
+        function rev_from(a, b)
+        {
+            return b - a + b;
+        }
+        function handleFileSelect(evt)
+        {
+            evt.stopPropagation();
+            evt.preventDefault();
+            var files = evt.dataTransfer.files;
+            if (files && files[0].type.indexOf("audio") > -1)
+            {
+                if (!A.paused)
+                    A.pause();
+                var file = URL.createObjectURL(files[0]);
+                A.src = file;
+                A.play();
+                init();
+                if (!isr)
+                {
+                    requestAnimationFrame(render);
+                    isr = true;
+                }
+            }
+            else
+            {
+                alert("Selected file is not an audio");
+            }
+        }
+        function opts()
+        {
+            this.stc = 0.8;
+            this.flsh = false;
+            this.bgc = "rgb(0,0,0)";
+            this.lw = 4;
+            this.wv = false;
+            this.holding= 500;
+            this.sp= 0.08;
+        }
+        var isr = false;
+    </script>
+</head>
+<body>
+    <canvas id="c" style="left:0;top:0;position:fixed;"></canvas>
+    <div id="container" style="top:0;left:0;position:fixed;width:100%;">
+        <b id="hid" style="position:fixed;">Press H key to hide/show options</b>
+        <center>
+            <button class="f" onclick="rec()">Record</button>
+            <button class="f" onclick="pff('block');">Play from file</button>
+            <audio class="f" controls id="A"></audio>
+        </center>
+    </div>
+    <div dropzone="true" style="text-align: center; height: 100%; width: 100%; background-color: black; opacity: 0.9; position: fixed; left: 0; top: 0; display: none; margin: 0;" id="dd">
+        <button onclick="pff('none')">Close</button>
+        <input type="file" style="color:white;" id="if" />
+        <div id="dz" style="left: 0; top: 0; position: relative; height: 90%; width: 94.2%; border: dashed 3px white; border-radius: 10px; color: white; text-align: center; margin-left: 2.5%;margin-top:2.5%;">
+            <span dropzone="true" style="top: 50%; position: relative; font-family: 'Helvetica Neue', Helvetica, Arial; font-size: x-large">Or drop file here</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,13 +3,15 @@
 <head>
     <title></title>
     <script>
-        function p(x, y, r, c)
+        function p(x, y, r, c, m, dp)
         {
             this.x = x;
             this.y = y;
             this.r = r;
             this.c = c;
             this.dir = { x: 0, y: 0 }
+            this.m = m;
+            this.dp = dp;
         }
         var sp = 0.1;
         //player object (circle)
@@ -19,6 +21,7 @@
         var losdist = 120;
         var pl_obj_att = true;
         var glob_y = 0;
+        var arr_bg_cr = [];
         window.addEventListener("load", function ()
         {
             window.addEventListener("keydown", function (e)
@@ -33,7 +36,6 @@
             c.width = innerWidth;
             ctx = c.getContext("2d");
             arr_gr_obj.push(new p(innerWidth / 2, innerHeight * 3 / 4, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"));
-            arr_gr_obj.push(new p(Math.random() * innerWidth, innerHeight * 1 / 4, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"))
             var rand = Math.random() * 5;
             var x = innerWidth / 2 + Math.cos(rand) * 60;
             var y = innerHeight * 3 / 4 + Math.sin(rand) * 60;
@@ -41,36 +43,122 @@
             pl_obj.sc = rand;
             pl_obj.f = 120;
             pl_obj.cw = true;
+            pl_obj.mode = '';
             rand += Math.PI / 20;
             var x2 = innerWidth / 2 + Math.cos(rand) * 60;
             var y2 = innerHeight * 3 / 4 + Math.sin(rand) * 60;
+            for (var i = 0; i < 200; i++)
+            {
+                arr_bg_cr[i] = new p(Math.random() * innerWidth, Math.random() * innerHeight, '', "rgba(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + (Math.random() / 2) + ")", 2, Math.random());
+            }
             attach_pl_obj(0);
             render();
         });
+        var mods = [];
+
+        var mods_type = { golden: "golden", slowmo: "slowmo" };
         function render()
         {
+            if (gameover)
+            {
+                ctx.clearRect(0, 0, innerWidth, innerHeight);
+                ctx.font = "30px Arial"
+                ctx.fillText("Game over", 0, 25);
+                return;
+            }
+            if (pl_obj.mode == "golden")
+            {
+                t += Math.random() < 0.05 ? 1 : 0;
+            }
             ctx.clearRect(0, 0, innerWidth, innerHeight);
             calc_pos();
-            
+            for (var i = 0; i < mods.length; i++)
+            {
+                var m = mods[i];
+                if (Math.sqrt(Math.pow(m.x - pl_obj.x, 2) + Math.pow(m.y - pl_obj.y, 2)) < 100)
+                {
+                    pl_obj.mode = mods_type.golden;
+                    mods.splice(i);
+                    setTimeout(function ()
+                    {
+                        pl_obj.mode = '';
+                    }, 6000);
+                }
+                m.xx += (Math.random() - 0.5)/20;
+                m.yy += (Math.random() - 0.5)/20;
+                m.px += m.xx;
+                m.py += m.yy;
+                if (m.x > innerWidth)
+                    m.px = -10;
+                if (m.x < 0)
+                    m.px = 10;
+                m.x += m.px/10;
+                m.y += m.py/10;
+                ctx.beginPath();
+                ctx.fillStyle = m.mod.type == mods_type.golden ? "yellow":"blue";
+                ctx.arc(m.x, m.y + glob_y, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            }
+            for (var i = 0, j = arr_bg_cr.length; i < j; i++)
+            {
+                //console.log(arr_bg_cr[i].dp);
+                if ((arr_bg_cr[i].y + glob_y) * arr_bg_cr[i].dp - arr_bg_cr[i].dp * 10 > innerHeight)
+                {
+                    var a = Math.random();
+                    arr_bg_cr[i] = new p(Math.random() * innerWidth, -a * 10 - glob_y, '', "rgba(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + (Math.random() / 2) + ")", 2, a);
+                }
+                else
+                    arr_bg_cr[i].y += arr_bg_cr[i].dp * 20;
+                ctx.beginPath();
+                ctx.fillStyle = arr_bg_cr[i].c;
+                ctx.arc(arr_bg_cr[i].x, (arr_bg_cr[i].y + glob_y) * arr_bg_cr[i].dp, arr_bg_cr[i].dp * 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            }
             //render arr_gr_obj
             for (var i = 0; i < arr_gr_obj.length; i++)
             {
-                ctx.beginPath();
-                ctx.arc(arr_gr_obj[i].x, arr_gr_obj[i].y+glob_y, arr_gr_obj[i].r, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fillStyle = arr_gr_obj[i].c;
-                ctx.fill();
+                if (arr_gr_obj[i].y + glob_y + arr_gr_obj[i].r > 0 && arr_gr_obj[i].y + glob_y - arr_gr_obj[i].r < innerHeight)
+                {
+                    ctx.beginPath();
+                    ctx.arc(arr_gr_obj[i].x, arr_gr_obj[i].y + glob_y, arr_gr_obj[i].r, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.fillStyle = arr_gr_obj[i].c;
+                    ctx.fill();
+                }
             }
             //render pl_obj
             ctx.beginPath();
             ctx.arc(pl_obj.x, pl_obj.y + glob_y, pl_obj.r, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fillStyle = pl_obj.c;
+            if (pl_obj.mode == "golden")
+                ctx.fillStyle = "yellow";
             ctx.fill();
+            ctx.font = "30px Arial"
+            ctx.fillText("score: " + t, 0, 25);
             requestAnimationFrame(render);
+            if (!pl_obj_att&&(pl_obj.x > innerWidth || pl_obj.x < 0) /*|| pl_obj.y > arr_bg_cr[arr_bg_cr.length].y + innerWidth || pl_obj.y + glob_y < 0*/)
+            {
+                gameov();
+            }
+        }
+        var gameover = false;
+        function gameov()
+        {
+            gameover = true;
         }
         function calc_pos()
         {
+            for (var i = 0; i < arr_gr_obj.length; i++)
+            {
+                if (arr_gr_obj[i].m != undefined && arr_gr_obj[i].m.m)
+                {
+                    arr_gr_obj[i].m.v += arr_gr_obj[i].m.s;
+                    arr_gr_obj[i].x = Math.cos(arr_gr_obj[i].m.v) * (innerWidth / 2) + innerWidth / 2;
+                }
+            }
             if (pl_obj_att)
             {
                 var grav_obj = arr_gr_obj[pl_obj.att];
@@ -96,8 +184,9 @@
                 ///////////////////////////////
                 //pl_obj.dir.x += (1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x));
                 //pl_obj.dir.y += (1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y));
+                sp = Math.min(t, 6) * 0.007 + 0.05;
                 pl_obj.sc += pl_obj.cw ? sp : -sp;
-                pl_obj.f += pl_obj.f / 200;
+                pl_obj.f += pl_obj.f / 200 / t * 0.01;;
                 if (dist < 140)
                 {
                     pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f)) / 6;
@@ -110,11 +199,10 @@
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
                 glob_y += (-glob_y + (-grav_obj.y + innerHeight * 3 / 4)) / 50;
-                console.log("a: ",(-glob_y + (-grav_obj.y + innerHeight * 3 / 4)) / 50);
             }
             else
             {
-                
+
                 for (var i = 0; i < arr_gr_obj.length; i++)
                 {
                     if (i != pl_obj.att)
@@ -143,7 +231,7 @@
                                 res = checkLineIntersection(pl_obj.x, pl_obj.y, pl_obj.x + pl_obj.dir.x, pl_obj.y + pl_obj.dir.y, arr_gr_obj[i].x, arr_gr_obj[i].y, arr_gr_obj[i].x - pl_obj.dir.x, arr_gr_obj[i].y + pl_obj.dir.y);
                                 xx = res.x;
                                 yy = res.y;
-                                pl_obj.sc = Math.atan2(arr_gr_obj[i].x - (xx+pl_obj.x)/2, (yy+pl_obj.y)/2 - arr_gr_obj[i].y) + Math.PI / 2;
+                                pl_obj.sc = Math.atan2(arr_gr_obj[i].x - (xx + pl_obj.x) / 2, (yy + pl_obj.y) / 2 - arr_gr_obj[i].y) + Math.PI / 2;
                             }
 
                             attach_pl_obj(i);
@@ -155,26 +243,49 @@
                             {
                                 pl_obj.cw = !pl_obj.cw;
                             }
+
                         }
                     }
                 }
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
                 glob_y += (-glob_y + (-pl_obj.y + innerHeight * 3 / 4)) / 10;
-                console.log("b: ",(-glob_y + (-Math.max(pl_obj.y, arr_gr_obj[pl_obj.att].y) + innerHeight * 3 / 4)) / 10);
             }
-            
+
         }
         var d1, d2, xx = 0, yy = 0;
+        var t = 0;
         function attach_pl_obj(x)
         {
             pl_obj.att = x;
-            if(x==arr_gr_obj.length-1)
+            if (x == arr_gr_obj.length - 1 || arr_gr_obj.length == 2)
             {
-                console.log(x);
-                arr_gr_obj.push(new p(Math.random() * innerWidth, arr_gr_obj[x].y-innerHeight*1/2, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"))
+                np = new p((Math.random() * (innerWidth / 2)) + innerWidth * 1 / 4, arr_gr_obj[x].y - innerHeight * 1 / 2, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")", t > 7 ? { m: ((Math.random() * 5) >> 0) % 5 == 0, s: (Math.random() / 2 + 0.5) / 100, v: Math.random() * Math.PI } : { m: false });
+                if (np.m.m)
+                {
+                    np.x = Math.cos(np.m.v) * (innerWidth / 2) + innerWidth / 2
+                }
+                arr_gr_obj.push(np);
+
+
             }
-            console.log(x);
+            np = new p((Math.random() * (innerWidth / 2)) + innerWidth * 1 / 4, arr_gr_obj[x].y - innerHeight, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")", t > 7 ? { m: ((Math.random() * 5) >> 0) % 5 == 0, s: (Math.random() / 2 + 0.5) / 100, v: Math.random() * Math.PI } : { m: false });
+            if (np.m.m)
+            {
+                np.x = Math.cos(np.m.v) * (innerWidth / 2) + innerWidth / 2
+            }
+            arr_gr_obj.push(np);
+            if (t>3&&((Math.random() * 5)>>0) % 3 == 0)
+            {
+                np = new p(Math.random() * innerWidth, -a * 10 - glob_y, '', "rgba(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + (Math.random() / 2) + ")", 2, a);
+                np.mod = { type: mods_type.golden };
+                np.px = 0;
+                np.py = 0;
+                np.xx = 0;
+                np.yy = 0;
+                mods.push(np);
+            }
+            t++;
         }
         function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY)
         {

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SV | Manzik Lab</title>
+    <script src="dat.gui.min.js"></script>
+    <script>
+        function render()
+        {
+            draw_jelly(5);
+            requestAnimationFrame(render);
+        }
+        var cur = [{ v: 50, c: 0 }, { v: 50, c: 0 }, { v: 50, c: 0 }];
+        var cc = { x: innerWidth / 2, y: innerHeight / 2 };
+        function draw_jelly(vall)
+        {
+            var size = 200;
+            for (var i = 0; i < 3; i++)
+            {
+                var rf = (Math.random() / 20 + 0.5) * vall;
+                cur[i].c += i == 2 ? rf / 2 : rf;
+                cur[i].v = Math.cos(cur[i].c) * 15 + 50;
+            }
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            ctx.beginPath();
+            ctx.moveTo(cc.x - size / 2, cc.y - size / 2);
+            ctx.quadraticCurveTo(cc.x - size / 2 + (cur[0].v - 50), cc.y, cc.x - size / 2, cc.y + size / 2);
+            ctx.lineTo(cc.x + size / 2, cc.y + size / 2);
+            ctx.quadraticCurveTo(cc.x + size / 2 - (cur[1].v - 50), cc.y, cc.x + size / 2, cc.y - size / 2);
+            ctx.quadraticCurveTo(cc.x, cc.y - size / 2 + (cur[2].v - 50), cc.x - size / 2, cc.y - size / 2);
+            ctx.stroke();
+        }
+        window.onload = function ()
+        {
+            c = document.getElementById("c");
+            ctx = c.getContext("2d");
+            c.height = innerHeight;
+            c.width = innerWidth;
+            render();
+        }
+    </script>
+</head>
+<body onresize="or()">
+    <canvas id="c" style="margin: 0; position: fixed;z-index:-1;left:0;top:0;"></canvas>
+
+</body>
+</html>

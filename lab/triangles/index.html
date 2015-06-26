@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
+<html>
+<head>
+    <title>Triangles | Manzik lab</title>
+    <meta charset="us-ascii" />
+    <script>
+        (function (i, s, o, g, r, a, m)
+        {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+            {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-52938764-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+    <script src="dat.gui.min.js"></script>
+    <script src="http://manzik.co/js/ask.js"></script>
+    <script>
+        var s = function (x, y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        var d;
+        var size = 20;
+        var u = function ()
+        {
+            if (localStorage.getItem("triangles_0"))
+                if (localStorage)
+                {
+                    this.s = parseInt(localStorage.getItem("triangles_0"));
+                    size = this.s;
+                }
+                else
+                {
+                    this.s = parseInt(window.localStorage.getItem("triangles_0"));
+                    size = this.s;
+                }
+            else
+                if (localStorage)
+                {
+                    this.s = 20;
+                    localStorage.setItem("triangles_0", 20);
+                    size = this.s;
+                }
+                else
+                {
+                    this.s = 20;
+                    window.localStorage.setItem("triangles_0", 20);
+                    size = this.s;
+                }
+            if (localStorage.getItem("triangles_1"))
+                if (localStorage)
+                {
+                    this.lw = parseFloat(localStorage.getItem("triangles_1"));
+                }
+                else
+                {
+                    this.lw = parseFloat(window.localStorage.getItem("triangles_1"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.lw = 0.5;
+                    localStorage.setItem("triangles_1", 0.5);
+                }
+                else
+                {
+                    this.lw = 0.5;
+                    window.localStorage.setItem("triangles_1", 0.5);
+                }
+            if (localStorage.getItem("triangles_2"))
+                if (localStorage)
+                {
+                    this.g = localStorage.getItem("triangles_2") == "true";
+                }
+                else
+                {
+                    this.g = window.localStorage.getItem("triangles_2") == "true";
+                }
+            else
+                if (localStorage)
+                {
+                    this.g = true;
+                    localStorage.setItem("triangles_2", true);
+                }
+                else
+                {
+                    this.g = true;
+                    window.localStorage.setItem("triangles_2", true);
+                }
+            if (localStorage.getItem("triangles_3"))
+                if (localStorage)
+                {
+                    this.i = parseFloat(localStorage.getItem("triangles_3"));
+                }
+                else
+                {
+                    this.i = parseFloat(window.localStorage.getItem("triangles_3"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.i = 0.4;
+                    localStorage.setItem("triangles_3", 1.1);
+                }
+                else
+                {
+                    this.i = 0.4;
+                    window.localStorage.setItem("triangles_3", 1.1);
+                }
+            this.ss = function ()
+            {
+                var link = document.createElement('a');
+                link.download = "Triangles.png";
+                link.href = c.toDataURL("image/png").replace("image/png", "image/octet-stream");;
+                link.click();
+            };
+            if (localStorage.getItem("triangles_4"))
+                if (localStorage)
+                {
+                    this.fwt = localStorage.getItem("triangles_4") == "true";
+                }
+                else
+                {
+                    this.fwt = window.localStorage.getItem("triangles_4") == "true";
+                }
+            else
+                if (localStorage)
+                {
+                    this.fwt = true;
+                    localStorage.setItem("triangles_4", true);
+                }
+                else
+                {
+                    this.fwt = true;
+                    window.localStorage.setItem("triangles_4", true);
+                }
+            if (localStorage.getItem("triangles_5"))
+                if (localStorage)
+                {
+                    this.n = parseInt(localStorage.getItem("triangles_5"));
+                }
+                else
+                {
+                    this.n = parseInt(window.localStorage.getItem("triangles_5"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.n = 5;
+                    localStorage.setItem("triangles_5", 5);
+                }
+                else
+                {
+                    this.n = 5;
+                    window.localStorage.setItem("triangles_5", 5);
+                }
+        };
+        window.onload = function ()
+        {
+            q = new u();
+            var gui = new dat.GUI();
+
+            controller6 = gui.add(q, "fwt").name("Fill with triangles");
+            controller4 = gui.add(q, "g").name("Gradient")
+            controller = gui.add(q, 's', 2, 250).step(1).name("Size"), controller2 = gui.add(q, "lw", 0.1, 4).step(0.1).name("Line Width");
+            controller5 = gui.add(q, "i", 0, 1).step(0.01).name("Irregularity");
+            controller7 = gui.add(q, "n", 0, 100).name("Noise");
+            controller3 = gui.add(q, "ss").name("Save As Image");
+            controller7.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_5", v);
+                else
+                    window.localStorage.setItem("triangles_5", v);
+                rnd();
+            });
+            controller6.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_4", v);
+                else
+                    window.localStorage.setItem("triangles_4", v);
+                rnd();
+            });
+            controller5.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_3", v);
+                else
+                    window.localStorage.setItem("triangles_3", v);
+                rnd();
+            });
+            controller4.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_2", v);
+                else
+                    window.localStorage.setItem("triangles_2", v);
+                if (!q.fwt)
+                    rnd();
+            });
+            controller.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_0", v);
+                else
+                    window.localStorage.setItem("triangles_0", v);
+                size = v;
+                rnd();
+            });
+            controller2.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_1", v);
+                else
+                    window.localStorage.setItem("triangles_1", v);
+                rnd();
+            });
+            c = document.getElementById("c");
+            ctx = c.getContext("2d");
+            rnd();
+
+        }
+        var n = true;
+        var grad, grad2;
+        function rnd()
+        {
+            c.height = innerHeight;
+            c.width = innerWidth;
+            load(size);
+            //for (var i = 0, iz = Math.round(innerWidth / size) ; i < iz ; ++i)
+            //{
+            //    for (var j = 0, jz = Math.round(innerHeight / size) ; j < jz ; ++j)
+            //    {
+            //        ctx.lineTo(d[j * Math.round(innerHeight / size) + i].x, d[j * Math.round(innerHeight / size) + i].y);
+            //    }
+            //}
+            ctx.lineWidth = q.lw;
+
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 ; i < iz  ; i++)
+            {
+                for (var j = 0, jz = Math.round(innerWidth / size) + 4 ; j < jz ; j++)
+                {
+                    if (q.fwt)
+                    {
+
+                        try
+                        {
+                            if (Math.round(Math.random() * Date.now()) % 2 == 0)
+                            {
+                                for (var t = 0, h = 0.1, m2 = { x: (d[i][j].x + d[i + 1][j + 1].x + d[i][j + 1].x) / 3, y: (d[i][j].y + d[i + 1][j + 1].y + d[i][j + 1].y) / 3 }, m1 = { x: (d[i][j].x + d[i + 1][j + 1].x + d[i + 1][j].x) / 3, y: (d[i][j].y + d[i + 1][j + 1].y + d[i + 1][j].y) / 3 }; t < 10; h += 0.3, t += h)
+                                {
+                                    ctx.beginPath();
+                                    ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+
+                                    ctx.moveTo(((d[i][j].x) + m1.x * t) / (t + 1), (d[i][j].y + m1.y * t) / (t + 1));
+                                    ctx.lineTo((d[i + 1][j + 1].x + m1.x * t) / (t + 1), (d[i + 1][j + 1].y + m1.y * t) / (t + 1));
+                                    ctx.lineTo((d[i + 1][j].x + m1.x * t) / (t + 1), (d[i + 1][j].y + m1.y * t) / (t + 1));
+                                    ctx.lineTo((d[i][j].x + m1.x * t) / (t + 1), (d[i][j].y + m1.y * t) / (t + 1));
+                                    ctx.fill();
+                                    ctx.stroke();
+
+                                    ctx.beginPath();
+                                    ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+
+                                    ctx.moveTo(((d[i][j].x) + m2.x * t) / (t + 1), (d[i][j].y + m2.y * t) / (t + 1));
+                                    ctx.lineTo((d[i + 1][j + 1].x + m2.x * t) / (t + 1), (d[i + 1][j + 1].y + m2.y * t) / (t + 1));
+                                    ctx.lineTo((d[i][j + 1].x + m2.x * t) / (t + 1), (d[i][j + 1].y + m2.y * t) / (t + 1));
+                                    ctx.lineTo((d[i][j].x + m2.x * t) / (t + 1), (d[i][j].y + m2.y * t) / (t + 1));
+                                    ctx.fill();
+                                    ctx.stroke();
+
+
+
+
+                                }
+                            }
+                            else
+                            {
+                                for (var t = 0, h = 0.1, m2 = { x: (d[i][j + 1].x + d[i + 1][j].x + d[i + 1][j + 1].x) / 3, y: (d[i][j + 1].y + d[i + 1][j].y + d[i + 1][j + 1].y) / 3 }, m1 = { x: (d[i][j + 1].x + d[i + 1][j].x + d[i][j].x) / 3, y: (d[i][j + 1].y + d[i + 1][j].y + d[i][j].y) / 3 }; t < 10; h += 0.3, t += h)
+                                {
+
+                                    ctx.beginPath();
+                                    ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+
+
+                                    ctx.moveTo((d[i][j + 1].x + m1.x * t) / (t + 1), (d[i][j + 1].y + m1.y * t) / (t + 1));
+                                    ctx.lineTo((d[i + 1][j].x + m1.x * t) / (t + 1), (d[i + 1][j].y + m1.y * t) / (t + 1));
+                                    ctx.lineTo((d[i][j].x + m1.x * t) / (t + 1), (d[i][j].y + m1.y * t) / (t + 1));
+                                    ctx.lineTo((d[i][j + 1].x + m1.x * t) / (t + 1), (d[i][j + 1].y + m1.y * t) / (t + 1));
+                                    ctx.fill();
+                                    ctx.stroke();
+
+                                    ctx.beginPath();
+                                    ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+
+                                    ctx.moveTo((d[i][j + 1].x + m2.x * t) / (t + 1), (d[i][j + 1].y + m2.y * t) / (t + 1));
+                                    ctx.lineTo((d[i + 1][j].x + m2.x * t) / (t + 1), (d[i + 1][j].y + m2.y * t) / (t + 1));
+                                    ctx.lineTo((d[i + 1][j + 1].x + m2.x * t) / (t + 1), (d[i + 1][j + 1].y + m2.y * t) / (t + 1));
+                                    ctx.lineTo((d[i][j + 1].x + m2.x * t) / (t + 1), (d[i][j + 1].y + m2.y * t) / (t + 1));
+                                    ctx.fill();
+                                    ctx.stroke();
+
+
+
+
+                                }
+                            }
+                        }
+
+                        catch (o) { };
+                    }
+                    else
+                    {
+                        if (q.g)
+                        {
+                            try
+                            {
+                                grad = ctx.createLinearGradient(d[i][j].x, d[i][j].y, d[i + 1][j].x, d[i + 1][j].y);
+                                var cs = [Math.round(Math.random() * Date.now()) % 256, Math.round(Math.random() * Date.now()) % 256, Math.round(Math.random() * Date.now()) % 256];
+                                grad.addColorStop(0, "rgb(" + cs[0] + "," + cs[1] + "," + cs[2] + ")");
+                                var r = Math.round((Math.random() * Date.now())) % 128 - 64;
+                                for (var t = 0; t < 3; t++)
+                                {
+                                    cs[t] += r;
+                                }
+                                grad.addColorStop(1, "rgb(" + cs[0] + "," + cs[1] + "," + cs[2] + ")");
+                            }
+                            catch (o)
+                            {
+                            }
+                            try
+                            {
+                                grad2 = ctx.createLinearGradient(d[i][j].x, d[i][j].y, d[i + 1][j].x, d[i + 1][j].y);
+                                var cs = [Math.round(Math.random() * Date.now()) % 256, Math.round(Math.random() * Date.now()) % 256, Math.round(Math.random() * Date.now()) % 256];
+                                grad2.addColorStop(0, "rgb(" + cs[0] + "," + cs[1] + "," + cs[2] + ")");
+                                var r = Math.round((Math.random() * Date.now())) % 128 - 64;
+                                for (var t = 0; t < 3; t++)
+                                {
+                                    cs[t] += r;
+                                }
+                                grad2.addColorStop(1, "rgb(" + cs[0] + "," + cs[1] + "," + cs[2] + ")");
+                            }
+                            catch (o)
+                            {
+                            }
+                        }
+                        if (Math.round(Math.random() * Date.now()) % 2 == 0)
+                        {
+                            try
+                            {
+
+                                ctx.beginPath();
+                                ctx.moveTo(d[i][j].x, d[i][j].y);
+                                ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                                ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                                ctx.lineTo(d[i][j].x, d[i][j].y);
+
+                            }
+                            catch (o) { };
+                            if (q.g)
+                            {
+                                try
+                                {
+                                    ctx.fillStyle = grad2;
+                                }
+                                catch (o)
+                                {
+
+                                }
+                            }
+                            else
+                                ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+                            ctx.fill();
+
+                            ctx.stroke();
+                            try
+                            {
+                                ctx.beginPath();
+                                ctx.moveTo(d[i][j].x, d[i][j].y);
+                                ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                                ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                                ctx.lineTo(d[i][j].x, d[i][j].y);
+                            }
+                            catch (o) { };
+                            if (q.g)
+                            {
+
+
+                                try
+                                {
+                                    ctx.fillStyle = grad;
+                                }
+                                catch (o)
+                                {
+
+                                }
+                            }
+                            else
+                                ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                ctx.beginPath();
+                                ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                                ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                                ctx.lineTo(d[i][j].x, d[i][j].y);
+                                ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+
+                            }
+                            catch (o) { };
+                            if (q.g)
+                            {
+                                ctx.fillStyle = grad2;
+                            }
+                            else
+                                ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+                            ctx.fill();
+
+                            ctx.stroke();
+                            try
+                            {
+                                ctx.beginPath();
+                                ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                                ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                                ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                                ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                            }
+                            catch (o) { };
+                            if (q.g)
+                            {
+
+
+
+                                ctx.fillStyle = grad;
+                            }
+                            else
+                                ctx.fillStyle = "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+                            ctx.fill();
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            if (n && q.n != 0)
+            {
+                img = ctx.getImageData(0, 0, c.width, c.height);
+                for (var i = 0, cc = img.data.length, cd = img.data; i < cc; i += 4)
+                {
+                    var rnd = Math.floor(Math.random() * 200) % q.n - q.n / 2;
+                    cd[i] += rnd;
+                    cd[i + 1] += rnd;
+                    cd[i + 2] += rnd;
+                }
+                ctx.putImageData(img, 0, 0);
+            }
+        }
+        function load(size)
+        {
+            var o = 5 - (((q.i) / 2 + 1.5) * 5) + 5;
+            if (o == 0)
+                o = 0.08;
+            d = [[], []];
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 ; i < iz ; i++)
+            {
+                d[i] = [];
+            }
+            //d[0].length = Math.round(innerWidth / size);
+            //d[1].length = Math.round(innerHeight / size);
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 ; i < iz ; i++)
+            {
+                for (var j = 0, jz = Math.round(innerWidth / size) + 4 ; j < jz ; j++)
+                {
+                    d[i][j] = new s(j * size - size, i * size - size);
+                    k = Math.random();
+                    d[i][j].x += (Math.random() - Math.random()) * (size / (o / 1.5));
+                    k = Math.random();
+                    d[i][j].y += (Math.random() - Math.random()) * (size / o);
+                }
+            }
+        }
+        function color(u)
+        {
+            if (u == a)
+            {
+                return "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+            }
+            else
+                return Math.round(Math.random() * Date.now()) % 256;
+        }
+        function or()
+        {
+            c.height = innerHeight;
+            c.width = innerWidth;
+            rnd();
+        }
+    </script>
+</head>
+<body onresize="or();">
+    <canvas id="c" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
+</body>
+</html>

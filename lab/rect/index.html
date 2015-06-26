@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
+<html>
+<head>
+    <title>Rectangulars | Manzik lab</title>
+    <meta name="author" content="Mohsen Yousefian">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Manzik Laboratory">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="dc.identifier" content="http://www.manzik.co/">
+    <meta name="author" content="Mohsen Yousefian">
+    <meta name="keywords" content="manzik, mohsen, yousefian, mohsen yousefian, javascript, html, css, jquery, php, c++, flash, code, developer, motion,  design, experiments, games">
+    <script src="http://manzik.co/js/ask.js"></script>
+    <script>
+        (function (i, s, o, g, r, a, m)
+        {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+            {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-52938764-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+    <script>
+        var sp;
+        if (Math.floor(Math.random() * Date.now()) % 3 == 0)
+            a1 = true;
+        else
+        {
+            a1 = false;
+            switch (Math.floor(Math.random() * Date.now()) % 3)
+            {
+                case 0:
+                    rgb = 'r';
+                    break;
+                case 1:
+                    rgb = 'g';
+                    break;
+                case 2:
+                    rgb = 'b';
+            }
+        }
+        function sq_init()
+        {
+            dv = document.getElementById("dv");
+            tt = '';
+            uu = (innerHeight * innerWidth) / 7500 + 50;
+            for (var i = 0; i < uu; i++)
+            {
+                tt += "<div style=\"z-index:" + Math.floor(Math.random() * 999) % uu + "; border-radius:20%;background-color:" + c() + ";position:fixed;width:" + Math.floor(Math.random() * uu) + "px;height:" + Math.floor(Math.random() * uu) + "px;top:" + Math.floor(Math.random() * innerHeight) + "px;left:" + Math.floor(Math.random() * innerWidth) + "px; \" id=\"" + i + "\"></div>";
+            }
+            dv.innerHTML = tt;
+            sp = new Array(dv.children.length);
+            for (var i = 0; i < dv.children.length; i++)
+            {
+                sp[i] = (Math.floor(Math.random() * Date.now()) % 13 + 12);
+            }
+            render();
+        };
+
+        function render()
+        {
+            ii = dv.children.length / 4;
+
+            for (var i = 0 ; i < Math.floor(dv.children.length / 4) ; i++)
+            {
+                dv.children[i].style.top = parseFloat(dv.children[i].style.top) + sp[i] + "px";
+            }
+
+            for (var i = Math.floor(dv.children.length / 4) ; i < Math.floor(dv.children.length / 2) ; i++)
+            {
+                dv.children[i].style.top = parseFloat(dv.children[i].style.top) - sp[i] + "px";
+            }
+
+
+            for (var i = Math.floor(dv.children.length / 2) ; i < Math.floor(dv.children.length / 1.3) ; i++)
+            {
+                dv.children[i].style.left = parseFloat(dv.children[i].style.left) + sp[i] + "px";
+            }
+
+            for (var i = Math.floor(dv.children.length / 1.3) ; i < Math.floor(dv.children.length) ; i++)
+            {
+                dv.children[i].style.left = parseFloat(dv.children[i].style.left) - sp[i] + "px";
+            }
+
+
+
+
+            for (var i = 0 ; i < Math.floor(dv.children.length / 4) ; i++)
+            {
+                if (parseFloat(dv.children[i].style.top) > innerHeight)
+                {
+                    dv.children[i].style.height = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.width = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.top = -(parseFloat(dv.children[i].style.height)) + "px";
+                    dv.children[i].style.left = Math.floor(Math.random() * 999) % innerWidth + -Math.floor(Math.random() * 999) % parseFloat(dv.children[i].style.width);
+                    dv.children[i].style.backgroundColor = c();
+                }
+            }
+
+            for (var i = Math.floor(dv.children.length / 4) ; i < Math.floor(dv.children.length / 2) ; i++)
+            {
+                if (parseFloat(dv.children[i].style.top) < -parseFloat(dv.children[i].style.height))
+                {
+                    dv.children[i].style.height = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.width = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.top = innerHeight + "px";
+                    dv.children[i].style.left = Math.floor(Math.random() * 999) % innerWidth + -Math.floor(Math.random() * 999) % parseFloat(dv.children[i].style.width);
+                    dv.children[i].style.backgroundColor = c();
+                }
+            }
+
+
+            for (var i = Math.floor(dv.children.length / 2) ; i < Math.floor(dv.children.length / 1.3) ; i++)
+            {
+                if (parseFloat(dv.children[i].style.left) > innerWidth)
+                {
+                    dv.children[i].style.width = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.height = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.left = -(parseFloat(dv.children[i].style.width)) + "px";
+                    dv.children[i].style.left = Math.floor(Math.random() * 999) % innerHeight + -Math.floor(Math.random() * 999) % parseFloat(dv.children[i].style.height);
+                    dv.children[i].style.backgroundColor = c();
+                }
+            }
+
+            for (var i = Math.floor(dv.children.length / 1.3) ; i < Math.floor(dv.children.length) ; i++)
+            {
+                if (parseFloat(dv.children[i].style.left) < -parseFloat(dv.children[i].style.width))
+                {
+                    dv.children[i].style.width = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.height = Math.floor(Math.random() * uu) + "px";
+                    dv.children[i].style.left = innerWidth + "px";
+                    dv.children[i].style.left = Math.floor(Math.random() * 999) % innerHeight + -Math.floor(Math.random() * 999) % parseFloat(dv.children[i].style.height);
+                    dv.children[i].style.backgroundColor = c();
+                }
+            }
+
+            requestAnimationFrame(render);
+        }
+        jj = Math.floor(Math.random() * Date.now()) % 2;
+        jjj = Math.floor(Math.random() * Date.now()) % 2;
+        function c()
+        {
+            if (a1)
+            {
+                g = Math.floor(Math.random() * 256);
+                b = Math.floor(Math.random() * 256);
+                r = Math.floor(Math.random() * 256);
+            }
+            else
+            {
+                switch (rgb)
+                {
+                    case 'r':
+                        g = Math.floor(Math.random() * 256);
+                        b = Math.floor(Math.random() * 256);
+                        if (jj == 0)
+                            if (jjj == 0)
+                                r = g - b;
+                            else
+                                r = b - g;
+                        else
+                            r = b + g;
+                        break;
+                    case 'g':
+                        b = Math.floor(Math.random() * 256);
+                        r = Math.floor(Math.random() * 256);
+                        if (jj == 0)
+                            if (jjj == 0)
+                                g = b - r;
+                            else
+                                g = r - b;
+                        else
+                            g = r + b;
+                        break;
+                    case 'b':
+                        g = Math.floor(Math.random() * 256);
+                        r = Math.floor(Math.random() * 256);
+                        if (jj == 0)
+                            if (jjj == 0)
+                                b = g - r;
+                            else
+                                b = r - g;
+                        else
+                            b = r + g;
+                        break;
+                }
+            }
+            return "rgb(" + r + ", " + g + ", " + b + ")";
+        }
+        window.addEventListener("load", function ()
+        {
+            setTimeout(function () { sq_init(); }, 200);
+        }, true);
+        window.addEventListener("load", function ()
+        {
+            if (localStorage.getItem(0))
+                ifttl = true;
+            else
+                ifttl = false;
+            if (!ifttl)
+            {
+                alert("Click background to change colors");
+                localStorage.setItem(0, 0);
+            }
+        }, true);
+        document.querySelector("*").addEventListener("click", function () { s(); }, true)
+        function s()
+        {
+            jj = Math.floor(Math.random() * Date.now()) % 2;
+            jjj = Math.floor(Math.random() * Date.now()) % 2;
+            if (Math.floor(Math.random() * Date.now()) % 3 == 0)
+                a1 = true;
+            else
+            {
+                a1 = false;
+                switch (Math.floor(Math.random() * Date.now()) % 3)
+                {
+                    case 0:
+                        rgb = 'r';
+                        break;
+                    case 1:
+                        rgb = 'g';
+                        break;
+                    case 2:
+                        rgb = 'b';
+                }
+            }
+            for (var i = 0 ; i < dv.children.length ; i++)
+            {
+                dv.children[i].style.backgroundColor = c();
+            }
+        }
+    </script>
+</head>
+<body onresize="javascript: location.reload();">
+    <div id="dv">
+
+    </div>
+</body>
+</html>

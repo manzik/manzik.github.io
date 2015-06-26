@@ -1,0 +1,64 @@
+<html>
+<body>
+    <script type="text/javascript">
+        var ih = innerHeight;
+        var iw = innerWidth;
+        var r = ih / 4;
+        function pos(x, y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        window.onload = function ()
+        {
+            gene();
+        }
+        function gene()
+        {
+            c = document.getElementById("c");
+            c.height = ih;
+            c.width = iw;
+            ctx = c.getContext("2d");
+            ctx.clearRect(0, 0, iw, ih);
+            ctx.translate(iw / 2, ih / 2);
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+            p1 = new pos(Math.round(Math.random() * iw) - iw / 2, Math.round(Math.random() * ih) - ih / 2);
+            ctx.beginPath();
+            ctx.arc(p1.x, p1.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+            var p2x, p2y;
+            d = Math.sqrt(Math.pow(p1.x, 2) + Math.pow( p1.y, 2)); console.log(d);
+            d = r / d;
+            p2 = new pos(p1.x * d, p1.y * d);
+            ctx.beginPath();
+            ctx.arc(p2.x, p2.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.closePath();
+            d1 = Math.sqrt(Math.pow(p2.x, 2) + Math.pow(p2.y, 2)) / Math.sqrt(Math.pow(p1.x, 2) + Math.pow(p1.y, 2));
+            p3 = new pos(d1 * p2.x, d1 * p2.y);
+            ctx.beginPath();
+            ctx.arc(p3.x, p3.y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+        }
+        function rev_from(a, b)
+        {
+            return b - a + b;
+        }
+    </script>
+    <div id="d">
+        <canvas id="c" style="left:0;top:0;position:fixed;" onclick="gene()"></canvas>
+    </div>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
+<html>
+<head>
+    <title>Connections 3D | Manzik lab</title>
+    <style id="s">
+        canvas
+        {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: -1;
+        }
+    </style>
+    <script src="http://manzik.co/js/ask.js"></script>
+    <script>
+        (function (i, s, o, g, r, a, m)
+        {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+            {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-52938764-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+    <script src="three.min.js"></script>
+    <script src="dat.gui.min.js"></script>
+    <script>
+        var s = function ()
+        {
+            if (localStorage)
+                this.amount = parseInt(localStorage.getItem("connections3d_2"));
+            else
+                this.amount = parseInt(window.localStorage.getItem("connections3d_2"));
+        };
+
+        window.onload = function ()
+        {
+            var text = new s();
+            var gui = new dat.GUI();
+            var controller = gui.add(text, 'amount', 1, 5000).step(1);
+            controller.onFinishChange(function (value)
+            {
+                if (localStorage)
+                    localStorage.setItem("connections3d_2", value);
+                else
+                    window.localStorage.setItem("connections3d_2", value);
+                location.reload();
+            });
+        };
+    </script>
+    <script>
+        if (localStorage)
+        {
+            if (localStorage.getItem("connections3d_2") == null)
+            {
+                localStorage.setItem("connections3d_2", 100);
+            }
+            if (localStorage.getItem("connections3d_0") != "0")
+            {
+                alert("Click backgroud to change mode(If you use Google Chrome or Safari)\nalso you can change amount of dots using the input field in upper right corner.");
+                localStorage.setItem("connections3d_0", "0");
+            }
+            if (!localStorage.getItem("connections3d_1") < 5)
+            {
+                localStorage.setItem("connections3d_0", 0);
+            }
+            else
+                mode = parseInt(localStorage.getItem("connections3d_1"));
+            if (localStorage.getItem("connections3d_1") == "1")
+            {
+                document.getElementById("s").innerHTML = " canvas{z-index: -1;position: fixed;left: 0; top: 0;filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);}";
+            }
+            var a = parseInt(localStorage.getItem("connections3d_2"));
+        }
+        else
+        {
+            if (window.localStorage.getItem("connections3d_2") == null)
+            {
+                window.localStorage.setItem("connections3d_2", 100);
+            }
+            if (window.localStorage.getItem("connections3d_0") != "0")
+            {
+                alert("Click backgroud to change mode(If you use Google Chrome or Safari)\nalso you can change amount of dots using the input field in upper right corner.");
+                window.localStorage.setItem("connections3d_0", "0");
+            }
+            if (!window.localStorage.getItem("connections3d_1") < 5)
+            {
+                window.localStorage.setItem("connections3d_0", 0);
+            }
+            else
+                mode = parseInt(localStorage.getItem("connections3d_1"));
+            if (window.localStorage.getItem("connections3d_1") == "1")
+            {
+                document.getElementById("s").innerHTML = " canvas{z-index: -1;position: fixed;left: 0; top: 0;filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);}";
+            }
+            var a = parseInt(window.localStorage.getItem("connections3d_2"));
+        }
+
+        function d()
+        {
+            this.x = 0;
+            this.y = 0;
+            this.z = 0;
+        };
+        var o = [];
+        var os = [];
+        var oss = [];
+        sp = 0.2;
+        var linegeometry;
+        change_direction_chance = 5;
+        for (var i = 0; i < a; i++)
+        {
+            os[i] = new d();
+            os[i].x = Math.random() * sp - sp / 2;
+            os[i].y = Math.random() * sp - sp / 2;
+        }
+        for (var i = 0; i < a; i++)
+        {
+            oss[i] = new d();
+        }
+        addEventListener("load", function ()
+        {
+            make_points();
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.z = 100;
+            scene = new THREE.Scene();
+            renderer = new THREE.CanvasRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColorHex(0xffffff);
+            document.body.appendChild(renderer.domElement);
+            c = [];
+            l = [];
+            var linegeometry = new THREE.Geometry();
+            for (var i = 0; i < a; i++)
+            {
+                var material = new THREE.SpriteCanvasMaterial({
+
+                    color: 0x000000,
+                    program: function (context)
+                    {
+
+                        context.beginPath();
+                        context.arc(0, 0, 2, 0, Math.PI * 2, true);
+                        context.fill();
+
+                    }
+
+                });
+
+                var geometry = new THREE.Geometry();
+                c[i] = new THREE.Sprite(material, { fog: true });
+                c[i].scale.x = c[i].scale.y = 1;
+                c[i].position.x = o[i].x;
+                c[i].position.y = o[i].y;
+                c[i].position.z = o[i].z;
+                scene.add(c[i]);
+
+            }
+            var material = new THREE.LineBasicMaterial({
+                color: 0x000000
+            });
+            for (var i = 0; i < a; i++)
+                linegeometry.vertices.push(new THREE.Vector3(o[i].x, o[i].y, o[i].z));
+            l = new THREE.Line(linegeometry, material);
+            scene.add(l);
+
+            linegeometry.verticesNeedUpdate = true;
+            renderer.render(scene, camera);
+            linegeometry.vertices.push(new THREE.Vector3(o[0].x, o[0].y, o[0].z));
+            l = new THREE.Line(linegeometry, material);
+            scene.add(l);
+            render(linegeometry);
+            document.getElementsByTagName("canvas")[1].onclick = function () { occ(); c(); };
+        }, true);
+        var sr = false;
+        function render(linegeometry)
+        {
+            for (var i = 0; i < a; i++)
+            {
+                try
+                {
+                    oss[i].x += (os[i].x) / (sp * 10);
+                    oss[i].y += (os[i].y) / (sp * 10);
+                    oss[i].z += (os[i].y) / (sp * 10);
+                }
+                catch (y) { }
+
+                if (Math.floor(Math.random() * Date.now()) % change_direction_chance == 0)
+                {
+                    os[i].x = Math.random() * sp - sp / 2;
+                    os[i].y = Math.random() * sp - sp / 2;
+                    os[i].z = Math.random() * sp - sp / 2;
+                }
+
+                if (o[i].z < 0)
+                oss[i].z = sp;
+                if (o[i].z > 200)
+                oss[i].z = -sp;
+                if (o[i].x > (innerWidth / 19))
+                    oss[i].x = -sp;
+                if (o[i].x < (-innerWidth / 19))
+                    oss[i].x = sp;
+                if (o[i].y < (-innerHeight / 19))
+                    oss[i].y = sp;
+                if (o[i].y > (innerHeight / 19))
+                    oss[i].y = -sp;
+                limit = 0.7;
+                if (oss[i].z < -limit||oss[i].z > limit)
+                    oss[i].z = -limit;
+                if (oss[i].x > limit||oss[i].x < -limit)
+                    oss[i].x = limit;
+                if (oss[i].y < -limit||oss[i].y > limit)
+                    oss[i].y = -limit;
+
+                try
+                {
+                    o[i].x += oss[i].x;
+                    o[i].y += oss[i].y;
+                    o[i].z += oss[i].y;
+                } catch (u) { }
+
+                c[i].position.x = o[i].x;
+                c[i].position.y = o[i].y;
+                c[i].position.z = o[i].z;
+                l.geometry.vertices[i].x = o[i].x;
+                l.geometry.vertices[i].y = o[i].y;
+                l.geometry.vertices[i].z = o[i].z;
+            }
+            l.geometry.vertices[a].x = o[0].x;
+            l.geometry.vertices[a].y = o[0].y;
+            l.geometry.vertices[a].z = o[0].z;
+            var requestAnimationFrame = window.requestAnimationFrame ||
+                            window.mozRequestAnimationFrame ||
+                            window.webkitRequestAnimationFrame ||
+                            window.msRequestAnimationFrame;
+            if (!sr)
+            {
+                renderer.autoClear=true;
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
+            }
+        }
+        function make_points()
+        {
+            for (var i = 0; i < a; i++)
+            {
+                o[i] = new d();
+            }
+            for (var i = 0; i < a; i++)
+            {
+                o[i].x = Math.floor(Math.random() * Date.now()) % (innerWidth / 6.8) - (innerWidth / 6.8) / 2;
+                o[i].y = Math.floor(Math.random() * Date.now()) % (innerHeight / 7) - (innerHeight / 7) / 2;
+                o[i].z = Math.floor(Math.random() * Date.now()) % 100;
+            }
+        }
+        function or()
+        {
+            document.getElementsByTagName("canvas")[1].height = innerHeight;
+            document.getElementsByTagName("canvas")[1].width = innerWidth;
+        }
+        mode = 0;
+        function occ()
+        {
+            if (mode == 0)
+            {
+                mode = 1;
+            }
+            else
+                if (mode == 1)
+                {
+                    mode = 0;
+                }
+            switch (mode)
+            {
+                case 0:
+                    document.getElementById("s").innerHTML = "canvas{position: fixed;left: 0;top: 0;z-index: -1;}";
+                    renderer.setClearColorHex(0xffffff);
+                    localStorage.setItem("connections3d_1", 0);
+                    break;
+                case 1:
+                    document.getElementById("s").innerHTML = " canvas{filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);position: fixed;left: 0;top: 0;z-index: -1;}";
+                    localStorage.setItem("connections3d_1", 1);
+                    break;
+            }
+        }
+        function c()
+        {
+            if (mode == 0)
+            {
+                mode = 1;
+            }
+            else
+                if (mode == 1)
+                {
+                    mode = 0;
+                }
+            switch (mode)
+            {
+                case 0:
+                    document.getElementById("s").innerHTML = "canvas{position: fixed;left: 0;top: 0;z-index: -1;}";
+                    localStorage.setItem("connections3d_1", 0);
+                    break;
+                case 1:
+                    document.getElementById("s").innerHTML = " canvas{filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);position: fixed;left: 0;top: 0;z-index: -1;}";
+                    localStorage.setItem("connections3d_1", 1);
+                    break;
+            }
+        }
+    </script>
+</head>
+<body onresize="or();">
+    <canvas style="display:none;"></canvas>
+</body>
+</html>

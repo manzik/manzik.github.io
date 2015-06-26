@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>
+
+    </title>
+    <meta name="description" content="SUMMER LOADING">
+    <style>
+        body
+        {
+            background-color: #11a9e2;
+        }
+
+        span
+        {
+            width: 100%;
+            position: fixed;
+            text-align: center;
+            font-size: 90px;
+            color: white;
+            font-family: 'B Baran';
+            left:0;
+            text-shadow: 0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
+        }
+
+        #s1
+        {
+            top: 15%;
+            position: fixed;
+        }
+
+        #s2
+        {
+            top: 50%;
+            position: fixed;
+        }
+
+        #ps
+        {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        progress::-webkit-progress-bar
+        {
+            background: #EEE;
+        }
+
+        progress::-webkit-progress-value
+        {
+            background: #11a9e2;
+        }
+
+        progress::-moz-progress-bar
+        {
+            background: #11a9e2;
+        }
+
+        }
+    </style>
+    <script>
+        var emts =
+            [
+
+            ];
+        var rooze, prev = 0;
+        window.addEventListener("load", function ()
+        {
+            d = new Date();
+            df = new Date("2015", "5", "13", 0, 0, 0, 0);
+            ds = new Date("2015", "4", "22", 0, 0, 0, 0);
+            el_arr = document.getElementsByClassName("s");
+            or();
+            rooze =
+            {
+                shoroo: { d: ((ds.getMonth() - 4) * 31 + ds.getDate()), n: ds.getTime() },
+                payan: { d: ((df.getMonth() - 4) * 31 + df.getDate()), n: df.getTime() },
+                alan: { d: ((d.getMonth() - 4) * 31 + d.getDate()), n: d.getTime() }
+            };
+            rooze.tedad = { d: rooze.payan.d - rooze.shoroo.d, n: rooze.payan.n - rooze.shoroo.n };
+            rooze.mande = { d: rooze.payan.d - rooze.alan.d, n: rooze.payan.n - rooze.alan.n };
+            rooze.rafte = { d: rooze.alan.d - rooze.shoroo.d, n: rooze.alan.n - rooze.shoroo.n };
+            raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (x) { window.setTimeout(x, 1000 / 60); } || requestAnimationFrame
+                if (rooze.payan.n - d.getTime() < 0)
+                {
+                    document.getElementById("bb").innerHTML = "امتحاناته لعنتی تموم شد!";
+                    document.getElementById("ps").value = 100;
+                }
+                else
+                    setdata();
+            });
+            function setdata()
+            {
+                d = new Date();
+                rooze.alan.d = ((d.getMonth() - 4) * 31 + d.getDate()); rooze.alan.n = d.getTime();
+                rooze.mande.d = rooze.payan.d - rooze.alan.d; rooze.mande.n = rooze.payan.n - rooze.alan.n;
+                rooze.rafte.d = rooze.alan.d - rooze.shoroo.d; rooze.rafte.n = rooze.alan.n - rooze.shoroo.n;
+                if (prev != rooze.mande.d)
+                {
+                    el_arr[0].innerHTML = String(rooze.mande.d) + " روز مانده";
+                    prev = rooze.mande.d;
+                }
+                var darsad = (100 * rooze.rafte.n / rooze.tedad.n).toFixed(7);
+                el_arr[1].innerHTML = String(darsad) + "%";
+                document.getElementById("ps").value = darsad;
+                raf(setdata);
+            }
+            function or()
+            {
+                iwprev = innerWidth;
+                el_arr[0].style.fontSize = innerWidth / 11 + "px";
+                el_arr[1].style.fontSize = innerWidth / 11 + "px";
+            }
+            window.addEventListener("resize", or, false);
+            window.addEventListener("orientationchange", or, false);
+            var iwprev;
+            setInterval(function ()
+            {
+                if (iwprev != innerWidth)
+                {
+                    or();
+                }
+            }, 500);
+    </script>
+</head>
+<body>
+    <div dir="rtl">
+        <span class="s" id="s1"></span><br />
+        <span class="s" id="s2"></span><br />
+
+        <span class="s" id="s3"></span><br />
+        <span class="s" id="s4"></span><br />
+        <span class="s" id="s5"></span><br />
+        <progress id="ps" style="position: fixed; width: 100%; height: 100%; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); border: 0; z-index: -1; " max="100"></progress>
+    </div>
+</body>
+</html>

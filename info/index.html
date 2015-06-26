@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Manzik information</title>
+    <link rel="icon" type="image/png" href="http://manzik.co/ico.png">
+    <!--[if IE]><link rel="SHORTCUT ICON" href="http://manzik.co/ico.ico"/><![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="description" content="Manzik Information">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="dc.identifier" content="http://www.manzik.co/">
+    <meta name="author" content="Mohsen Yousefian">
+    <link href="https://plus.google.com/103054205066127585599" rel="publisher">
+    <meta name="keywords" content="manzik, mohsen, yousefian, mohsen yousefian, javascript, html, css, jquery, php, c++, flash, code, developer, motion,  design, experiments, games">
+    <link rel="stylesheet" href="css/general.css">
+    <script src="js/general.js" defer=""></script>
+    <script src="js/loading_start.js" async=""></script>
+    <script src="js/loading_finish.js" defer=""></script>
+    <script src="http://manzik.co/js/ask.js"></script>
+    <script>
+        (function (i, s, o, g, r, a, m)
+        {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+            {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-52938764-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+    <script>
+        function selectText(element)
+        {
+            var doc = document;
+            var text = doc.getElementById(element);
+
+            if (doc.body.createTextRange)
+            { // ms
+                var range = doc.body.createTextRange();
+                range.moveToElementText(text);
+                range.select();
+            } else if (window.getSelection)
+            { // moz, opera, webkit
+                var selection = window.getSelection();
+                var range = doc.createRange();
+                range.selectNodeContents(text);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+
+        function doc_keyUp(e)
+        {
+            if (e.ctrlKey && e.keyCode == 65)
+            {
+                selectText("ci");
+            }
+        }
+        document.addEventListener('keyup', doc_keyUp, false);
+    </script>
+    <noscript>
+        <style>
+            #ns
+            {
+                display: block !important;
+            }
+
+            #bb
+            {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+</head>
+<body onload="onload(); onload2();" onresize="onload(); ore();" onerror="javascript: alert('Sorry, error. Please try again.')">
+    <div id="bd"></div>
+    <div style="position:absolute; top: 10%; left: 50%; transform: translate(-50%,0);"><b id="mi" style="">Manzik Info</b></div>
+    <div style="width:100%;height:100%;position: absolute; color: white;  left: 50%; transform: translate(-50%,0); "><a href="mailto:mohsenyousefian77@gmail.com"><span id="ci" style="position: absolute; color: white; top: 45%; left: 50%; transform: translate(-50%,0); ">mohsenyousefian77@gmail.com</span></a></div>
+    <div style="height:20%;width:100%;top:calc(78%);position:absolute;" id="dvv">
+        <div class="imd" style="left: 30%; position: absolute;">
+            <a href="https://www.facebook.com/mohsen.yousefian" target="_blank"><img alt="My Facebook account" title="My Facebook account" class="im" src="img/fb.png" /></a>
+        </div>
+
+        <div class="imd" style="left: 43.3%; position: absolute;">
+            <a href="https://twitter.com/u3fian" target="_blank"><img alt="My Twitter account" title="My Twitter account" class="im" src="img/tb.png" /></a>
+        </div>
+
+        <div class="imd" style="left: 56.6%; position: absolute;">
+            <a href="https://plus.google.com/103054205066127585599" target="_blank"><img alt="My Google+ account" title="My Google+ account" class="im" src="img/gb.png" /></a>
+        </div>
+
+        <div class="imd" style="left: 70%;position:absolute;">
+            <a href="https://instagram.com/u3fian/" target="_blank"><img alt="My Instagram account" title="My Instagram account" class="im" src="img/ib.png" /></a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
+<html>
+<head>
+    <title>Connections | Manzik lab</title>
+    <meta charset="us-ascii" />
+    <style id="s">
+    </style>
+    <script src="/js/ask.js"></script>
+    <script>
+        //(function (i, s, o, g, r, a, m)
+        //{
+        //    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+        //    {
+        //        (i[r].q = i[r].q || []).push(arguments)
+        //    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        //    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        //})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        //ga('create', 'UA-52938764-1', 'auto');
+        //ga('send', 'pageview');
+    </script>
+    <script src="dat.gui.min.js"></script>
+    <script>
+        var o = [], os = [], oss = [], sp = 0.01, change_direction_chance = 5, u = false
+       , vv = [], options, mi = false, a = getls("connections_2") == null ? 100 : parseInt(getls("connections_2"))
+       , mpos = { x: "", y: "" }, ram = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (x) { window.setTimeout(x, 1000 / 60); } || requestAnimationFrame
+        , mstr = "canvas{filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);}", tlld, PI2 = Math.PI * 2, spt = sp * 10, sph = sp * 100, ih = innerHeight, iw = innerWidth;
+        function point()
+        {
+            this.x = 0;
+            this.y = 0;
+            this.c = { c: "", r: 0, b: 0, g: 0 };
+        }
+        function getls(id)
+        {
+            if (localStorage)
+                return localStorage.getItem(id);
+            else
+                return window.localStorage.getItem(id);
+        }
+        function setls(id, val)
+        {
+            if (localStorage)
+                localStorage.setItem(id, val);
+            else
+                window.localStorage.setItem(id, val);
+        }
+        addEventListener("load", function ()
+        {
+            c = document.getElementById("c");
+            if (!!(c.getContext && c.getContext('2d')))
+            {
+                init();
+                make_points();
+                render();
+            }
+            else
+            {
+                alert("Your browser doesn't support canvas.");
+            }
+        }, true);
+        function init()
+        {
+            c.height = ih;
+            c.width = iw;
+            ctx = c.getContext("2d");
+            options = new options_obj();
+            var gui = new dat.GUI();
+            controller = gui.add(options, "amount", 1).step(1).name("Amount");
+            controller9 = gui.add(options, "cr", 0).name("Circle radius").step(0.1);
+            controller3 = gui.add(options, "r").name("Ring");
+            controller4 = gui.add(options, "g").name("Color gradient");
+            controller5 = gui.add(options, "m1").name("Mode 1").listen();
+            controller6 = gui.add(options, "m2").name("Mode 2").listen();
+            controller7 = gui.add(options, "ll", 0, Math.round(Math.sqrt(Math.pow(ih, 2) + Math.pow(iw, 2)))).step(1).name("Line length");
+            controller8 = gui.add(options, "lw", 1, 100).step(1).name("Line width");
+            controller10 = gui.add(options, "s", 0, 5).name("Speed").step(0.01);
+            controller11 = gui.add(options, "pg", 0, 20).name("Pointer gravity").step(0.01);
+            gui.add(options, "mode").name("Invert colors");
+            gui.add(options, "tips").name("Tips");
+            controller11.onFinishChange(function (v)
+            {
+                setls("connections_11", parseFloat(v));
+            });
+            controller10.onFinishChange(function (v)
+            {
+                setls("connections_10", parseFloat(v));
+            });
+            controller9.onFinishChange(function (v)
+            {
+                setls("connections_9", parseFloat(v));
+            });
+            controller8.onFinishChange(function (v)
+            {
+                setls("connections_8", parseInt(v));
+            });
+            controller7.onFinishChange(function (v)
+            {
+                setls("connections_7", parseInt(v));
+            });
+            controller5.onFinishChange(function (v)
+            {
+                setls("connections_6", true);
+                //<****>
+                options.m2 = false;
+                options.m1 = true;
+                //</****>
+                if (!tlld)
+                    toggletlld();
+            });
+            controller6.onFinishChange(function (v)
+            {
+                setls("connections_6", false);
+                //<****>
+                options.m1 = false;
+                options.m2 = true;
+                //</****>
+                if (tlld)
+                    toggletlld();
+            });
+            controller4.onFinishChange(function (v)
+            {
+                setls("connections_5", v);
+            });
+            controller.onFinishChange(function (v)
+            {
+                setls("connections_2", v);
+                if (v > a)
+                    for (var i = a - 1, j = v + 1; i < j; i++)
+                    {
+                        o[i] = new point();
+                        o[i].x = Math.round(Math.random() * iw);
+                        o[i].y = Math.round(Math.random() * ih);
+                        var c = cc();
+                        o[i].c.c = c[0];
+                        o[i].c.r = c[1];
+                        o[i].c.g = c[2];
+                        o[i].c.b = c[3];
+                        os[i] = new point();
+                        os[i].x = Math.random() * sp - sp / 2;
+                        os[i].y = os[i].x;
+                        oss[i] = new point();
+                    }
+                a = v;
+            });
+            controller3.onFinishChange(function (v)
+            {
+                setls("connections_4", v);
+            });
+            elm = document.getElementsByClassName("cr number has-slider")[0];
+            if (tlld)
+                elm.style.display = "none";
+            else
+                elm.style.display = "block";
+            init_meh();
+        }
+        function init_meh()
+        {
+            c.addEventListener("mouseenter", function ()
+            {
+                mi = true;
+            });
+            c.addEventListener("mouseout", function ()
+            {
+                mi = false;
+            });
+            c.addEventListener("mousemove", function (e)
+            {
+                mi = true;
+                mpos.x = e.x;
+                mpos.y = e.y;
+            });
+            c.addEventListener("mouseover", function (e)
+            {
+                mi = true;
+                mpos.x = e.x;
+                mpos.y = e.y;
+            });
+        }
+        function make_points()
+        {
+            for (var i = 0; i < a; i++)
+            {
+                o[i] = new point();
+                o[i].x = Math.round(Math.random() * iw);
+                o[i].y = Math.round(Math.random() * ih);
+                var c = cc();
+                o[i].c.c = c[0];
+                o[i].c.r = c[1];
+                o[i].c.g = c[2];
+                o[i].c.b = c[3];
+                if (i > 0)
+                    vv[i] = "rgb(" + Math.round(o[i].c.r + o[i - 1].c.r / 2) + "," + Math.round(o[i].c.g + o[i - 1].c.g / 2) + "," + Math.round(o[i].c.b + o[i - 1].c.b / 2) + ")";
+            }
+        }
+        function options_obj()
+        {
+            this.mode = occ;
+            this.tips = tips;
+            if (getls("connections_10"))
+            {
+                this.s = parseFloat(getls("connections_10"));
+            }
+            else
+            {
+                setls("connections_10", 1);
+                this.s = 1;
+            }
+            if (getls("connections_2") == null)
+                setls("connections_2", 100);
+            if (getls("connections_0") != "0")
+            {
+                tips();
+                setls("connections_0", "0");
+            }
+            if (getls("connections_1") == undefined)
+            {
+                setls("connections_1", true);
+                mode = true;
+            }
+            else
+                mode = getls("connections_1") == "true";
+            if (mode)
+                document.getElementById("s").innerHTML = mstr;
+            mode = !mode;
+            this.amount = parseInt(getls("connections_2"));
+            if (getls("connections_4"))
+                this.r = getls("connections_4") == "true";
+            else
+            {
+                this.r = false;
+                setls("connections_4", false);
+            }
+            if (getls("connections_5"))
+                this.g = getls("connections_5") == "true";
+            else
+            {
+                this.g = true;
+                setls("connections_5", true);
+            }
+            if (getls("connections_6"))
+            {
+                this.m1 = (getls("connections_6") == "true");
+                tlld = this.m1;
+            }
+            else
+            {
+                this.m1 = false;
+                setls("connections_6", false);
+            }
+            if (getls("connections_7"))
+                this.ll = parseInt(getls("connections_7"));
+            else
+            {
+                this.ll = 120;
+                setls("connections_7", 120);
+            }
+            if (getls("connections_8"))
+                this.lw = parseInt(getls("connections_8"));
+            else
+            {
+                this.lw = 20;
+                setls("connections_8", 20);
+            }
+            if (getls("connections_9"))
+                this.cr = parseFloat(getls("connections_9"));
+            else
+            {
+                this.cr = 7;
+                setls("connections_9", 7);
+            }
+            if (getls("connections_11"))
+                this.pg = parseFloat(getls("connections_11"));
+            else
+            {
+                this.pg = 1;
+                setls("connections_11", 1);
+            }
+            this.m2 = !this.m1;
+        }
+        for (var i = 0; i < a; i++)
+        {
+            os[i] = new point();
+            os[i].x = Math.random() * sp - sp / 2;
+            os[i].y = os[i].x;
+            oss[i] = new point();
+        }
+        function render()
+        {
+
+
+            if (u)
+            {
+                if (mi && mpos.x != "" && mpos.y != "")
+                    for (var i = 0; i < a; i++)
+                    {
+                        oss[i].x += (mpos.x - rev_from(o[i].x, o[i].x < mpos.x ? mpos.x - iw / 2 : mpos.x + iw / 2)) / 1500 * options.pg;
+                        oss[i].y += (mpos.y - rev_from(o[i].y, o[i].y < mpos.y ? mpos.y - ih / 2 : mpos.y + ih / 2)) / 1500 * options.pg;
+                    }
+            }
+            else
+                for (var i = 0; i < a; i++)
+                {
+                    oss[i].x += (os[i].x) / (spt);
+                    oss[i].y += (os[i].y) / (spt);
+                    if (Math.round(Math.random() * change_direction_chance) == 0)
+                    {
+                        os[i].x = Math.random() * sp - sp / 2;
+                        os[i].y = Math.random() * sp - sp / 2;
+                    }
+                }
+            for (var i = 0; i < a; i++)
+            {
+                if (o[i].x > iw)
+                    oss[i].x = -sph;
+                if (o[i].x < 0)
+                    oss[i].x = sph;
+                if (o[i].y > ih)
+                    oss[i].y = -sph;
+                if (o[i].y < 0)
+                    oss[i].y = sph;
+                o[i].x += oss[i].x * options.s;
+                o[i].y += oss[i].y * options.s;
+            }
+
+            if (mi && mpos.x != "" && mpos.y != "" && !u)
+                for (var i = 0; i < a; i++)
+                {
+                    var rf = Math.sqrt(Math.pow(o[i].x - mpos.x, 2) + Math.pow(mpos.y - o[i].y, 2));
+                    if (rf < 70)
+                    {
+                        oss[i].x += (o[i].x - mpos.x < 0 ? -rev_from(rf, 35) : rev_from(rf, 35)) / 700 * ((options.s + 1) / 1.5);
+                        oss[i].y += (o[i].y - mpos.y < 0 ? -rev_from(rf, 35) : rev_from(rf, 35)) / 700 * ((options.s + 1) / 1.5);
+                    }
+                }
+            ctx.clearRect(0, 0, c.width, c.height);
+            line();
+            dot();
+            ram(render);
+        }
+        function dot()
+        {
+            if (options.g)
+                for (var i = 0; i < a; i++)
+                {
+                    ctx.beginPath();
+                    ctx.fillStyle = o[i].c.c;
+                    ctx.arc(o[i].x, o[i].y, options.cr, 0, PI2);
+                    ctx.fill();
+                }
+            else
+            {
+                ctx.fillStyle = "black";
+                for (var i = 0; i < a; i++)
+                {
+                    ctx.beginPath();
+                    ctx.arc(o[i].x, o[i].y, options.cr, 0, PI2);
+                    ctx.fill();
+                }
+            }
+            if (options.r)
+                for (var i = 0; i < a; i++)
+                {
+                    ctx.beginPath();
+                    ctx.lineWidth = 1;
+                    rf = Math.sqrt(Math.pow(mpos.x - o[i].x, 2) + Math.pow(mpos.y - o[i].y, 2));
+                    var x = o[i].x;
+                    var y = o[i].y;
+                    ctx.strokeStyle = options.g ? o[i].c.c : "black";
+                    if (mi && rf < 70)
+                        arc(x, y, rf);
+                    else
+                        arc(x, y, 70);
+                    ctx.stroke();
+                }
+        }
+        function line()
+        {
+
+            ctx.lineWidth = 4 * (options.lw / 20);
+            if (options.m1)
+            {
+                if (options.g)
+                    for (var i = 0; i < a; i++)
+                    {
+                        var h = i == 0 ? a - 1 : i, k = i == 0 ? i : i - 1;
+                        ctx.beginPath();
+                        ctx.moveTo(o[h].x, o[h].y);
+                        ctx.lineTo(o[k].x, o[k].y);
+                        var grad = ctx.createLinearGradient(o[h].x, o[h].y, o[k].x, o[k].y);
+                        grad.addColorStop(1, o[k].c.c);
+                        grad.addColorStop(0, o[h].c.c);
+                        ctx.strokeStyle = grad;
+                        ctx.stroke();
+                    }
+                else
+                {
+                    ctx.strokeStyle = "black";
+                    for (var i = 0; i < a; i++)
+                    {
+                        var h = i == 0 ? a - 1 : i, k = i == 0 ? i : i - 1;
+                        ctx.beginPath();
+                        ctx.moveTo(o[h].x, o[h].y);
+                        ctx.lineTo(o[k].x, o[k].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            else
+            {
+                var lw = options.lw / 2000;
+                var ll2 = options.ll / 2;
+                if (options.g)
+                    for (var i = 0; i < a; i++)
+                    {
+                        for (var j = i; j < a; j++)
+                            if (Math.sqrt(Math.pow(o[i].x - o[j].x, 2) + Math.pow(o[i].y - o[j].y, 2)) < options.ll)
+                            {
+                                var grad = ctx.createLinearGradient(o[i].x, o[i].y, o[j].x, o[j].y);
+                                grad.addColorStop(0, o[i].c.c);
+                                grad.addColorStop(1, o[j].c.c);
+                                ctx.strokeStyle = grad;
+                                ctx.beginPath();
+                                ctx.moveTo(o[i].x, o[i].y);
+                                ctx.lineWidth = rev_from(Math.sqrt(Math.pow(o[i].x - o[j].x, 2) + Math.pow(o[i].y - o[j].y, 2)) / options.ll, 0.5) * (options.lw / 4);
+                                ctx.lineTo(o[j].x, o[j].y);
+                                ctx.stroke();
+                            }
+                    }
+                else
+                {
+                    ctx.strokeStyle = "black";
+                    for (var i = 0; i < a; i++)
+                    {
+                        for (var j = 0; j < a; j++)
+                            if (i > j && Math.sqrt(Math.pow(o[i].x - o[j].x, 2) + Math.pow(o[i].y - o[j].y, 2)) < options.ll)
+                            {
+                                ctx.beginPath();
+                                ctx.moveTo(o[i].x, o[i].y);
+                                ctx.lineWidth = rev_from(Math.sqrt(Math.pow(o[i].x - o[j].x, 2) + Math.pow(o[i].y - o[j].y, 2)) / options.ll, 0.5) * (options.lw / 4);
+                                ctx.lineTo(o[j].x, o[j].y);
+                                ctx.stroke();
+                            }
+                    }
+                }
+            }
+        }
+        function arc(x, y, r)
+        {
+            ctx.arc(x, y, r, 0, PI2);
+        }
+        function tips()
+        {
+            alert("You can change options using control panel at the top-right corner.\nYou can hide/show the control panel using \"H\" key.\nFirst click on background will make gravity for pointer and second click will disable gravity and make an explosion.\nAlso dots avoid the pointer.");
+        }
+        function switch_g()
+        {
+            u = !u;
+            if (!u)
+            {
+                for (var i = 0; i < a; i++)
+                {
+                    oss[i].x = (o[i].x - mpos.x) / 2;
+                    oss[i].y = (o[i].y - mpos.y) / 2;
+                }
+            }
+        };
+        function occ()
+        {
+            mode = !mode;
+            if (mode)
+            {
+                document.getElementById("s").innerHTML = "";
+                setls("connections_1", false);
+            }
+            else
+            {
+                document.getElementById("s").innerHTML = mstr;
+                setls("connections_1", true);
+            }
+        }
+        function cc(a)
+        {
+
+            var r = 0;
+            var b = 0;
+            var g = 0;
+            while (r + b + g > 510 || r + b + g < 200)
+            {
+                r = crand();
+                b = crand();
+                g = crand();
+            }
+            return ["rgb(" + r + "," + g + "," + b + ")", r, g, b];
+        }
+        function crand()
+        {
+            return Math.round(Math.random() * 256);
+        }
+        function or()
+        {
+            ih = innerHeight;
+            iw = innerWidth;
+            c.height = ih;
+            c.width = iw;
+        }
+        function toggletlld()
+        {
+            tlld = !tlld;
+            elm = document.getElementsByClassName("cr number has-slider")[0];
+            if (tlld)
+                elm.style.display = "none";
+            else
+                elm.style.display = "block";
+        }
+        function rev_from(a, b)
+        {
+            return b - a + b;
+        }
+    </script>
+</head>
+<body onresize="or();">
+    <canvas id="c" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; " onclick="switch_g()"></canvas>
+</body>
+</html>

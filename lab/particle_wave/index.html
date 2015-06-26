@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="dat.gui.min.js"></script>
+    <script>
+        function opts()
+        {
+            this.p_dist = 15;
+            this.p_r = 4;
+            this.sp = 5;
+            this.wlt = 0.8;
+            this.wr=1.5;
+        }
+        window.onload = function ()
+        {
+            f = new opts();
+            var dg = new dat.GUI();
+            var ctrl1 = dg.add(f, "p_dist", 5, 100).name("particels distance");
+            ctrl1.onChange(init);
+            var ctrl1 = dg.add(f, "p_r", 0).name("particels radius");
+            var ctrl2 = dg.add(f, "sp", 0).name("Wave speed");
+            var ctrl3 = dg.add(f, "wlt", 0, 1).name("Wave life-time");
+            var ctrl4 = dg.add(f, "wr", 0.5, 5).name("Wave strength");
+            c = document.getElementById("c");
+            c.height = innerHeight;
+            c.width = innerWidth;
+            ctx = c.getContext("2d");
+            c.onclick = function (e)
+            {
+                w_arr.arr[w_arr.num] = new p(e.x, e.y);
+                w_arr.num++;
+            };
+            init();
+            Array.prototype.remove = function (val)
+            {
+                var i = val;
+                return this.splice(i, 1);
+            };
+            render();
+        };
+        function init()
+        {
+            p_arr = [];
+            for (var y = 0; y < innerHeight / f.p_dist + 1; y++)
+            {
+                p_arr[y] = [];
+                for (var x = 0; x < innerWidth / f.p_dist + 1; x++)
+                {
+                    p_arr[y][x] = new p((x) * (f.p_dist + ((innerWidth % f.p_dist) / Math.floor(innerWidth / f.p_dist))), (y) * (f.p_dist + ((innerHeight % f.p_dist) / Math.floor(innerHeight / f.p_dist))));
+                }
+            }
+        }
+        var p_arr = [];
+        var w_arr = { arr: [], num: 0 };
+        function p(x, y)
+        {
+            this.a = 1;
+            this.xp = this.yp = this.xm = this.ym = false;
+            this.x = x;
+            this.y = y;
+            this.r = 1;
+            this.a = 1;
+            this.c = {r:Math.round(Math.random() * 255) ,g: Math.round(Math.random() * 255) ,b: Math.round(Math.random() * 255)};
+        }
+        function render()
+        {
+            var g =f.wlt==1?1:rev_from(f.wlt, 0.5)*0.01;
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (var y = 0, m = p_arr.length; y < m ; y++)
+            {
+                for (var x = 0, b = p_arr[0].length; x < b; x++)
+                {
+                    p_arr[y][x].r = 0;
+                }
+            }
+            for (var i = 0; i < w_arr.arr.length; i++)
+            {
+                if (!w_arr.arr[i].xp && (w_arr.arr[i].r + w_arr.arr[i].x) > innerWidth)
+                {
+                    w_arr.arr[i].xp = true;
+                    w_arr.arr[w_arr.num] = new p(innerWidth + w_arr.arr[i].r, w_arr.arr[i].y);
+                    w_arr.arr[w_arr.num].r = w_arr.arr[i].r;
+                    w_arr.arr[w_arr.num].a = w_arr.arr[i].a;
+                    w_arr.arr[w_arr.num].xp = true;
+                    w_arr.arr[w_arr.num].yp = true;
+                    w_arr.arr[w_arr.num].ym = true;
+                    w_arr.num++;
+                }
+                if (!w_arr.arr[i].xm && (w_arr.arr[i].x - w_arr.arr[i].r) < 0)
+                {
+                    w_arr.arr[i].xm = true;
+                    w_arr.arr[w_arr.num] = new p(-w_arr.arr[i].r, w_arr.arr[i].y);
+                    w_arr.arr[w_arr.num].r = w_arr.arr[i].r;
+                    w_arr.arr[w_arr.num].a = w_arr.arr[i].a;
+                    w_arr.arr[w_arr.num].xm = true;
+                    w_arr.arr[w_arr.num].yp = true;
+                    w_arr.arr[w_arr.num].ym = true;
+                    w_arr.num++;
+                }
+                if (!w_arr.arr[i].ym && (w_arr.arr[i].y - w_arr.arr[i].r) < 0)
+                {
+                    w_arr.arr[i].ym = true;
+                    w_arr.arr[w_arr.num] = new p(w_arr.arr[i].x, -w_arr.arr[i].r);
+                    w_arr.arr[w_arr.num].r = w_arr.arr[i].r;
+                    w_arr.arr[w_arr.num].a = w_arr.arr[i].a;
+                    w_arr.arr[w_arr.num].ym = true;
+                    w_arr.arr[w_arr.num].xm = true;
+                    w_arr.arr[w_arr.num].xp = true;
+                    w_arr.num++;
+                }
+                if (!w_arr.arr[i].yp && (w_arr.arr[i].y + w_arr.arr[i].r) > innerHeight)
+                {
+                    w_arr.arr[i].yp = true;
+                    w_arr.arr[w_arr.num] = new p(w_arr.arr[i].x, innerHeight + w_arr.arr[i].r);
+                    w_arr.arr[w_arr.num].r = w_arr.arr[i].r;
+                    w_arr.arr[w_arr.num].a = w_arr.arr[i].a;
+                    w_arr.arr[w_arr.num].yp = true;
+                    w_arr.arr[w_arr.num].xm = true;
+                    w_arr.arr[w_arr.num].xp = true;
+                    w_arr.num++;
+                }
+                w_arr.arr[i].r += f.sp;
+                if (w_arr.arr[i].a > 0)
+                    w_arr.arr[i].a -= g;
+                else
+                {
+                    w_arr.arr[i].a = 0;
+                }
+                
+                for (var y = 0,m=p_arr.length; y <m ; y++)
+                {
+                    for (var x = 0, b = p_arr[0].length; x < b; x++)
+                    {
+                        var fo = Math.sqrt(Math.pow(p_arr[y][x].x - w_arr.arr[i].x, 2) + Math.pow(p_arr[y][x].y - w_arr.arr[i].y, 2)) - w_arr.arr[i].r;
+                        var r = 1 / Math.abs(fo) * 20 > p_arr[y][x].r ? 1 / Math.abs(fo) * 20 : p_arr[y][x].r;
+                        p_arr[y][x].r = (r > 2 ? 2 : r) * w_arr.arr[i].a > p_arr[y][x].r ? (r > 2 ? 2 : r) * w_arr.arr[i].a : p_arr[y][x].r;
+                    }
+                }
+
+                //ctx.beginPath();
+                //ctx.strokeStyle = "rgba(0,0,0," + w_arr.arr[i].a + ")";
+                //ctx.arc(w_arr.arr[i].x, w_arr.arr[i].y, w_arr.arr[i].r, 0, Math.PI * 2);
+                //ctx.closePath();
+                //ctx.stroke();
+            }
+            for (var y = 0, m = p_arr.length; y < m ; y++)
+            {
+                for (var x = 0, b = p_arr[0].length; x < b; x++)
+                {
+                    ctx.beginPath();
+                    ctx.arc(p_arr[y][x].x, p_arr[y][x].y, p_arr[y][x].r * f.wr + f.p_r, 0, Math.PI * 2);
+                    
+                    ctx.closePath();
+                    ctx.fillStyle = "rgb(" + String(p_arr[y][x].c.r - (p_arr[y][x].r <= f.p_r ? 0 : p_arr[y][x].r)) + "," + String(p_arr[y][x].c.g - (p_arr[y][x].r <= f.p_r ? 0 : p_arr[y][x].r)) + "," + String(p_arr[y][x].c.b - (p_arr[y][x].r <= f.p_r ? 0 : p_arr[y][x].r)) + ")";
+                    ctx.fill();
+                }
+            }
+            requestAnimationFrame(render);
+        };
+        function rev_from(a, b)
+        {
+            return b - a + b;
+        }
+        window.onresize = function ()
+        {
+            c.height = innerHeight;
+            c.width = innerWidth;
+            init();
+        }
+    </script>
+</head>
+<body>
+    <canvas id="c" style="left:0;position:fixed;top:0;margin:0;"></canvas>
+</body>
+</html>

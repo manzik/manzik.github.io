@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Manzik</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="description" content="Interactive web experiments created using JavaScript.">
+    <link rel="icon" type="image/png" href="ico.png">
+    <!--[if IE]><link rel="SHORTCUT ICON" href="ico.ico"/><![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="dc.identifier" content="http://www.manzik.co/">
+    <meta name="author" content="Mohsen Yousefian">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />-->
+    <meta name="keywords" content="manzik, mohsen, yousefian, mohsen yousefian, javascript, html, css, jquery, php, c++, flash, code, developer, motion,  design, experiments, games, interactive, experiments, web experiments">
+    <link rel="stylesheet" href="css/general.css">
+    <link href="https://plus.google.com/103054205066127585599" rel="publisher">
+    <script src="js/general.js"></script>
+    <script src="js/loading_start.js" async></script>
+    <script src="js/loading_finish.js" defer></script>
+    <script src="http://manzik.co/js/ask.js"></script>
+    <style id="st">
+    </style>
+    <script>
+        //(function (i, s, o, g, r, a, m)
+        //{
+        //    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+        //    {
+        //        (i[r].q = i[r].q || []).push(arguments)
+        //    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        //    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        //})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        //ga('create', 'UA-52938764-1', 'auto');
+        //ga('send', 'pageview');
+    </script>
+    <script>
+        window.onhashchange = function ()
+        {
+            
+            if (location.hash.length < 1)
+            {
+                ifr.contentWindow.document.location.href = "/homepage.html";
+                el.style.opacity = "0";
+                setTimeout(function () { el.style.visibility = "hidden"; }, 1000);
+            }
+            else
+            {
+                if (!s)
+                {
+                    for (var i = 0; i < arr.length; i++)
+                    {
+                        if ((window.location.hash.substring(1, window.location.hash.length))==arr[i][0])
+                        {
+                            ifr.contentWindow.document.location.href = arr[i][1];
+                            break;
+                        }
+                    }
+                    s = true;
+                }
+                else
+                {
+                    s = false;
+                }
+                    
+            }
+        };
+        var s = false;
+        document.addEventListener("DOMContentLoaded", function()
+        {
+            var bb = document.getElementById("bb");
+            bb.style.opacity = "0";
+            setTimeout(function ()
+            {
+                bb.parentElement.removeChild(bb);
+            }, 300);
+            div1 = document.getElementById("div1");
+            div1.style.left = "0px";
+            set_bar();
+            inf = document.getElementById("inf");
+            inf.style.transitionDuration = "1s";
+            inf.style.visibility = "visible";
+            inf.style.opacity = "0.5";
+            el = document.getElementById("el");
+            if (window.location.hash)
+            {
+                el.style.visibility = "visible";
+                el.style.opacity = "0.5";
+            }
+            logo = document.getElementById("logo_b");
+            logo.style.visibility = "visible";
+            logo.style.opacity = "1";
+            logo.style.transitionDuration = "1s";
+            logo = document.getElementById("logo_w");
+            logo.style.visibility = "visible";
+            logo.style.opacity = "1";
+            logo.style.transitionDuration = "1s";
+            
+            el.style.transitionDuration = "1s";
+            window.addEventListener("orientationchange", set_bar);
+            if (/(iPad|iPhone|iPod)/g.test(navigator.userAgent))
+            {
+                document.getElementById("wdv").style.overflow = "scroll";
+            }
+            ifr = document.getElementById("if");
+            arr = [
+             ["connections", "lab/connections"],
+             ["sq", "lab/sq/"],
+             ["cuboids", "lab/cuboids/"],
+             ["connections_3d", "lab/connections_3d/"],
+             ["polygons", "lab/polygons/"],
+             ["triangles", "lab/triangles/"],
+             ["info", "info/"],
+             ["csv", "lab/circular_sound_vis/"]
+            ];
+            for (var i = 0; i < arr.length; i++)
+            {
+                if ((window.location.hash.substring(1, window.location.hash.length))==(arr[i][0]))
+                {
+                    ifr.contentWindow.document.location.href = arr[i][1];
+                    break;
+                }
+            }
+            ifr.onload = function ()
+            {
+                n = ifr.contentWindow.document.getElementsByTagName("title")[0].innerHTML;
+                document.getElementsByTagName("title")[0].innerHTML = n;
+                if (ifr.contentWindow.document.getElementsByTagName("title")[0].innerHTML == "Manzik")
+                {
+                    el.style.opacity = "0";
+                    setTimeout(function () { el.style.visibility = "hidden"; }, 1000);
+                }
+                else
+                {
+
+                    document.getElementById("ael").setAttribute("href", ifr.contentWindow.document.location.href);
+                    el.style.visibility = "visible";
+                    el.style.opacity = "0.5";
+                    if (!s)
+                    {
+                        for (var i = 0; i < arr.length; i++)
+                        {
+                            if (ifr.contentWindow.document.location.href.indexOf(arr[i][1]) > -1)
+                            {
+                                window.location.href = "#" + arr[i][0];
+                                console.log(i);
+                            }
+                        }
+                        s = true;
+                    }
+                    else
+                    {
+                        s = false;
+                    }
+                }
+            }
+        });
+        function set_bar()
+        {
+            ifr = document.getElementById("if");
+            var wdv = document.getElementById("wdv");
+            if (window.orientation == 90)
+            {
+                div1.style.width = "75px";
+                div1.style.height = "100%";
+                logo = document.getElementById("logo_b");
+                logo.style.height = "75px";
+                logo.style.width = "75px";
+                logo.style.top = "0";
+                logo = document.getElementById("logo_w");
+                logo.style.height = "75px";
+                logo.style.width = "75px";
+                logo.style.top = "0";
+                inf.style.width = "75px";
+                inf.style.height = "75px";
+                inf.style.left = "0";
+                inf.style.top = "calc(100% - 75px)";
+                el.style.width = "75px";
+                el.style.height = "75px";
+                el.style.left = "0";
+                el.style.top = "50%";
+                el.style.transform = "translate(0, -50%)";
+                el.style.webkitTransform = "translate(0, -50%)";
+                ifr.style.left = "75px";
+                ifr.style.height = "100%";
+                ifr.style.top = "0";
+                ifr.style.width = "calc(100% - 75px)";
+            }
+            else
+                if (window.orientation == 0)
+                {
+                    div1.style.width = "100%";
+                    div1.style.height = "75px";
+                    logo = document.getElementById("logo_b");
+                    logo.style.height = "75px";
+                    logo.style.width = "75px";
+                    logo.style.left = "0";
+                    logo.style.top = "0";
+                    logo = document.getElementById("logo_w");
+                    logo.style.height = "75px";
+                    logo.style.width = "75px";
+                    logo.style.left = "0";
+                    logo.style.top = "0";
+                    inf.style.width = "75px";
+                    inf.style.height = "75px";
+                    inf.style.right = "0";
+                    inf.style.top = "0";
+                    inf.style.left = "calc(100% - 75px)";
+                    el.style.width = "75px";
+                    el.style.height = "75px";
+                    el.style.top = "0";
+                    el.style.left = "50%";
+                    el.style.transform = "translate(-50%, 0)";
+                    el.style.webkitTransform = "translate(-50%, 0)";
+                    ifr.style.left = "0";
+                    ifr.style.top = "75px";
+                    ifr.style.height = "calc(100% - 75px)";
+                    ifr.style.width = "100%";
+                }
+                else
+                {
+                    div1.style.width = "100px";
+                }
+            wdv.style.width = ifr.style.width;
+            wdv.style.left = ifr.style.left;
+            ifr.style.left = 0;
+            wdv.style.height = ifr.style.height;
+            wdv.style.top = ifr.style.top;
+            ifr.style.top = 0;
+            ifr.style.width = "100%";
+            ifr.style.height = "100%";
+        }
+    </script>
+    <noscript>
+        <style>
+            #ns
+            {
+                display: block !important;
+            }
+
+            #bb
+            {
+                display: none !important;
+            }
+        </style>
+    </noscript>
+</head>
+<body onload="oll();">
+    <div id="div1" style="margin: auto; height: 100%; width: 100%; margin: 0; left: 0; top: 0; z-index: 9; position: fixed;">
+        <a href="/#"><img alt="Home" title="Home" src="img/manzik_logo_bw.png" id="logo_w" style="z-index: 7;" /></a>
+        <a href="/#"><img alt="Home" title="Home" src="img/manzik_logo_bb.png" id="logo_b" style="z-index: 7;" /></a>
+        <a id="ael" target="_blank"><img alt="Open fullscreen page" title="Open fullscreen page" src="img/el.png" id="el" style="z-index: 7;" /></a>
+        <a href="#info"><img alt="Info" title="Info" src="img/info2.png" id="inf" style="z-index: 7;cursor:pointer;" /></a>
+        <input disabled type="text" value="please enable javascript" style="margin: 0; left: 0; top: 0; display: none; background-color: transparent; border-color: transparent; top: 37%; font-family: 'Gotham Rounded A', 'Gotham Rounded B', sans-serif; text-rendering: optimizeLegibility !important; -webkit-font-smoothing: antialiased !important; color: #ffffff; text-shadow: 1.5px 1.5px 5px #000; font-size: 200%; position: fixed; width: 100%; text-align: center; z-index: 1; transition-duration: 0.2s; -webkit-transition-duration: 0.2s; " id="ns" />
+        <img draggable="false" src="img/ld.png" id="bb" />
+    </div>
+    <div id="wdv" style="position:fixed;-webkit-overflow-scrolling:touch;">
+        <iframe id="if" style="position: absolute; left: 100px; width: calc(100% - 100px); height: 100%; margin: 0; top: 0; border: 0;" src="homepage.html"></iframe>
+    </div>
+</body>
+</html>

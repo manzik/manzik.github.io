@@ -1,0 +1,1 @@
+document.head.innerHTML += "<link rel=\"icon\" type=\"image/png\" href=\"/ico.png\"><!--[if IE]><link rel=\"SHORTCUT ICON\" href=\"/ico.ico\"/><![endif]-->";

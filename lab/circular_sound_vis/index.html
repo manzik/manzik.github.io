@@ -1,7 +1,21 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Circular Sound Visualisation| Manzik lab</title>
+    <title>Circular Sound Visualisation | Manzik lab</title>
+    <script src="/js/lab.js"></script>
+    <script>
+        (function (i, s, o, g, r, a, m)
+        {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+            {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-52938764-1', 'auto');
+        ga('send', 'pageview');
+    </script>
     <script src="dat.gui.min.js"></script>
     <style>
         #hid
@@ -17,11 +31,7 @@
         }
     </style>
     <script>
-        var ih = innerHeight;
-        var iw = innerWidth;
-        var frequencyData;
-        window.context = AudioContext || webkitAudioContext;
-        window.context = new window.context();
+        var ih = innerHeight, innerWidth, frequencyData,context = AudioContext || webkitAudioContext, context = new window.context();
         function init()
         {
             try
@@ -82,7 +92,7 @@
                 requestAnimationFrame(render);
                 isr = true;
             }
-            
+
         }
         function rec()
         {
@@ -263,7 +273,7 @@
         {
             this.a = 1;
             this.r = r;
-            this.f =Math.abs(rev_from(a, 10) / 600);
+            this.f = Math.abs(rev_from(a, 10) / 600);
         }
         var rw = Math.sqrt(Math.pow(innerWidth, 2) + Math.pow(innerHeight, 2)) / 2;
         var isr = false;
@@ -328,7 +338,7 @@
                     ctx.arc(iw / 2, ih / 2, arr_wave[i].r, 0, Math.PI * 2);
                     ctx.closePath();
                     if (f.wv)
-                    ctx.stroke();
+                        ctx.stroke();
                 }
             }
             ctx.globalAlpha = 1;
@@ -338,10 +348,10 @@
                 if (arr_wave.length > 0)
                 {
                     if (Math.abs(arr_wave[arr_wave.length - 1].r - avg) > 90)
-                        arr_wave[arr_wave.length] = new cr((avg ) / 3.8, avg);
+                        arr_wave[arr_wave.length] = new cr((avg) / 3.8, avg);
                 }
                 else
-                    arr_wave[arr_wave.length] = new cr((avg ) / 3.8, avg);
+                    arr_wave[arr_wave.length] = new cr((avg) / 3.8, avg);
             }
             avg_prev = avg;
             var mwh = Math.min(iw, ih);

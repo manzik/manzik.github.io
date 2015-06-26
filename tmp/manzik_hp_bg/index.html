@@ -1,0 +1,77 @@
+<!DOTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="waveform-data.min.js"></script>
+    <script>
+        window.addEventListener("load", function ()
+        {
+            c = document.getElementById("c");
+            ctx = c.getContext("2d");
+            c.height = innerHeight;
+            c.width = innerWidth;
+            init();
+            render();
+        });
+        var arr_c = [];
+        var a = 100;
+        function p(x, y, r)
+        {
+            this.x = x;
+            this.y = y;
+            this.r = r;
+            rr = ((Math.random() * 255) >> 0);
+            gg = ((Math.random() * 255) >> 0);
+            bb = ((Math.random() * 255) >> 0);
+            this.c = { c: "rgba(" + rr + "," + gg + "," + bb + "," + r / 80 + ")", r: rr, g: gg, b: bb };
+        }
+        function init()
+        {
+            for (var i = 0; i < a; i++)
+            {
+                arr_c[i] = new p((Math.random() * innerWidth) >> 0, (Math.random() * innerHeight) >> 0, (Math.random() * 120));
+            }
+            arr_c.sort(function (x, y)
+            {
+                if (x.r < y.r)
+                    return -1;
+                else
+                    return 1;
+                return 0;
+            });
+        }
+        function render()
+        {
+            ctx.fillStyle = "rgba(0,0,0,1)";
+            ctx.fillRect(0, 0, innerWidth, innerHeight);
+            for (var i = 0; i < a; i++)
+            {
+                if (arr_c[i].x + arr_c[i].r < 0)
+                {
+                    rr = (Math.random() * 120);
+                    arr_c[i] = new p(innerWidth + rr, (Math.random() * innerHeight) >> 0, rr);
+                }
+                else
+                    arr_c[i].x -= arr_c[i].r / 10;
+                ctx.beginPath();
+                ctx.arc(arr_c[i].x, arr_c[i].y, arr_c[i].r, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(" + arr_c[i].c.r + "," + arr_c[i].c.g + "," + arr_c[i].c.b + "," + arr_c[i].r / 80 + ")";
+                ctx.fill();
+                ctx.closePath();
+            }
+            arr_c.sort(function (x, y)
+            {
+                if (x.r < y.r)
+                    return -1;
+                else
+                    if (x.r > y.r)
+                    return 1;
+            });
+            requestAnimationFrame(render);
+        }
+    </script>
+</head>
+<body>
+    <canvas style="left:0;top:0;position:fixed;" id="c"></canvas>
+</body>
+</html>

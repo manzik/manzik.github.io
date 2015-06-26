@@ -8,24 +8,24 @@
     </style>
     <script src="/js/ask.js"></script>
     <script>
-        (function (i, s, o, g, r, a, m)
-        {
-            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
-            {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date(); a = s.createElement(o),
-            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+        //(function (i, s, o, g, r, a, m)
+        //{
+        //    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+        //    {
+        //        (i[r].q = i[r].q || []).push(arguments)
+        //    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        //    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        //})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-        ga('create', 'UA-52938764-1', 'auto');
-        ga('send', 'pageview');
+        //ga('create', 'UA-52938764-1', 'auto');
+        //ga('send', 'pageview');
     </script>
     <script src="dat.gui.min.js"></script>
     <script>
         var o = [], os = [], oss = [], sp = 0.01, change_direction_chance = 5, u = false
        , vv = [], options, mi = false, a = getls("connections_2") == null ? 100 : parseInt(getls("connections_2"))
        , mpos = { x: "", y: "" }, ram = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (x) { window.setTimeout(x, 1000 / 60); } || requestAnimationFrame
-        , mstr = "canvas{filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);}", tlld, PI2 = Math.PI * 2, spt = sp * 10, sph = sp * 100, ih = innerHeight, iw = innerWidth, ihw = ih < iw ? ih : iw, dg = ihw / 768 * 25;
+        , mstr = "canvas{filter: invert(100%);-webkit-filter: invert(100%);-moz-filter: invert(100%);-o-filter: invert(100%);-ms-filter: invert(100%);}", tlld, PI2 = Math.PI * 2, spt = sp * 10, sph = sp * 100, ih = innerHeight, iw = innerWidth;
         function point()
         {
             this.x = 0;
@@ -56,15 +56,15 @@
                 render();
             }
             else
-                alert("Sorry! Your browser doesn't support Canvas.");
+            {
+                alert("Your browser doesn't support canvas.");
+            }
         }, true);
         function init()
         {
             c.height = ih;
             c.width = iw;
             ctx = c.getContext("2d");
-            if (itd())
-                setInterval(or, 1000);
             options = new options_obj();
             var gui = new dat.GUI();
             controller = gui.add(options, "amount", 1).step(1).name("Amount");
@@ -155,42 +155,10 @@
                 elm.style.display = "block";
             init_meh();
         }
-        function itd()
-        {
-            try
-            {
-                document.createEvent("TouchEvent");
-                return true;
-            } catch (e)
-            {
-                return false;
-            }
-        }
         function init_meh()
         {
-            if (!itd())
-                c.addEventListener("click", switch_g);
-            c.addEventListener("touchend", function (e)
+            c.addEventListener("mouseenter", function ()
             {
-                mpos.x = e.targetTouches[0].pageX
-                mpos.y = e.targetTouches[0].pageY;
-            });
-            c.addEventListener("touchmove", function (e)
-            {
-                e.preventDefault();
-                mpos.x = e.targetTouches[0].pageX
-                mpos.y = e.targetTouches[0].pageY;
-            });
-            c.addEventListener("touchstart", function (e)
-            {
-                mpos.x = e.targetTouches[0].pageX
-                mpos.y = e.targetTouches[0].pageY;
-                switch_g();
-            });
-            c.addEventListener("mouseenter", function (e)
-            {
-                mpos.x = e.x;
-                mpos.y = e.y;
                 mi = true;
             });
             c.addEventListener("mouseout", function ()
@@ -231,7 +199,9 @@
             this.mode = occ;
             this.tips = tips;
             if (getls("connections_10"))
+            {
                 this.s = parseFloat(getls("connections_10"));
+            }
             else
             {
                 setls("connections_10", 1);
@@ -318,14 +288,15 @@
         }
         function render()
         {
+
+
             if (u)
             {
                 if (mi && mpos.x != "" && mpos.y != "")
                     for (var i = 0; i < a; i++)
                     {
-                        var d1 = rev_crlc(mpos.x, mpos.y, ihw / 2, o[i].x, o[i].y);
-                        oss[i].x += (mpos.x - (Math.abs(mpos.x - (o[i].x)) < dg ? d1.x / 4 : d1.x)) / 2000 * options.pg;
-                        oss[i].y += (mpos.y - (Math.abs(mpos.y - (o[i].y)) < dg ? d1.y / 4 : d1.y)) / 2000 * options.pg;
+                        oss[i].x += (mpos.x - rev_from(o[i].x, o[i].x < mpos.x ? mpos.x - iw / 2 : mpos.x + iw / 2)) / 1500 * options.pg;
+                        oss[i].y += (mpos.y - rev_from(o[i].y, o[i].y < mpos.y ? mpos.y - ih / 2 : mpos.y + ih / 2)) / 1500 * options.pg;
                     }
             }
             else
@@ -406,6 +377,7 @@
         }
         function line()
         {
+
             ctx.lineWidth = 4 * (options.lw / 20);
             if (options.m1)
             {
@@ -460,6 +432,7 @@
                 {
                     ctx.strokeStyle = "black";
                     for (var i = 0; i < a; i++)
+                    {
                         for (var j = 0; j < a; j++)
                             if (i > j && Math.sqrt(Math.pow(o[i].x - o[j].x, 2) + Math.pow(o[i].y - o[j].y, 2)) < options.ll)
                             {
@@ -469,6 +442,7 @@
                                 ctx.lineTo(o[j].x, o[j].y);
                                 ctx.stroke();
                             }
+                    }
                 }
             }
         }
@@ -478,10 +452,7 @@
         }
         function tips()
         {
-            if (itd())
-                alert("You can change options using control panel at the top-right corner. (recommended)\nFirst tap or touch and move on background will make gravity and second tap will disable gravity and make an explosion.");
-            else
-                alert("You can change options using control panel at the top-right corner. (recommended)\nYou can hide/show the control panel using \"H\" key.\nFirst click on background will make gravity for pointer and second click will disable gravity and make an explosion.\nAlso dots avoid the pointer.");
+            alert("You can change options using control panel at the top-right corner.\nYou can hide/show the control panel using \"H\" key.\nFirst click on background will make gravity for pointer and second click will disable gravity and make an explosion.\nAlso dots avoid the pointer.");
         }
         function switch_g()
         {
@@ -490,9 +461,8 @@
             {
                 for (var i = 0; i < a; i++)
                 {
-                    var d1 = rev_crlc(mpos.x, mpos.y, ihw / 2, o[i].x, o[i].y);
-                    oss[i].x = (d1.x - mpos.x) / 15;
-                    oss[i].y = (d1.y - mpos.y) / 15;
+                    oss[i].x = (o[i].x - mpos.x) / 2;
+                    oss[i].y = (o[i].y - mpos.y) / 2;
                 }
             }
         };
@@ -530,15 +500,10 @@
         }
         function or()
         {
-            if (ih != innerHeight || iw != innerWidth)
-            {
-                ih = innerHeight;
-                iw = innerWidth;
-                c.height = ih;
-                c.width = iw;
-                ihw = ih < iw ? ih : iw;
-                dg = ihw / 768 * 25;
-            }
+            ih = innerHeight;
+            iw = innerWidth;
+            c.height = ih;
+            c.width = iw;
         }
         function toggletlld()
         {
@@ -549,24 +514,13 @@
             else
                 elm.style.display = "block";
         }
-        function rev_crlc(cx, cy, cr, px, py)
-        {
-            var d = Math.pow(cr, 2) / (Math.pow(px - cx, 2) + Math.pow(py - cy, 2));
-            return { x: d * (px - cx) + cx, y: d * (py - cy) + cy };
-            //var d = Math.sqrt(Math.pow(px - cx, 2) + Math.pow(py - cy, 2));
-            //var d0 = cr / d;
-            //var p2 = { x: (px - cx) * d0 + cx, y: (py - cy) * d0 + cy };
-            //var d1 = Math.sqrt(Math.pow(p2.x - cx, 2) + Math.pow(p2.y - cy, 2)) / d;
-            //return { x: d1 * (p2.x - cx) + cx, y: d1 * (p2.y - cy) + cy };
-        }
         function rev_from(a, b)
         {
             return b - a + b;
         }
     </script>
 </head>
-<body onresize="or();" style="overflow:hidden;">
-    <canvas id="c" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
-    <!--<a href="http://www.chromeexperiments.com/experiment/Connections/"><img src="ce/b2.png" alt="See my Experiment on ChromeExperiments.com" /></a>-->
+<body onresize="or();">
+    <canvas id="c" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; " onclick="switch_g()"></canvas>
 </body>
 </html>

@@ -77,8 +77,13 @@
             controller8 = gui.add(options, "lw", 1, 100).step(1).name("Line width");
             controller10 = gui.add(options, "s", 0, 5).name("Speed").step(0.01);
             controller11 = gui.add(options, "pg", 0, 20).name("Pointer gravity").step(0.01);
+            controller12 = gui.add(options, "mb", 0, 50).name("Motion blur").step(1);
             gui.add(options, "mode").name("Invert colors");
             gui.add(options, "tips").name("Tips");
+            controller12.onFinishChange(function (v)
+            {
+                setls("connections_12", parseFloat(v));
+            });
             controller11.onFinishChange(function (v)
             {
                 setls("connections_11", parseFloat(v));
@@ -307,6 +312,13 @@
                 this.pg = 1;
                 setls("connections_11", 1);
             }
+            if (getls("connections_12"))
+                this.mb = parseFloat(getls("connections_12"));
+            else
+            {
+                this.mb = 0;
+                setls("connections_12", 0);
+            }
             this.m2 = !this.m1;
         }
         for (var i = 0; i < a; i++)
@@ -363,8 +375,11 @@
                         oss[i].y += (o[i].y - mpos.y < 0 ? -rev_from(rf, 35) : rev_from(rf, 35)) / 700 * ((options.s + 1) / 1.5);
                     }
                 }
-            ctx.clearRect(0, 0, c.width, c.height);
+            ctx.globalAlpha = (rev_from((options.mb) + 50, 53)) / 100;
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, innerWidth, innerHeight);
             line();
+            ctx.globalAlpha = (rev_from((options.mb) + 50, 53)) / 100 + 0.3;
             dot();
             ram(render);
         }

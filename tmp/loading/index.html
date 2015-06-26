@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="three.min.js"></script>
+    <title>
+
+    </title>
+    <script>
+        var arr_c = [], mi = false, mpos = {x:"",y:""};
+        function p(i, j)
+        {
+            this.r = 5;
+            this.x = innerWidth / 100 * i;
+            this.y = innerHeight /50 * j;
+        }
+        window.onload = function ()
+        {
+            c = document.getElementById("c");
+            c.width = innerWidth;
+            c.height = innerHeight;
+            ctx = c.getContext("2d");
+            for (var i = 0; i < 100; i++)
+            {
+                arr_c[i] = [];
+                for (var j = 0; j < 50; j++)
+                {
+                    arr_c[i][j] = new p(i, j);
+                }
+            }
+            c.addEventListener("mouseenter", function (e)
+            {
+                mpos.x = e.x;
+                mpos.y = e.y;
+                mi = true;
+            });
+            c.addEventListener("mouseout", function ()
+            {
+                mi = false;
+            });
+            c.addEventListener("mousemove", function (e)
+            {
+                mi = true;
+                mpos.x = e.x;
+                mpos.y = e.y;
+            });
+            c.addEventListener("mouseover", function (e)
+            {
+                mi = true;
+                mpos.x = e.x;
+                mpos.y = e.y;
+            });
+            render();
+        };
+        window.onresize = function ()
+        {
+            c.width = innerWidth;
+            c.height = innerHeight;
+        };
+        function render()
+        {
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (var i = 0; i < 100; i++)
+            {
+                for (var j = 0; j < 50; j++)
+                {
+                    if (mi && mpos.x != "" && mpos.y != "")
+                    {
+                    var d1 = rev_crlc(mpos.x, mpos.y, (innerHeight < innerWidth ? innerHeight : innerWidth) / 2, arr_c[i][j].x, arr_c[i][j].y);
+                    dg = (innerHeight < innerWidth ? innerHeight : innerWidth) / 768 * 25
+                    arr_c[i][j].x += (mpos.x - (Math.abs(mpos.x - (arr_c[i][j].x)) < dg ? d1.x / 4 : d1.x)) / 1000;
+                    arr_c[i][j].y += (mpos.y - (Math.abs(mpos.y - (arr_c[i][j].y)) < dg ? d1.y / 4 : d1.y)) / 1000;
+                    
+                }
+                    ctx.beginPath();
+                    ctx.arc(arr_c[i][j].x, arr_c[i][j].y, arr_c[i][j].r, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+            requestAnimationFrame(render);
+        }
+        function rev_crlc(cx, cy, cr, px, py)
+        {
+            var d = Math.pow(cr, 2) / (Math.pow(px - cx, 2) + Math.pow(py - cy, 2));
+            return { x: d * (px - cx) + cx, y: d * (py - cy) + cy };
+            //var d = Math.sqrt(Math.pow(px - cx, 2) + Math.pow(py - cy, 2));
+            //var d0 = cr / d;
+            //var p2 = { x: (px - cx) * d0 + cx, y: (py - cy) * d0 + cy };
+            //var d1 = Math.sqrt(Math.pow(p2.x - cx, 2) + Math.pow(p2.y - cy, 2)) / d;
+            //return { x: d1 * (p2.x - cx) + cx, y: d1 * (p2.y - cy) + cy };
+        }
+        function rev_from(a, b)
+        {
+            return b - a + b;
+        }
+    </script>
+</head>
+<body>
+    <canvas style="left:0;top:0;position:fixed;" id="c"></canvas>
+</body>
+</html>

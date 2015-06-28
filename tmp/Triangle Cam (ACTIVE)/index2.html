@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
+<html>
+<head>
+    <title>Triangles | Manzik lab</title>
+    <script src="/js/lab.js"></script>
+    <meta charset="us-ascii" />
+    <script>
+        (function (i, s, o, g, r, a, m)
+        {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
+            {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-52938764-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+    <script src="dat.gui.min.js"></script>
+    <script src="http://manzik.co/js/ask.js"></script>
+    <script>
+        var s = function (x, y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        var d;
+        var size = 20;
+        var u = function ()
+        {
+            if (localStorage.getItem("triangles_0"))
+                if (localStorage)
+                {
+                    this.s = parseInt(localStorage.getItem("triangles_0"));
+                    size = this.s;
+                }
+                else
+                {
+                    this.s = parseInt(window.localStorage.getItem("triangles_0"));
+                    size = this.s;
+                }
+            else
+                if (localStorage)
+                {
+                    this.s = 20;
+                    localStorage.setItem("triangles_0", 20);
+                    size = this.s;
+                }
+                else
+                {
+                    this.s = 20;
+                    window.localStorage.setItem("triangles_0", 20);
+                    size = this.s;
+                }
+            if (localStorage.getItem("triangles_1"))
+                if (localStorage)
+                {
+                    this.lw = parseFloat(localStorage.getItem("triangles_1"));
+                }
+                else
+                {
+                    this.lw = parseFloat(window.localStorage.getItem("triangles_1"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.lw = 0.5;
+                    localStorage.setItem("triangles_1", 0.5);
+                }
+                else
+                {
+                    this.lw = 0.5;
+                    window.localStorage.setItem("triangles_1", 0.5);
+                }
+            if (localStorage.getItem("triangles_2"))
+                if (localStorage)
+                {
+                    this.g = localStorage.getItem("triangles_2") == "true";
+                }
+                else
+                {
+                    this.g = window.localStorage.getItem("triangles_2") == "true";
+                }
+            else
+                if (localStorage)
+                {
+                    this.g = true;
+                    localStorage.setItem("triangles_2", true);
+                }
+                else
+                {
+                    this.g = true;
+                    window.localStorage.setItem("triangles_2", true);
+                }
+            if (localStorage.getItem("triangles_3"))
+                if (localStorage)
+                {
+                    this.i = parseFloat(localStorage.getItem("triangles_3"));
+                }
+                else
+                {
+                    this.i = parseFloat(window.localStorage.getItem("triangles_3"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.i = 0.4;
+                    localStorage.setItem("triangles_3", 1.1);
+                }
+                else
+                {
+                    this.i = 0.4;
+                    window.localStorage.setItem("triangles_3", 1.1);
+                }
+            this.ss = function ()
+            {
+                var link = document.createElement('a');
+                link.download = "Triangles.png";
+                link.href = c.toDataURL("image/png").replace("image/png", "image/octet-stream");;
+                link.click();
+            };
+            if (localStorage.getItem("triangles_4"))
+                if (localStorage)
+                {
+                    this.fwt = localStorage.getItem("triangles_4") == "true";
+                }
+                else
+                {
+                    this.fwt = window.localStorage.getItem("triangles_4") == "true";
+                }
+            else
+                if (localStorage)
+                {
+                    this.fwt = true;
+                    localStorage.setItem("triangles_4", true);
+                }
+                else
+                {
+                    this.fwt = true;
+                    window.localStorage.setItem("triangles_4", true);
+                }
+            if (localStorage.getItem("triangles_5"))
+                if (localStorage)
+                {
+                    this.n = parseInt(localStorage.getItem("triangles_5"));
+                }
+                else
+                {
+                    this.n = parseInt(window.localStorage.getItem("triangles_5"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.n = 5;
+                    localStorage.setItem("triangles_5", 5);
+                }
+                else
+                {
+                    this.n = 5;
+                    window.localStorage.setItem("triangles_5", 5);
+                }
+        };
+        function getxy(imgd, x, y, wdth, hght)
+        {
+            var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
+            return [imgd[idx], imgd[idx + 1], imgd[idx + 2], imgd[idx + 3]]
+        }
+        window.onload = function ()
+        {
+            c.height = innerHeight;
+            c.width = innerWidth;
+            vid = document.createElement("video");
+            navigator.getUserMedia = navigator.getUserMedia ||
+                          navigator.webkitGetUserMedia ||
+                          navigator.mozGetUserMedia ||
+                          navigator.msGetUserMedia;
+            if (navigator.getUserMedia)
+                navigator.getUserMedia({ video: true }, function (stream)
+                {
+                    vid.src = window.URL.createObjectURL(stream);
+                    vid.play();
+
+                }, function () { alert("error"); });
+            else
+                alert("Your browser does not support getUserMedia");
+            
+            q = new u();
+            var gui = new dat.GUI();
+
+            controller6 = gui.add(q, "fwt").name("Fill with triangles");
+            controller4 = gui.add(q, "g").name("Gradient")
+            controller = gui.add(q, 's', 2, 250).step(1).name("Size"), controller2 = gui.add(q, "lw", 0.1, 4).step(0.1).name("Line Width");
+            controller5 = gui.add(q, "i", 0, 1).step(0.01).name("Irregularity");
+            controller7 = gui.add(q, "n", 0, 100).name("Noise");
+            controller3 = gui.add(q, "ss").name("Save As Image");
+            controller7.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_5", v);
+                else
+                    window.localStorage.setItem("triangles_5", v);
+                rndr();
+            });
+            controller6.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_4", v);
+                else
+                    window.localStorage.setItem("triangles_4", v);
+                rndr();
+            });
+            controller5.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_3", v);
+                else
+                    window.localStorage.setItem("triangles_3", v);
+                load(size);
+            });
+            controller4.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_2", v);
+                else
+                    window.localStorage.setItem("triangles_2", v);
+                if (!q.fwt)
+                    rndr();
+            });
+            controller.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_0", v);
+                else
+                    window.localStorage.setItem("triangles_0", v);
+                size = v;
+                load(size);
+                rndr();
+            });
+            controller2.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_1", v);
+                else
+                    window.localStorage.setItem("triangles_1", v);
+                rndr();
+            });
+            c = document.getElementById("c");
+            ctx = c.getContext("2d");
+            load(size);
+            rndr();
+
+        }
+        var n = true;
+        var grad, grad2;
+        function calc_avg(ax,ay,bx,by,cx,cy)
+        {
+            return { x: (ax + bx + cx) / 3, y: (ay + by + cy) / 3 };
+        }
+        function rndr()
+        {
+            
+            
+            //for (var i = 0, iz = Math.round(innerWidth / size) ; i < iz ; ++i)
+            //{
+            //    for (var j = 0, jz = Math.round(innerHeight / size) ; j < jz ; ++j)
+            //    {
+            //        ctx.lineTo(d[j * Math.round(innerHeight / size) + i].x, d[j * Math.round(innerHeight / size) + i].y);
+            //    }
+            //}
+            ctx.lineWidth = q.lw;
+            ctx.drawImage(vid, 0, 0, c.width, c.height);
+            imgd = ctx.getImageData(0, 0, c.width, c.height).data;
+            tri();
+            if (n && q.n != 0)
+            {
+                img = ctx.getImageData(0, 0, c.width, c.height);
+                for (var i = 0, cc = img.data.length, cd = img.data; i < cc; i += 4)
+                {
+                    var rnd = Math.floor(Math.random() * 200) % q.n - q.n / 2;
+                    cd[i] += rnd;
+                    cd[i + 1] += rnd;
+                    cd[i + 2] += rnd;
+                }
+                ctx.putImageData(img, 0, 0);
+            }
+            requestAnimationFrame(rndr);
+        }
+        function tri()
+        {
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 ; i < iz  ; i++)
+            {
+                for (var j = 0, jz = Math.round(innerWidth / size) + 4 ; j < jz ; j++)
+                {
+                    if (Math.round(Math.random() * Date.now()) % 2 == 0)
+                    {
+                        try
+                        {
+
+                            ctx.beginPath();
+                            ctx.moveTo(d[i][j].x, d[i][j].y);
+                            ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                            ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                            ctx.lineTo(d[i][j].x, d[i][j].y);
+
+                            clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        catch (o) { };
+                            
+                        ctx.fill();
+
+                        ctx.stroke();
+                        try
+                        {
+                            ctx.beginPath();
+                            ctx.moveTo(d[i][j].x, d[i][j].y);
+                            ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                            ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                            ctx.lineTo(d[i][j].x, d[i][j].y);
+
+                            clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1], d[i][j + 1].x, d[i][j + 1].y);
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        catch (o) { };
+                            
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            ctx.beginPath();
+                            ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                            ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                            ctx.lineTo(d[i][j].x, d[i][j].y);
+                            ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                            clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i][j].x, d[i][j].y);
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        catch (o) { };
+                            
+
+                        ctx.fill();
+
+                        ctx.stroke();
+                        try
+                        {
+                            ctx.beginPath();
+                            ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                            ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                            ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                            ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+
+                            clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        catch (o) { };
+                           
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                }
+                
+            }
+        }
+        function load(size)
+        {
+            var o = 5 - (((q.i) / 2 + 1.5) * 5) + 5;
+            if (o == 0)
+                o = 0.08;
+            d = [[], []];
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 ; i < iz ; i++)
+            {
+                d[i] = [];
+            }
+            //d[0].length = Math.round(innerWidth / size);
+            //d[1].length = Math.round(innerHeight / size);
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 ; i < iz ; i++)
+            {
+                for (var j = 0, jz = Math.round(innerWidth / size) + 4 ; j < jz ; j++)
+                {
+                    d[i][j] = new s(j * size - size, i * size - size);
+                    k = Math.random();
+                    d[i][j].x += (Math.random() - Math.random()) * (size / (o / 1.5));
+                    k = Math.random();
+                    d[i][j].y += (Math.random() - Math.random()) * (size / o);
+                }
+            }
+        }
+        function color(u)
+        {
+            if (u == a)
+            {
+                return "rgb(" + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + "," + Math.round(Math.random() * Date.now()) % 256 + ")";
+            }
+            else
+                return Math.round(Math.random() * Date.now()) % 256;
+        }
+        function or()
+        {
+            c.height = innerHeight;
+            c.width = innerWidth;
+            load(size);
+            rnd();
+        }
+    </script>
+</head>
+<body onresize="or();">
+    <video id="vd"></video>
+    <canvas id="c" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
+</body>
+</html>

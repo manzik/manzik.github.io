@@ -251,8 +251,7 @@
             }
 
             cc /= a.length - 2;
-            console.log(cc);
-            if (cc > 100)
+            if (cc > 75)
                 return true;
             else
                 return false;
@@ -270,6 +269,7 @@
             ctx.drawImage(vid, 0, 0, c.width, c.height);
             imgd = ctx.getImageData(0, 0, c.width, c.height).data;
             tri();
+            arr_ch = [];
             for (var x = 0; x < dc.length; x++)
             {
                 for (var y = 0; y < dc[0].length; y++)
@@ -277,123 +277,149 @@
                     if (changed(dc[x][y].c, dcp[x][y].c))
                     {
                         ctx.beginPath();
-                        
-                        ctx.arc(dc[x][y].ce.x, dc[x][y].ce.y, 10, 0, Math.PI * 2);
-                        ctx.closePath();
-                        ctx.fillStyle = "rgb(" + rev_from(dc[x][y].c[0], 128) + "," + rev_from(dc[x][y].c[1], 128) + "," + rev_from(dc[x][y].c[2], 128) + ")";
-                        ctx.fill();
+                        arr_ch.push({ x: dc[x][y].ce.x, y: dc[x][y].ce.y });
+                        //ctx.arc(dc[x][y].ce.x, dc[x][y].ce.y, 5, 0, Math.PI * 2);
+                        //ctx.closePath();
+                        //ctx.fillStyle = "rgb(" + rev_from(dc[x][y].c[0], 128) + "," + rev_from(dc[x][y].c[1], 128) + "," + rev_from(dc[x][y].c[2], 128) + ")";
+                        //ctx.fill();
                     }
                     dcp[x][y].c = dc[x][y].c;
+                }
+            }
+            if (arr_ch[0])
+            {
+                arr_ch_tmp = [];
+                arr_ch_tmp[0] = arr_ch[0];
+                for (var i = 1; i < arr_ch.length; i++)
+                {
+                    var closest = { num: 0, val: '' };
+                    for (var j = 1; j < arr_ch_tmp.length; j++)
+                    {
+                        if (!closest.val || Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2)) < closest.val)
+                        {
+                            closest.num = j;
+                            closest.val = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2));
+                        }
+                    }
+                    arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
+                }
+                ctx.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
+                for (var i = 0; i < arr_ch_tmp.length; i++)
+                {
+                    ctx.strokeStyle = "black";
+                    ctx.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
+
+                    ctx.stroke();
                 }
             }
             requestAnimationFrame(rndr);
         }
         function tri()
         {
-            for (var i = 0, iz = Math.round(innerHeight / size) + 4-1 ; i < iz  ; i++)
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 - 1 ; i < iz  ; i++)
             {
-                for (var j = 0, jz = Math.round(innerWidth / size) + 4 -1; j < jz ; j++)
+                for (var j = 0, jz = Math.round(innerWidth / size) + 4 - 1; j < jz ; j++)
                 {
                     if (d[i][j].mr)
                     {
-                            ctx.beginPath();
-                            ctx.moveTo(d[i][j].x, d[i][j].y);
-                            ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                            ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
-                            ctx.lineTo(d[i][j].x, d[i][j].y);
+                        ctx.beginPath();
+                        ctx.moveTo(d[i][j].x, d[i][j].y);
+                        ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                        ctx.lineTo(d[i][j].x, d[i][j].y);
 
-                            clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
-                            if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
-                            {
-                                ctx.fillStyle = "black";
-                                dc[i][j].c = [0, 0, 0, 1];
-                            }
-                            else
-                            {
-                                clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                                dc[i][j].c = clcavgc;
-                                dc[i][j].ce = clcavg;
-                                ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                            }
-                            //if (dc[i][j].c[0] == undefined)
-                            //    console.log(i, j, clcavg);
-                        
+                        clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
+                        if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
+                        {
+                            ctx.fillStyle = "black";
+                            dc[i][j].c = [0, 0, 0, 1];
+                        }
+                        else
+                        {
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            dc[i][j].c = clcavgc;
+                            dc[i][j].ce = clcavg;
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        //if (dc[i][j].c[0] == undefined)
+                        //    console.log(i, j, clcavg);
+
                         ctx.fill();
 
                         ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(d[i][j].x, d[i][j].y);
-                            ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                            ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
-                            ctx.lineTo(d[i][j].x, d[i][j].y);
+                        ctx.beginPath();
+                        ctx.moveTo(d[i][j].x, d[i][j].y);
+                        ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctx.lineTo(d[i][j].x, d[i][j].y);
 
-                            clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
-                            if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
-                            {
-                                ctx.fillStyle = "black";
-                                dc[i][j].c = [0, 0, 0, 1];
-                            }
-                            else
-                            {
-                                clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                                dc[i][j].c = clcavgc;
-                                dc[i][j].ce = clcavg;
-                                ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                            }
-                            //if (dc[i][j].c[0] == undefined)
-                            //    console.log(i, j, clcavg);
+                        clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
+                        if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
+                        {
+                            ctx.fillStyle = "black";
+                            dc[i][j].c = [0, 0, 0, 1];
+                        }
+                        else
+                        {
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            dc[i][j].c = clcavgc;
+                            dc[i][j].ce = clcavg;
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        //if (dc[i][j].c[0] == undefined)
+                        //    console.log(i, j, clcavg);
 
                         ctx.fill();
                         ctx.stroke();
                     }
                     else
                     {
-                            ctx.beginPath();
-                            ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
-                            ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
-                            ctx.lineTo(d[i][j].x, d[i][j].y);
-                            ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
-                            clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
-                            if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
-                            {
-                                ctx.fillStyle = "black";
-                                dc[i][j].c = [0, 0, 0, 1];
-                            }
-                            else
-                            {
-                                clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                                dc[i][j].c = clcavgc;
-                                dc[i][j].ce = clcavg;
-                                ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                            }
-                            //if (dc[i][j].c[0] == undefined)
-                            //    console.log(i, j, clcavg);
+                        ctx.beginPath();
+                        ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                        ctx.lineTo(d[i][j].x, d[i][j].y);
+                        ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                        clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
+                        if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
+                        {
+                            ctx.fillStyle = "black";
+                            dc[i][j].c = [0, 0, 0, 1];
+                        }
+                        else
+                        {
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            dc[i][j].c = clcavgc;
+                            dc[i][j].ce = clcavg;
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        //if (dc[i][j].c[0] == undefined)
+                        //    console.log(i, j, clcavg);
 
 
                         ctx.fill();
 
                         ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
-                            ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
-                            ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                            ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctx.beginPath();
+                        ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                        ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
 
-                            clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
-                            if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
-                            {
-                                ctx.fillStyle = "black";
-                                dc[i][j].c = [0, 0, 0, 1];
-                            }
-                            else
-                            {
-                                clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                                dc[i][j].c = clcavgc;
-                                dc[i][j].ce = clcavg;
-                                ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                            }
-                            //if (dc[i][j].c[0] == undefined)
-                            //    console.log(i, j, clcavg);
+                        clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
+                        if (calc_avg.x < 0 || calc_avg.x > innerWidth || calc_avg.y < 0 || calc_avg.y > innerHeight)
+                        {
+                            ctx.fillStyle = "black";
+                            dc[i][j].c = [0, 0, 0, 1];
+                        }
+                        else
+                        {
+                            clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
+                            dc[i][j].c = clcavgc;
+                            dc[i][j].ce = clcavg;
+                            ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        }
+                        //if (dc[i][j].c[0] == undefined)
+                        //    console.log(i, j, clcavg);
 
                         ctx.fill();
                         ctx.stroke();

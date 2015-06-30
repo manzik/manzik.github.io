@@ -3,7 +3,6 @@
 <html>
 <head>
     <title>Triangles | Manzik lab</title>
-    <script src="/js/lab.js"></script>
     <meta charset="us-ascii" />
     <script src="dat.gui.min.js"></script>
     <!--<script src="ivank.js"></script>-->
@@ -105,7 +104,7 @@
             {
                 var link = document.createElement('a');
                 link.download = "Triangles.png";
-                link.href = c.toDataURL("image/png").replace("image/png", "image/octet-stream");;
+                link.href = cbg.toDataURL("image/png").replace("image/png", "image/octet-stream");;
                 link.click();
             };
             if (localStorage.getItem("triangles_4"))
@@ -154,6 +153,8 @@
             var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
             return [imgd[idx], imgd[idx + 1], imgd[idx + 2], imgd[idx + 3]]
         }
+        var bg = { tri: '', reg: '', dc: '' }, tmp_c = { dom: document.createElement("canvas") };
+        tmp_c.ctxbg = tmp_c.dom.getContext("2d");
         window.onload = function ()
         {
             vid = document.createElement("video");
@@ -166,6 +167,44 @@
                 {
                     vid.src = window.URL.createObjectURL(stream);
                     vid.play();
+                    alert("Get out of the view of the camera and then press the ok button and let the program scan the background");
+                    tmp_c.dom.width = innerWidth;
+                    tmp_c.dom.height = innerHeight;
+                    setitvl = setInterval(function ()
+                    {
+                        ctxbg.drawImage(vid, 0, 0, innerWidth, innerHeight);
+                        bg.reg = ctxbg.getImageData(0, 0, innerWidth, innerHeight).data;
+                        var isb = false;
+                        for (var i = 0; i < bg.reg.length; i += 4)
+                            if (bg.reg[i] != 0 || bg.reg[i + 1] != 0 || bg.reg[i + 2] != 0)
+                            {
+                                isb = false;
+                                break;
+                            }
+                            else
+                                isb = true;
+                        if (isb)
+                            return;
+                        load(size);
+                        tri_canv(ctxbg, bg.reg);
+                        bg.tri = tmp_c.dom;
+                        bg.dc = [[], []];
+                        for (var i = 0, iz = Math.round(innerHeight / size) + 3 ; i < iz ; i++)
+                        {
+                            bg.dc[i] = [];
+                        }
+                        //d[0].length = Math.round(innerWidth / size);
+                        //d[1].length = Math.round(innerHeight / size);
+                        for (var i = 0, iz = Math.round(innerHeight / size) + 3 ; i < iz ; i++)
+                        {
+                            for (var j = 0, jz = Math.round(innerWidth / size) + 3 ; j < jz ; j++)
+                            {
+                                bg.dc[i][j] = { cbg: [dc[i][j].cbg[0], dc[i][j].cbg[1], dc[i][j].cbg[2], dc[i][j].cbg[3]] };
+                            }
+                        }
+                        clearInterval(setitvl);
+                        rndr();
+                    }, 200);
 
                 }, function () { alert("error"); });
             else
@@ -226,19 +265,17 @@
                 else
                     window.localStorage.setItem("triangles_1", v);
             });
-            c = document.getElementById("c_2d");
-            ctx = c.getContext("2d");
-            c.height = innerHeight;
-            c.width = innerWidth;
+            cbg = document.getElementById("c_bg");
+            ctxbg = cbg.getContext("2d");
+            cbg.height = innerHeight;
+            cbg.width = innerWidth;
+            cmt = document.getElementById("c_mt");
+            ctxmt = c_mt.getContext("2d");
+            cmt.height = innerHeight;
+            cmt.width = innerWidth;
             //stage = new Stage("c_webgl");
             //sp = new Sprite();
             //stage.addChild(sp);
-            load(size);
-            rndr();
-            setTimeout(function ()
-            {
-                h = true;
-            }, 7000);
         }
         var n = true, h = false;
         var grad, grad2;
@@ -246,74 +283,126 @@
         {
             return { x: (ax + bx + cx) / 3, y: (ay + by + cy) / 3 };
         }
-        function changed(a, b)
+        var lmt = 50;
+        function changed(a1, b2)
         {
             cc = 0;
-            for (var i = 0; i < a.length - 1; i++)
-            {
-                cc += Math.abs(a[i] - b[i]);
-            }
-
-            cc /= a.length - 2;
-            if (cc > 75)
+            var r = g = b = { val: 0, isb: false };
+            r.val = Math.abs(a1[0] - b2[0]); if (r.val > lmt) r.isb = true;
+            g.val = Math.abs(a1[1] - b2[1]); if (g.val > lmt) g.isb = true;
+            b.val = Math.abs(a1[2] - b2[2]); if (b.val > lmt) b.isb = true;
+            var tdd = 0;
+            if (r.isb)
+                tdd++;
+            if (g.isb)
+                tdd++;
+            if (b.isb)
+                tdd++;
+            if (tdd>0)
                 return true;
-            else
-                return false;
+            return false;
         }
-        var ii = 0;
         function rndr()
         {
-            ii++;
-            ctx.lineWidth = q.lw;
-            ctx.drawImage(vid, 0, 0, c.width, c.height);
-            imgd = ctx.getImageData(0, 0, c.width, c.height).data;
-            tri_canv();
-            arr_ch = [];
-            for (var x = 0; x < dc.length; x++)
+            ctxmt.drawImage(vid, 0, 0, innerWidth, innerHeight);
+
+            imgd = ctxmt.getImageData(0, 0, innerWidth, innerHeight).data;
+            ctxmt.clearRect(0, 0, innerWidth, innerHeight);
+            for (var i = 0, iz = Math.round(innerHeight / size) + 4 - 1 ; i < iz  ; i++)
             {
-                for (var y = 0; y < dc[0].length; y++)
+                for (var j = 0, jz = Math.round(innerWidth / size) + 4 - 1; j < jz ; j++)
                 {
-                    if (changed(dc[x][y].c, dcp[x][y].c))
+                    if (d[i][j].mr)
                     {
-                        ctx.beginPath();
-                        arr_ch.push({ x: dc[x][y].ce.x, y: dc[x][y].ce.y });
-                        ctx.arc(dc[x][y].ce.x, dc[x][y].ce.y, 5, 0, Math.PI * 2);
-                        ctx.closePath();
-                        ctx.fillStyle = "rgb(" + rev_from(dc[x][y].c[0], 128) + "," + rev_from(dc[x][y].c[1], 128) + "," + rev_from(dc[x][y].c[2], 128) + ")";
-                        ctx.fill();
+                        clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
+                        dc[i][j].ce = clcavg;
+
+                        clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i][j + 1].x, d[i][j + 1].y);
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
+                        dc[i][j].ce = clcavg;
+
                     }
-                    dcp[x][y].c = dc[x][y].c;
+                    else
+                    {
+                        clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i][j].x, d[i][j].y);
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
+                        dc[i][j].ce = clcavg;
+
+                        clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
+                        dc[i][j].ce = clcavg;
+                    }
+                }
+
+            }
+            for (var i = 0, iz = bg.dc.length; i < iz  ; i++)
+            {
+                for (var j = 0, jz = bg.dc[0].length; j < jz ; j++)
+                {
+                    if (changed(bg.dc[i][j].cbg, dc[i][j].cbg))
+                    {
+                        ctxmt.beginPath();
+                        ctxmt.arc(dc[i][j].ce.x, dc[i][j].ce.y, 5, 0, Math.PI * 2);
+                        ctxmt.closePath();
+                        ctxmt.fill();
+                    }
                 }
             }
-            if (arr_ch[0] && arr_ch.length < d.length * d[0].length / 3)
-            {
-                //arr_ch_tmp = [];
-                //arr_ch_tmp[0] = arr_ch[0];
-                //for (var i = 1; i < arr_ch.length; i++)
-                //{
-                //    var closest = { num: 0, val: '' };
-                //    for (var j = 1; j < arr_ch_tmp.length; j++)
-                //    {
-                //        if (!closest.val || Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2)) < closest.val)
-                //        {
-                //            closest.num = j;
-                //            closest.val = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2));
-                //        }
-                //    }
-                //    arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
-                //}
-                //ctx.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
-                //for (var i = 0; i < arr_ch_tmp.length; i++)
-                //{
-                //    ctx.strokeStyle = "black";
-                //    ctx.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
+            //imgd = ctxbg.getImageData(0, 0, cbg.width, cbg.height).data;
+            //tri_canv(ctxbg,imgd);
+            //arr_ch = [];
+            ////////////////////////////////////////////////
+            //for (var x = 0; x < dc.length; x++)
+            //{
+            //    for (var y = 0; y < dc[0].length; y++)
+            //    {
+            //        if (changed(dc[x][y].cbg, dcp[x][y].cbg))
+            //        {
+            //            ctxbg.beginPath();
+            //            arr_ch.push({ x: dc[x][y].ce.x, y: dc[x][y].ce.y });
+            //            ctxbg.arc(dc[x][y].ce.x, dc[x][y].ce.y, 5, 0, Math.PI * 2);
+            //            ctxbg.closePath();
+            //            ctxbg.fillStyle = "rgb(" + rev_from(dc[x][y].cbg[0], 128) + "," + rev_from(dc[x][y].cbg[1], 128) + "," + rev_from(dc[x][y].cbg[2], 128) + ")";
+            //            ctxbg.fill();
+            //        }
+            //        dcp[x][y].cbg = dc[x][y].cbg;
+            //    }
+            //}
+            /////////////////////////////////////////////////////
+            //if (arr_ch[0])
+            //{
+            //    arr_ch_tmp = [];
+            //    arr_ch_tmp[0] = arr_ch[0];
+            //    for (var i = 1; i < arr_ch.length; i++)
+            //    {
+            //        var closest = { num: 0, val: '' };
+            //        for (var j = 1; j < arr_ch_tmp.length; j++)
+            //        {
+            //            if (!closest.val || Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2)) < closest.val)
+            //            {
+            //                closest.num = j;
+            //                closest.val = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2));
+            //            }
+            //        }
+            //        arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
+            //    }
+            //    ctxbg.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
+            //    for (var i = 0; i < arr_ch_tmp.length; i++)
+            //    {
+            //        ctxbg.strokeStyle = "black";
+            //        ctxbg.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
 
-                //    ctx.stroke();
-                //}
-            }
+            //        ctxbg.stroke();
+            //    }
+            //}
             requestAnimationFrame(rndr);
         }
-        function tri_canv()
+        function tri_canv(ctxbg, imgd)
         {
             for (var i = 0, iz = Math.round(innerHeight / size) + 4 - 1 ; i < iz  ; i++)
             {
@@ -321,66 +410,66 @@
                 {
                     if (d[i][j].mr)
                     {
-                        ctx.beginPath();
-                        ctx.moveTo(d[i][j].x, d[i][j].y);
-                        ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                        ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
-                        ctx.lineTo(d[i][j].x, d[i][j].y);
-                        ctx.closePath();
+                        ctxbg.beginPath();
+                        ctxbg.moveTo(d[i][j].x, d[i][j].y);
+                        ctxbg.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        ctxbg.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                        ctxbg.lineTo(d[i][j].x, d[i][j].y);
+                        ctxbg.closePath();
 
                         clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
-                        ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                        ctx.fill();
+                        ctxbg.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        ctxbg.fill();
 
 
-                        ctx.beginPath();
-                        ctx.moveTo(d[i][j].x, d[i][j].y);
-                        ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                        ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
-                        ctx.lineTo(d[i][j].x, d[i][j].y);
-                        ctx.closePath();
+                        ctxbg.beginPath();
+                        ctxbg.moveTo(d[i][j].x, d[i][j].y);
+                        ctxbg.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        ctxbg.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctxbg.lineTo(d[i][j].x, d[i][j].y);
+                        ctxbg.closePath();
 
                         clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i][j + 1].x, d[i][j + 1].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
-                        ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                        ctx.fill();
+                        ctxbg.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        ctxbg.fill();
 
                     }
                     else
                     {
-                        ctx.beginPath();
-                        ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
-                        ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
-                        ctx.lineTo(d[i][j].x, d[i][j].y);
-                        ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
-                        ctx.closePath();
+                        ctxbg.beginPath();
+                        ctxbg.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctxbg.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                        ctxbg.lineTo(d[i][j].x, d[i][j].y);
+                        ctxbg.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctxbg.closePath();
 
                         clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i][j].x, d[i][j].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
-                        ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                        ctx.fill();
+                        ctxbg.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        ctxbg.fill();
 
 
-                        ctx.beginPath();
-                        ctx.moveTo(d[i][j + 1].x, d[i][j + 1].y);
-                        ctx.lineTo(d[i + 1][j].x, d[i + 1][j].y);
-                        ctx.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                        ctx.lineTo(d[i][j + 1].x, d[i][j + 1].y);
-                        ctx.closePath();
+                        ctxbg.beginPath();
+                        ctxbg.moveTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctxbg.lineTo(d[i + 1][j].x, d[i + 1][j].y);
+                        ctxbg.lineTo(d[i + 1][j + 1].x, d[i + 1][j + 1].y);
+                        ctxbg.lineTo(d[i][j + 1].x, d[i][j + 1].y);
+                        ctxbg.closePath();
                         clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y);
 
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
-                        ctx.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
-                        ctx.fill();
+                        ctxbg.fillStyle = "rgb(" + clcavgc[0] + "," + clcavgc[1] + "," + clcavgc[2] + ")";
+                        ctxbg.fill();
                     }
                 }
 
@@ -401,16 +490,16 @@
                     if (d[i][j].mr)
                     {
                         clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
                         sp.graphics.beginFill(rgb2hex(clcavgc[0], clcavgc[1], clcavgc[2]));
                         sp.graphics.drawTriangles([d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i + 1][j].x, d[i + 1][j].y], [0, 1, 2]);
                         sp.graphics.endFill();
 
                         clcavg = calc_avg(d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i][j + 1].x, d[i][j + 1].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
                         sp.graphics.beginFill(rgb2hex(clcavgc[0], clcavgc[1], clcavgc[2]));
                         sp.graphics.drawTriangles([d[i][j].x, d[i][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y, d[i][j + 1].x, d[i][j + 1].y], [0, 1, 2]);
@@ -419,16 +508,16 @@
                     else
                     {
                         clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i][j].x, d[i][j].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
                         sp.graphics.beginFill(rgb2hex(clcavgc[0], clcavgc[1], clcavgc[2]));
                         sp.graphics.drawTriangles([d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i][j].x, d[i][j].y], [0, 1, 2]);
                         sp.graphics.endFill();
 
                         clcavg = calc_avg(d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y);
-                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, c.width, c.height);
-                        dc[i][j].c = clcavgc;
+                        clcavgc = getxy(imgd, clcavg.x, clcavg.y, cbg.width, cbg.height);
+                        dc[i][j].cbg = clcavgc;
                         dc[i][j].ce = clcavg;
                         sp.graphics.beginFill(rgb2hex(clcavgc[0], clcavgc[1], clcavgc[2]));
                         sp.graphics.drawTriangles([d[i][j + 1].x, d[i][j + 1].y, d[i + 1][j].x, d[i + 1][j].y, d[i + 1][j + 1].x, d[i + 1][j + 1].y], [0, 1, 2]);
@@ -473,7 +562,7 @@
             {
                 for (var j = 0, jz = Math.round(innerWidth / size) + 4 ; j < jz ; j++)
                 {
-                    dc[i][j] = { c: '' };
+                    dc[i][j] = { cbg: '' };
                 }
             }
 
@@ -488,7 +577,7 @@
             {
                 for (var j = 0, jz = Math.round(innerWidth / size) + 4 ; j < jz ; j++)
                 {
-                    dcp[i][j] = { c: '' };
+                    dcp[i][j] = { cbg: '' };
                 }
             }
         }
@@ -507,15 +596,16 @@
         }
         function or()
         {
-            c.height = innerHeight;
-            c.width = innerWidth;
+            cbg.height = innerHeight;
+            cbg.width = innerWidth;
             load(size);
         }
     </script>
 </head>
 <body onresize="or();">
     <video id="vd"></video>
-    <canvas id="c_2d" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
+    <canvas id="c_bg" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
+    <canvas id="c_mt" style="left: 0; top: 0; margin: 0; position: fixed;z-index:-1; "></canvas>
     <!--<canvas id="c_webgl" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>-->
 
 

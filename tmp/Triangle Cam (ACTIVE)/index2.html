@@ -217,34 +217,29 @@
         {
             return { x: (ax + bx + cx) / 3, y: (ay + by + cy) / 3 };
         }
-        var lmt = 50;
+        var lmt = 80;
         function changed(a1, b2)
         {
-            cc = 0;
-            var r = g = b = { val: 0, isb: false };
-            r.val = Math.abs(a1[0] - b2[0]); if (r.val > lmt) r.isb = true;
-            g.val = Math.abs(a1[1] - b2[1]); if (g.val > lmt) g.isb = true;
-            b.val = Math.abs(a1[2] - b2[2]); if (b.val > lmt) b.isb = true;
-            r.val + g.val + b.val
-            var tdd = 0;
-            if (r.isb)
-                tdd++;
-            if (g.isb)
-                tdd++;
-            if (b.isb)
-                tdd++;
-            if (tdd > 0)
+            cc = Math.abs(a1[0] - b2[0]) + Math.abs(a1[1] - b2[1]) + Math.abs(a1[0] - b2[1]);
+            if(cc>lmt)
                 return true;
             return false;
         }
         var prev_imgd = [];
+        ih = 400;
+        iw = 600;
+        function swap(arr,a,b)
+        {
+            var tmp = arr[a];
+            arr[a] = arr[b];
+            arr[b] = tmp;
+        }
         function rndr()
         {
-            ih = 400;
-            iw = 600;
             ctxmt.drawImage(vid, 0, 0, iw, ih);
 
             imgd = ctxmt.getImageData(0, 0, iw, ih).data;
+            arr_ch = []; arr_ch_tmp = [];
             for (var x = 0; x < iw; x++)
             {
                 for (var y = 0; y < ih; y++)
@@ -252,11 +247,13 @@
                     var gxypimgd = getxy(prev_imgd, x, y, iw, ih);
                     if (changed(getxy(imgd, x, y, iw, ih), gxypimgd))
                     {
+                        arr_ch.push({ x: x, y: y ,chkd:false});
                         ctxmt.beginPath();
-                        ctxmt.arc(x, y, 0.5, 0, Math.PI * 2);
+                        ctxmt.moveTo(x - 0.5, y);
+                        ctxmt.lineTo(x + 0.5, y)
                         ctxmt.closePath();
-                        ctxmt.fillStyle = "rgb(" + rev_from(gxypimgd[0], 128) + "," + rev_from(gxypimgd[1], 128) + "," + rev_from(gxypimgd[2], 128) + ")";
-                        ctxmt.fill();
+                        ctxmt.strokeStyle = "rgb(" + rev_from(gxypimgd[0], 128) + "," + rev_from(gxypimgd[1], 128) + "," + rev_from(gxypimgd[2], 128) + ")";
+                        ctxmt.stroke();
                     }
                     var num = (y * x + x) * 4;
                     prev_imgd[num] = imgd[num];
@@ -265,6 +262,37 @@
                     prev_imgd[num + 3] = imgd[num + 3];
                 }
             }
+            //if (arr_ch[0] && arr_ch.length < d.length * d[0].length / 3)
+            //{
+            //    arr_ch_tmp[0] = arr_ch[0];
+            //    for (var i = 1; i < arr_ch.length; i++)
+            //    {
+            //        var closest = { num: 0, val: '' };
+            //        for (var j = 1; j < arr_ch_tmp.length; j++)
+            //        {
+            //            if ((!closest.val || Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2)) < closest.val))
+            //            {
+            //                closest.num = j;
+            //                closest.val = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2));
+            //            }
+            //        }
+            //        arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
+            //    }
+            //    for (var i = 0; i < arr_ch_tmp.length; i++)
+            //    {
+            //        swap(arr_ch_tmp, (Math.random() * arr_ch_tmp.length) >> 0, (Math.random() * arr_ch_tmp.length) >> 0)
+            //    }
+            //    //ctxmt.beginPath();
+            //    //ctxmt.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
+            //    //for (var i = 0; i < arr_ch_tmp.length; i++)
+            //    //{
+            //    //    ctxmt.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
+            //    //    ctxmt.strokeStyle = "black";
+            //    //}
+            //    //ctxmt.lineTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
+            //    //ctxmt.closePath();
+            //    //ctxmt.stroke();
+            //}
             //imgd = ctxbg.getImageData(0, 0, cbg.width, cbg.height).data;
             //tri_canv(ctxbg,imgd);
             //arr_ch = [];

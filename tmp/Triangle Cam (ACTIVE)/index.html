@@ -93,12 +93,12 @@
             else
                 if (localStorage)
                 {
-                    this.i = 0.4;
+                    this.i = 0;
                     localStorage.setItem("triangles_3", 1.1);
                 }
                 else
                 {
-                    this.i = 0.4;
+                    this.i = 0;
                     window.localStorage.setItem("triangles_3", 1.1);
                 }
             this.ss = function ()
@@ -269,22 +269,22 @@
             imgd = ctx.getImageData(0, 0, c.width, c.height).data;
             tri_canv();
             arr_ch = [];
-            //for (var x = 0; x < dc.length; x++)
-            //{
-            //    for (var y = 0; y < dc[0].length; y++)
-            //    {
-            //        if (changed(dc[x][y].c, dcp[x][y].c))
-            //        {
-            //            ctx.beginPath();
-            //            arr_ch.push({ x: dc[x][y].ce.x, y: dc[x][y].ce.y });
-            //            ctx.arc(dc[x][y].ce.x, dc[x][y].ce.y, 5, 0, Math.PI * 2);
-            //            ctx.closePath();
-            //            ctx.fillStyle = "rgb(" + rev_from(dc[x][y].c[0], 128) + "," + rev_from(dc[x][y].c[1], 128) + "," + rev_from(dc[x][y].c[2], 128) + ")";
-            //            ctx.fill();
-            //        }
-            //        dcp[x][y].c = dc[x][y].c;
-            //    }
-            //}
+            for (var x = 0; x < dc.length; x++)
+            {
+                for (var y = 0; y < dc[0].length; y++)
+                {
+                    if (changed(dc[x][y].c, dcp[x][y].c))
+                    {
+                        ctx.beginPath();
+                        arr_ch.push({ x: dc[x][y].ce.x, y: dc[x][y].ce.y });
+                        ctx.arc(dc[x][y].ce.x, dc[x][y].ce.y, 5, 0, Math.PI * 2);
+                        ctx.closePath();
+                        ctx.fillStyle = "rgb(" + rev_from(dc[x][y].c[0], 128) + "," + rev_from(dc[x][y].c[1], 128) + "," + rev_from(dc[x][y].c[2], 128) + ")";
+                        ctx.fill();
+                    }
+                    dcp[x][y].c = dc[x][y].c;
+                }
+            }
             if (arr_ch[0] && arr_ch.length < d.length * d[0].length / 3)
             {
                 //arr_ch_tmp = [];

@@ -234,13 +234,15 @@
             arr[a] = arr[b];
             arr[b] = tmp;
         }
+        var avg = {x:0,y:0}
+        var count = 0;
         function rndr()
         {
             ctxmt.drawImage(vid, 0, 0, iw, ih);
 
             imgd = ctxmt.getImageData(0, 0, iw, ih).data;
             arr_ch = []; arr_ch_tmp = [];
-            var x, y, num;
+            var x, y, num,a;
             var dir = { x: 0, y: 0 };
             for (var y = 0; y < ih; y++)
             {
@@ -319,7 +321,20 @@
                     prev_imgd[num + 3] = imgd[num + 3];
                 }
             }
-            console.log("x: "+dir.x,"y: "+ dir.y);
+            
+            if (count > 30)
+            {
+                console.log("x: " + avg.x / 31, "y: " + avg.y / 31);
+                avg = { x: 0, y: 0 };
+                count = 0;
+            }
+            else
+            {
+                avg.x+=dir.x;
+                avg.y += dir.y;
+                
+                count++;
+            }
             //if (arr_ch[0] && arr_ch.length < ih*iw/10)
             //{
             //    arr_ch_tmp[0] = arr_ch[0];

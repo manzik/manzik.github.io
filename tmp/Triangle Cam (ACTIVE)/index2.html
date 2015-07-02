@@ -217,7 +217,7 @@
         {
             return { x: (ax + bx + cx) / 3, y: (ay + by + cy) / 3 };
         }
-        var lmt = 80;
+        var lmt = 100;
         function changed(a1, b2)
         {
             cc = Math.abs(a1[0] - b2[0]) + Math.abs(a1[1] - b2[1]) + Math.abs(a1[0] - b2[1]);
@@ -240,12 +240,14 @@
         var avgcp = { x: '', y: '' };
         function rndr()
         {
+            ctxmt.clearRect(0, 0, innerWidth, innerHeight);
             ctxmt.drawImage(vid, 0, 0, iw, ih);
 
             imgd = ctxmt.getImageData(0, 0, iw, ih).data;
             arr_ch = []; arr_ch_tmp = [];
             
             var dir = { x: 0, y: 0 };
+            var dir2 = { x: 0, y: 0 };
             for (var y = 0; y < ih; y++)
             {
                 for (var x = 0; x < iw; x++)
@@ -342,18 +344,25 @@
                 avgc.y = avgy;
             }
             ctxmt.beginPath();
-            ctxmt.arc(avgcp.x, avgcp.y, 10, 0, Math.PI * 2);
+            ctxmt.arc(avgcp.x, avgcp.y, 5, 0, Math.PI * 2);
             ctxmt.closePath();
             ctxmt.fillStyle = "red";
             ctxmt.fill();
             if (avgcp.x)
             {
-                dir.x = -(avgcp.x - avgc.x);
-                dir.y = -(avgcp.y - avgc.y);
+                dir2.x = -(avgcp.x - avgc.x);
+                dir2.y = -(avgcp.y - avgc.y);
             }
-            console.log("x: " + dir.x, "y: " + dir.y);
+
+            ctxmt.beginPath();
+            ctxmt.moveTo(700, 150);
+            ctxmt.lineTo(700 + dir.x * 3, 150 + dir.y * 3);
+            ctxmt.closePath();
+            ctxmt.stroke();
+
             avgcp.x = avgc.x;
             avgcp.y = avgc.y;
+
             //if (arr_ch[0] && arr_ch.length < ih*iw/10)
             //{
             //    arr_ch_tmp[0] = arr_ch[0];

@@ -330,70 +330,70 @@
                     prev_imgd[num + 3] = imgd[num + 3];
                 }
             }
-            if (arr_ch.length > 100)
-            {
-                var avgx = 0, avgy = 0;
-                for (var i = 0; i < arr_ch.length; i++)
-                {
-                    avgx += arr_ch[i].x;
-                    avgy += arr_ch[i].y;
-                }
-                avgx /= arr_ch.length - 1;
-                avgy /= arr_ch.length - 1;
-                avgc.x = avgx;
-                avgc.y = avgy;
-            }
-            ctxmt.beginPath();
-            ctxmt.arc(avgcp.x, avgcp.y, 5, 0, Math.PI * 2);
-            ctxmt.closePath();
-            ctxmt.fillStyle = "red";
-            ctxmt.fill();
-            if (avgcp.x)
-            {
-                dir2.x = -(avgcp.x - avgc.x);
-                dir2.y = -(avgcp.y - avgc.y);
-            }
-
-            ctxmt.beginPath();
-            ctxmt.moveTo(700, 150);
-            ctxmt.lineTo(700 + dir.x * 3, 150 + dir.y * 3);
-            ctxmt.closePath();
-            ctxmt.stroke();
-
-            avgcp.x = avgc.x;
-            avgcp.y = avgc.y;
-
-            //if (arr_ch[0] && arr_ch.length < ih*iw/10)
+            //if (arr_ch.length > 100)
             //{
-            //    arr_ch_tmp[0] = arr_ch[0];
-            //    for (var i = 1; i < arr_ch.length; i++)
+            //    var avgx = 0, avgy = 0;
+            //    for (var i = 0; i < arr_ch.length; i++)
             //    {
-            //        var closest = { num: 0, val: '' };
-            //        for (var j = 1; j < arr_ch_tmp.length; j++)
-            //        {
-            //            if ((!closest.val || Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y) < closest.val) && Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y)<10)
-            //            {
-            //                closest.num = j;
-            //                closest.val = Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y);
-            //            }
-            //        }
-            //        arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
+            //        avgx += arr_ch[i].x;
+            //        avgy += arr_ch[i].y;
             //    }
-            //    //for (var i = 0; i < arr_ch_tmp.length; i++)
-            //    //{
-            //    //    swap(arr_ch_tmp, (Math.random() * arr_ch_tmp.length) >> 0, (Math.random() * arr_ch_tmp.length) >> 0)
-            //    //}
-            //    ctxmt.beginPath();
-            //    ctxmt.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
-            //    for (var i = 0; i < arr_ch_tmp.length; i++)
-            //    {
-            //        ctxmt.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
-            //        ctxmt.strokeStyle = "black";
-            //    }
-            //    ctxmt.lineTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
-            //    ctxmt.closePath();
-            //    ctxmt.stroke();
+            //    avgx /= arr_ch.length - 1;
+            //    avgy /= arr_ch.length - 1;
+            //    avgc.x = avgx;
+            //    avgc.y = avgy;
             //}
+            //ctxmt.beginPath();
+            //ctxmt.arc(avgcp.x, avgcp.y, 5, 0, Math.PI * 2);
+            //ctxmt.closePath();
+            //ctxmt.fillStyle = "red";
+            //ctxmt.fill();
+            //if (avgcp.x)
+            //{
+            //    dir2.x = -(avgcp.x - avgc.x);
+            //    dir2.y = -(avgcp.y - avgc.y);
+            //}
+
+            //ctxmt.beginPath();
+            //ctxmt.moveTo(700, 150);
+            //ctxmt.lineTo(700 + dir.x * 3, 150 + dir.y * 3);
+            //ctxmt.closePath();
+            //ctxmt.stroke();
+
+            //avgcp.x = avgc.x;
+            //avgcp.y = avgc.y;
+
+            if (arr_ch[0] && arr_ch.length < ih*iw/10)
+            {
+                arr_ch_tmp[0] = arr_ch[0];
+                for (var i = 1; i < arr_ch.length; i++)
+                {
+                    var closest = { num: 0, val: '' };
+                    for (var j = 1; j < arr_ch_tmp.length; j++)
+                    {
+                        if ((!closest.val || Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y) < closest.val) && Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y)<10)
+                        {
+                            closest.num = j;
+                            closest.val = Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y);
+                        }
+                    }
+                    arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
+                }
+                //for (var i = 0; i < arr_ch_tmp.length; i++)
+                //{
+                //    swap(arr_ch_tmp, (Math.random() * arr_ch_tmp.length) >> 0, (Math.random() * arr_ch_tmp.length) >> 0)
+                //}
+                ctxmt.beginPath();
+                ctxmt.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
+                for (var i = 0; i < arr_ch_tmp.length; i++)
+                {
+                    ctxmt.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
+                    ctxmt.strokeStyle = "black";
+                }
+                ctxmt.lineTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
+                ctxmt.closePath();
+                ctxmt.stroke();
+            }
             imgd = ctxbg.getImageData(0, 0, cbg.width, cbg.height).data;
             tri_canv(ctxbg, imgd);
             arr_ch = [];

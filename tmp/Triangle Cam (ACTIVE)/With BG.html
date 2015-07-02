@@ -80,26 +80,6 @@
                     this.g = true;
                     window.localStorage.setItem("triangles_2", true);
                 }
-            if (localStorage.getItem("triangles_3"))
-                if (localStorage)
-                {
-                    this.i = parseFloat(localStorage.getItem("triangles_3"));
-                }
-                else
-                {
-                    this.i = parseFloat(window.localStorage.getItem("triangles_3"));
-                }
-            else
-                if (localStorage)
-                {
-                    this.i = 0.4;
-                    localStorage.setItem("triangles_3", 1.1);
-                }
-                else
-                {
-                    this.i = 0.4;
-                    window.localStorage.setItem("triangles_3", 1.1);
-                }
             this.ss = function ()
             {
                 var link = document.createElement('a');
@@ -217,7 +197,6 @@
             controller4 = gui.add(q, "g").name("Gradient")
             controller = gui.add(q, 's', 2, 250).step(1).name("Size");
             controller2 = gui.add(q, "lw", 0, 4).step(0.1).name("Line Width");
-            controller5 = gui.add(q, "i", 0, 1).step(0.01).name("Irregularity");
             controller7 = gui.add(q, "n", 0, 100).name("Noise");
             controller3 = gui.add(q, "ss").name("Save As Image");
             controller7.onFinishChange(function (v)
@@ -291,6 +270,7 @@
             r.val = Math.abs(a1[0] - b2[0]); if (r.val > lmt) r.isb = true;
             g.val = Math.abs(a1[1] - b2[1]); if (g.val > lmt) g.isb = true;
             b.val = Math.abs(a1[2] - b2[2]); if (b.val > lmt) b.isb = true;
+            r.val+g.val+b.val
             var tdd = 0;
             if (r.isb)
                 tdd++;
@@ -298,7 +278,7 @@
                 tdd++;
             if (b.isb)
                 tdd++;
-            if (tdd>0)
+            if (tdd > 0)
                 return true;
             return false;
         }

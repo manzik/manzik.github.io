@@ -253,6 +253,11 @@
                     var gxyimgd = getxy(imgd, x, y, iw, ih);
                     if (changed(gxyimgd, gxypimgd))
                     {
+                        ctxmt.beginPath();
+                        ctxmt.moveTo(x - 0.5, y );
+                        ctxmt.lineTo(x + 0.5, y );
+                        ctxmt.closePath();
+                        ctxmt.stroke();
                         arr_ch.push({ x: x, y: y, chkd: false });
                         arr_dir = [];
                         if (x > 0)

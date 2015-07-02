@@ -226,8 +226,8 @@
             return false;
         }
         var prev_imgd = [];
-        ih = 200;
-        iw = 300;
+        ih = 300;
+        iw = 450;
         function swap(arr, a, b)
         {
             var tmp = arr[a];
@@ -338,14 +338,22 @@
                 }
                 avgx /= arr_ch.length - 1;
                 avgy /= arr_ch.length - 1;
-                avgcp.x = avgx;
-                avgcp.y = avgy;
+                avgc.x = avgx;
+                avgc.y = avgy;
             }
             ctxmt.beginPath();
             ctxmt.arc(avgcp.x, avgcp.y, 10, 0, Math.PI * 2);
             ctxmt.closePath();
             ctxmt.fillStyle = "red";
             ctxmt.fill();
+            if (avgcp.x)
+            {
+                dir.x = -(avgcp.x - avgc.x);
+                dir.y = -(avgcp.y - avgc.y);
+            }
+            console.log("x: " + dir.x, "y: " + dir.y);
+            avgcp.x = avgc.x;
+            avgcp.y = avgc.y;
             //if (arr_ch[0] && arr_ch.length < ih*iw/10)
             //{
             //    arr_ch_tmp[0] = arr_ch[0];

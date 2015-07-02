@@ -371,10 +371,10 @@
                     var closest = { num: 0, val: '' };
                     for (var j = 1; j < arr_ch_tmp.length; j++)
                     {
-                        if ((!closest.val || Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y) < closest.val) && Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y)<10)
+                        if ((!closest.val ||Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x,2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y,2) < closest.val)) &&Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x,2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y,2)<10))
                         {
                             closest.num = j;
-                            closest.val = Math.abs(arr_ch[i].x - arr_ch_tmp[j].x) + Math.abs(arr_ch[i].y - arr_ch_tmp[j].y);
+                            closest.val = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x,2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y,2));
                         }
                     }
                     arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);

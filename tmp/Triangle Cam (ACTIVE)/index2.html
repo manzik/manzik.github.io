@@ -217,7 +217,7 @@
         {
             return { x: (ax + bx + cx) / 3, y: (ay + by + cy) / 3 };
         }
-        var lmt = 100;
+        var lmt = 80;
         function changed(a1, b2)
         {
             cc = Math.abs(a1[0] - b2[0]) + Math.abs(a1[1] - b2[1]) + Math.abs(a1[0] - b2[1]);
@@ -226,8 +226,8 @@
             return false;
         }
         var prev_imgd = [];
-        ih = 200;
-        iw = 300;
+        ih = 100;
+        iw = 150;
         function swap(arr, a, b)
         {
             var tmp = arr[a];
@@ -250,26 +250,12 @@
             return atn;
         }
         var hist_imgd = ['', '', '', '', ''];
-        var factor = 32;
-        function reduce(val)
-        {
-            return Math.round(val / factor) * factor;
-        }
         function rndr()
         {
             ctxmt.clearRect(0, 0, innerWidth, innerHeight);
             ctxmt.drawImage(vid, 0, 0, iw, ih);
             var img = ctxmt.getImageData(0, 0, iw, ih);
             imgd = img.data;
-
-            /////////////////////////////////////////////////////////////////reduce quality
-            for (var i = 0; i < imgd.length; i+=4)
-            {
-                img.data[i] = reduce(img.data[i]);
-                img.data[i + 1] = reduce(img.data[i + 1]);
-                img.data[i + 2] = reduce(img.data[i + 2]);
-            }
-            ctxmt.putImageData(img,0,0);
 
             arr_ch = []; arr_ch_tmp = [];
 
@@ -358,7 +344,7 @@
                 }
             }
             //////////////////////////////////////// RED CENTER DOT
-            if (arr_ch.length > 400)
+            if (arr_ch.length > 100)
             {
                 var avgx = 0, avgy = 0;
                 for (var i = 0; i < arr_ch.length; i++)
@@ -755,7 +741,7 @@
 <body onresize="or();">
     <video id="vd"></video>
     <canvas id="c_bg" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
-    <canvas id="c_mt" style="left: 0; top: 0; margin: 0; position: fixed;z-index:-1; "></canvas>
+    <canvas id="c_mt" style="left: 0; top: 0; margin: 0; position: fixed;z-index:-1;width:200%;height:200%; "></canvas>
     <!--<canvas id="c_webgl" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>-->
 
 

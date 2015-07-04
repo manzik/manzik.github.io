@@ -226,8 +226,8 @@
             return false;
         }
         var prev_imgd = [];
-        ih = 300;
-        iw = 450;
+        ih = 200;
+        iw = 300;
         function swap(arr, a, b)
         {
             var tmp = arr[a];
@@ -249,12 +249,28 @@
             }
             return atn;
         }
+        var hist_imgd = ['', '', '', '', ''];
+        var factor = 32;
+        function reduce(val)
+        {
+            return Math.round(val / factor) * factor;
+        }
         function rndr()
         {
             ctxmt.clearRect(0, 0, innerWidth, innerHeight);
             ctxmt.drawImage(vid, 0, 0, iw, ih);
+            var img = ctxmt.getImageData(0, 0, iw, ih);
+            imgd = img.data;
 
-            imgd = ctxmt.getImageData(0, 0, iw, ih).data;
+            /////////////////////////////////////////////////////////////////reduce quality
+            for (var i = 0; i < imgd.length; i+=4)
+            {
+                img.data[i] = reduce(img.data[i]);
+                img.data[i + 1] = reduce(img.data[i + 1]);
+                img.data[i + 2] = reduce(img.data[i + 2]);
+            }
+            ctxmt.putImageData(img,0,0);
+
             arr_ch = []; arr_ch_tmp = [];
 
             var dir = { x: 0, y: 0 };

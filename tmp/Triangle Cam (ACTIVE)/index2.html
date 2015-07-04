@@ -131,7 +131,7 @@
         function getxy(imgd, x, y, wdth, hght)
         {
             var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
-            return [imgd[idx], imgd[idx + 1], imgd[idx + 2]]
+            return [imgd[idx], imgd[idx + 1], imgd[idx + 2]];
         }
         var bg = { tri: '', reg: '', dc: '' }, tmp_c = { dom: document.createElement("canvas") };
         tmp_c.ctxbg = tmp_c.dom.getContext("2d");
@@ -234,10 +234,21 @@
             arr[a] = arr[b];
             arr[b] = tmp;
         }
-        var avg = {x:0,y:0}
+        var avg = { x: 0, y: 0 }
         var count = 0;
         var avgc = { x: '', y: '' };
         var avgcp = { x: '', y: '' };
+        var prts = 20;
+        var op = 180 / Math.PI;
+        function atan(a, b)
+        {
+            var atn = Math.atan2(a, b) * op;
+            if (atn < 0)
+            {
+                return (360 + atn);
+            }
+            return atn;
+        }
         function rndr()
         {
             ctxmt.clearRect(0, 0, innerWidth, innerHeight);
@@ -245,7 +256,7 @@
 
             imgd = ctxmt.getImageData(0, 0, iw, ih).data;
             arr_ch = []; arr_ch_tmp = [];
-            
+
             var dir = { x: 0, y: 0 };
             var dir2 = { x: 0, y: 0 };
             for (var y = 0; y < ih; y++)
@@ -257,11 +268,11 @@
                     var gxyimgd = getxy(imgd, x, y, iw, ih);
                     if (changed(gxyimgd, gxypimgd))
                     {
-                        //ctxmt.beginPath();
-                        //ctxmt.moveTo(x - 0.5, y );
-                        //ctxmt.lineTo(x + 0.5, y );
-                        //ctxmt.closePath();
-                        //ctxmt.stroke();
+                        ctxmt.beginPath();
+                        ctxmt.moveTo(x - 0.5, y);
+                        ctxmt.lineTo(x + 0.5, y);
+                        ctxmt.closePath();
+                        ctxmt.stroke();
                         arr_ch.push({ x: x, y: y, chkd: false });
                         //arr_dir = [];
                         //if (x > 0)
@@ -284,9 +295,9 @@
                         //}
                         //if (y < ih)
                         //    arr_dir.push({ dir: "0+", col: getxy(imgd, x, y + 1, iw, ih) });
-                        
+
                         //var wh = { val: '', num: 0 };
-                        
+
                         //for (var i = 0; i < arr_dir.length; i++)
                         //{
                         //    var diff = 0;
@@ -295,13 +306,13 @@
                         //        diff += Math.abs(arr_dir[i].col[j] - gxyimgd[j]);
                         //    }
                         //    diff /= 3;
-                            
+
                         //    if (!wh.val || diff < wh.val)
                         //    {
                         //        wh.val = diff;
                         //        wh.num = i;
                         //    }
-                            
+
                         //}
                         //if(arr_dir[wh.num].dir[0]=="+")
                         //{
@@ -322,7 +333,7 @@
                         //        dir.y++;
                         //    }
                     }
-                    
+
                     var num = (y * x + x) * 4;
                     prev_imgd[num] = imgd[num];
                     prev_imgd[num + 1] = imgd[num + 1];
@@ -330,70 +341,152 @@
                     prev_imgd[num + 3] = imgd[num + 3];
                 }
             }
-            //if (arr_ch.length > 100)
-            //{
-            //    var avgx = 0, avgy = 0;
-            //    for (var i = 0; i < arr_ch.length; i++)
-            //    {
-            //        avgx += arr_ch[i].x;
-            //        avgy += arr_ch[i].y;
-            //    }
-            //    avgx /= arr_ch.length - 1;
-            //    avgy /= arr_ch.length - 1;
-            //    avgc.x = avgx;
-            //    avgc.y = avgy;
-            //}
-            //ctxmt.beginPath();
-            //ctxmt.arc(avgcp.x, avgcp.y, 5, 0, Math.PI * 2);
-            //ctxmt.closePath();
-            //ctxmt.fillStyle = "red";
-            //ctxmt.fill();
-            //if (avgcp.x)
-            //{
-            //    dir2.x = -(avgcp.x - avgc.x);
-            //    dir2.y = -(avgcp.y - avgc.y);
-            //}
-
-            //ctxmt.beginPath();
-            //ctxmt.moveTo(700, 150);
-            //ctxmt.lineTo(700 + dir.x * 3, 150 + dir.y * 3);
-            //ctxmt.closePath();
-            //ctxmt.stroke();
-
-            //avgcp.x = avgc.x;
-            //avgcp.y = avgc.y;
-
-            if (arr_ch[0] && arr_ch.length < ih*iw/10)
+            //////////////////////////////////////// RED CENTER DOT
+            if (arr_ch.length > 400)
             {
-                arr_ch_tmp[0] = arr_ch[0];
-                for (var i = 1; i < arr_ch.length; i++)
+                var avgx = 0, avgy = 0;
+                for (var i = 0; i < arr_ch.length; i++)
                 {
-                    var closest = { num: 0, val: '' };
-                    for (var j = 1; j < arr_ch_tmp.length; j++)
+                    avgx += arr_ch[i].x;
+                    avgy += arr_ch[i].y;
+                }
+                avgx /= arr_ch.length - 1;
+                avgy /= arr_ch.length - 1;
+                avgc.x = avgx;
+                avgc.y = avgy;
+            }
+            ctxmt.beginPath();
+            ctxmt.arc(avgcp.x, avgcp.y, 5, 0, Math.PI * 2);
+            ctxmt.closePath();
+            ctxmt.fillStyle = "red";
+            ctxmt.fill();
+            if (avgcp.x)
+            {
+                dir.x = -(avgcp.x - avgc.x);
+                dir.y = -(avgcp.y - avgc.y);
+            }
+
+            ctxmt.beginPath();
+            ctxmt.arc(700, 150, 4, 0, Math.PI * 2);
+            ctxmt.stroke();
+            ctxmt.moveTo(700, 150);
+
+            ctxmt.lineTo(700 + dir.x * 3, 150 + dir.y * 3);
+            ctxmt.closePath();
+            ctxmt.stroke();
+
+            if (arr_ch[0] && arr_ch.length < 10000)
+            {
+                //////////////////////////////////////////////////// SORT FARTHEST OBJECTS ARRAY IN DEGREE AREAS
+                arr_ch_tmp = [];
+                for (var deg = 0, ss = 360 / prts; deg < 360; deg += ss)
+                {
+                    var farthest = { num: 0, val: '' };
+                    for (var i = 1, ic = arr_ch.length; i < ic; i++)
                     {
-                        if ((!closest.val ||Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x,2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y,2) < closest.val)) &&Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x,2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y,2)<10))
+                        if (atan(arr_ch[i].x - avgc.x, arr_ch[i].y - avgc.y) < deg && atan(arr_ch[i].x - avgc.x, arr_ch[i].y - avgc.y) > deg - 360 / prts)
                         {
-                            closest.num = j;
-                            closest.val = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x,2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y,2));
+                            var dist = Math.sqrt(Math.pow(arr_ch[i].x - avgc.x, 2) + Math.pow(arr_ch[i].y - avgc.y, 2));
+                            if ((!farthest.val || dist > farthest.val))
+                            {
+                                farthest.num = i;
+                                farthest.val = dist;
+                            }
                         }
                     }
-                    arr_ch_tmp.splice(closest.num, 0, arr_ch[i]);
+                    arr_ch_tmp.push(arr_ch[farthest.num]);
                 }
+
+                //////////////////////////////////////////////////// SORT FARTHEST OBJECTS ARRAY
+                //arr_ch_tmp = [];
+                //arr_ch_tmp[0] = arr_ch[0];
+                //for (var i = 1, ic = arr_ch.length; i < ic; i++)
+                //{
+                //    var farthest = { num: 0, val: '' };
+                //    for (var j = 1, jc = arr_ch_tmp.length; j < jc; j++)
+                //    {
+                //        var dist = Math.sqrt(Math.pow(arr_ch[i].x - arr_ch_tmp[j].x, 2) + Math.pow(arr_ch[i].y - arr_ch_tmp[j].y, 2));
+                //        if ((!farthest.val || dist > farthest.val))
+                //        {
+                //            farthest.num = j;
+                //            farthest.val = dist;
+                //        }
+                //    }
+                //    arr_ch_tmp.splice(farthest.num, 0, arr_ch[i]);
+                //}
+                //////////////////////////////////////////////////// SORT CLOSEST OBJECTS ARRAY
+                //arr_ch_tmp2 = [];
+                //arr_ch_tmp2[0] = arr_ch_tmp[0];
+                //for (var i = 1; i < arr_ch_tmp.length; i++)
+                //{
+                //    var closest = { num: 0, val: '' };
+                //    for (var j = 1; j < arr_ch_tmp2.length; j++)
+                //    {
+                //        var dist = Math.sqrt(Math.pow(arr_ch_tmp[i].x - arr_ch_tmp2[j].x, 2) + Math.pow(arr_ch_tmp[i].y - arr_ch_tmp2[j].y, 2));
+                //        if ((!closest.val || dist < closest.val))
+                //        {
+                //            closest.num = j;
+                //            closest.val = dist;
+                //        }
+                //    }
+                //    arr_ch_tmp2.splice(closest.num, 0, arr_ch_tmp[i]);
+                //}
+                //////////////////////////////////////////////////// SORT CLOSEST OBJECTS ARRAY 2
+                arr_ch_tmp2 = [];
+                for (var i = 1; i < arr_ch_tmp.length; i++)
+                {
+                    var closest = { num: 0, val: '' };
+                    for (var j = 1; j < arr_ch_tmp2.length; j++)
+                    {
+                        var dist = Math.sqrt(Math.pow(arr_ch_tmp[i].x - arr_ch_tmp2[j].x, 2) + Math.pow(arr_ch_tmp[i].y - arr_ch_tmp2[j].y, 2));
+                        if ((!closest.val || dist < closest.val) && !arr_ch_tmp[i].chkd)
+                        {
+                            arr_ch_tmp[i].chkd = true;
+                            closest.num = j;
+                            closest.val = dist;
+                        }
+                    }
+                    arr_ch_tmp2.splice(closest.num, 0, arr_ch_tmp[i]);
+                }
+                ///////////////////////////////////////////////// SWAP OBJECTS RANDOM
                 //for (var i = 0; i < arr_ch_tmp.length; i++)
                 //{
                 //    swap(arr_ch_tmp, (Math.random() * arr_ch_tmp.length) >> 0, (Math.random() * arr_ch_tmp.length) >> 0)
                 //}
+
+                //////////////////////////////////////////////////////////// FARTHEST IN EVERY 10 DOTS
+                //arr_ch_tmp2 = [];
+
+                //for (var i = 0; i < arr_ch_tmp.length-10; i += 10)
+                //{
+                //    var farthest = { num: 0, val: '' };
+                //    for (var j = 0; j < 3; j++)
+                //    {
+                //        var dist = Math.sqrt(Math.pow(avgc.x - arr_ch_tmp[i + j].x, 2) + Math.pow(avgc.y - arr_ch_tmp[i + j].y, 2));
+                //        if ((!farthest.val || dist > farthest.val))
+                //        {
+                //            farthest.num = i + j;
+                //            farthest.val = dist;
+                //        }
+                //    }
+                //    arr_ch_tmp2.push(arr_ch_tmp[farthest.num]);
+                //}
+                /////////////////////////////////////////// DRAW TMP LINES
                 ctxmt.beginPath();
-                ctxmt.moveTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
-                for (var i = 0; i < arr_ch_tmp.length; i++)
+                for (var i = 0; i < arr_ch_tmp2.length ; i++)
                 {
-                    ctxmt.lineTo(arr_ch_tmp[i].x, arr_ch_tmp[i].y);
-                    ctxmt.strokeStyle = "black";
+                    ctxmt.lineTo(arr_ch_tmp2[i].x, arr_ch_tmp2[i].y);
                 }
-                ctxmt.lineTo(arr_ch_tmp[0].x, arr_ch_tmp[0].y);
                 ctxmt.closePath();
-                ctxmt.stroke();
+                ctxmt.fillStyle = "blue";
+                ctxmt.fill();
+                /////////////////////////////////////////////
             }
+
+            avgcp.x = avgc.x;
+            avgcp.y = avgc.y;
+
+
             imgd = ctxbg.getImageData(0, 0, cbg.width, cbg.height).data;
             tri_canv(ctxbg, imgd);
             arr_ch = [];

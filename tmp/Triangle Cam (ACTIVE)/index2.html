@@ -217,8 +217,8 @@
         {
             return { x: (ax + bx + cx) / 3, y: (ay + by + cy) / 3 };
         }
-        var lmt = 80;
-        function changed(a1, b2)
+        var lmto = 80;
+        function changed(a1, b2, lmt)
         {
             cc = Math.abs(a1[0] - b2[0]) + Math.abs(a1[1] - b2[1]) + Math.abs(a1[0] - b2[1]);
             if (cc > lmt)
@@ -226,8 +226,8 @@
             return false;
         }
         var prev_imgd = [];
-        ih = 100;
-        iw = 150;
+        ih = 200;
+        iw = 300;
         function swap(arr, a, b)
         {
             var tmp = arr[a];
@@ -240,6 +240,9 @@
         var avgcp = { x: '', y: '' };
         var prts = 20;
         var op = 180 / Math.PI;
+        var arr_cc = [];
+        var arr_bls = [];
+        arr_ch_tmp2 = [];
         function atan(a, b)
         {
             var atn = Math.atan2(a, b) * op;
@@ -250,12 +253,16 @@
             return atn;
         }
         var hist_imgd = ['', '', '', '', ''];
+        var c2f = 0;
         function rndr()
         {
             ctxmt.clearRect(0, 0, innerWidth, innerHeight);
-            ctxmt.drawImage(vid, 0, 0, iw, ih);
-            var img = ctxmt.getImageData(0, 0, iw, ih);
+            ctxbg.clearRect(0, 0, innerWidth, innerHeight);
+            ctxbg.drawImage(vid, 0, 0, iw, ih);
+            var img = ctxbg.getImageData(0, 0, iw, ih);
             imgd = img.data;
+            ctxbg.clearRect(0, 0, innerWidth, innerHeight);
+            ctxbg.putImageData(img, 0, 0);
 
             arr_ch = []; arr_ch_tmp = [];
 
@@ -268,13 +275,13 @@
 
                     var gxypimgd = getxy(prev_imgd, x, y, iw, ih);
                     var gxyimgd = getxy(imgd, x, y, iw, ih);
-                    if (changed(gxyimgd, gxypimgd))
+                    if (changed(gxyimgd, gxypimgd, lmto))
                     {
-                        ctxmt.beginPath();
-                        ctxmt.moveTo(x - 0.5, y);
-                        ctxmt.lineTo(x + 0.5, y);
-                        ctxmt.closePath();
-                        ctxmt.stroke();
+                        //ctxbg.beginPath();
+                        //ctxbg.moveTo(x - 0.5, y);
+                        //ctxbg.lineTo(x + 0.5, y);
+                        //ctxbg.closePath();
+                        //ctxbg.stroke();
                         arr_ch.push({ x: x, y: y, chkd: false });
                         //arr_dir = [];
                         //if (x > 0)
@@ -344,7 +351,7 @@
                 }
             }
             //////////////////////////////////////// RED CENTER DOT
-            if (arr_ch.length > 100)
+            if (arr_ch.length > 70)
             {
                 var avgx = 0, avgy = 0;
                 for (var i = 0; i < arr_ch.length; i++)
@@ -366,6 +373,7 @@
             {
                 dir.x = -(avgcp.x - avgc.x);
                 dir.y = -(avgcp.y - avgc.y);
+                dir.s = (dir.x > 0 ? "+" : dir.x < 0 ? "-" : "0") + (dir.y > 0 ? "+" : dir.y < 0 ? "-" : "0");
             }
 
             ctxmt.beginPath();
@@ -377,8 +385,17 @@
             ctxmt.closePath();
             ctxmt.stroke();
 
-            if (arr_ch[0] && arr_ch.length < 10000)
+
+
+            avgcp.x = avgc.x;
+            avgcp.y = avgc.y;
+
+
+            ctxbg.clearRect(0, 0, innerWidth, innerHeight);
+            if (arr_ch[0])
             {
+                arr_ch_tmp2_prev = arr_ch_tmp2;
+                c2fprev = c2f;
                 //////////////////////////////////////////////////// SORT FARTHEST OBJECTS ARRAY IN DEGREE AREAS
                 arr_ch_tmp = [];
                 for (var deg = 0, ss = 360 / prts; deg < 360; deg += ss)
@@ -398,7 +415,6 @@
                     }
                     arr_ch_tmp.push(arr_ch[farthest.num]);
                 }
-
                 //////////////////////////////////////////////////// SORT FARTHEST OBJECTS ARRAY
                 //arr_ch_tmp = [];
                 //arr_ch_tmp[0] = arr_ch[0];
@@ -473,25 +489,83 @@
                 //    }
                 //    arr_ch_tmp2.push(arr_ch_tmp[farthest.num]);
                 //}
-                /////////////////////////////////////////// DRAW TMP LINES
-                ctxmt.beginPath();
-                for (var i = 0; i < arr_ch_tmp2.length ; i++)
+                ///////////////////////////////////////////////// FARTHEST value FROM EACH OTHER IN ARR
+                var farthest = { val: 999999, num: 0 };
+                for (var i = 0; i < arr_ch_tmp2.length - 1; i++)
                 {
-                    ctxmt.lineTo(arr_ch_tmp2[i].x, arr_ch_tmp2[i].y);
+                    var dist = Math.sqrt(Math.pow(arr_ch_tmp2[i].x - arr_ch_tmp2[i + 1].x, 2) + Math.pow(arr_ch_tmp2[i].y - arr_ch_tmp2[i + 1].y, 2));
+                    if (farthest.val > dist)
+                        farthest.val = dist;
                 }
-                ctxmt.closePath();
-                ctxmt.fillStyle = "blue";
-                ctxmt.fill();
-                /////////////////////////////////////////////
+                c2f = farthest.val;
+                /////////////////////////////////////
+                if (Math.abs(c2f - c2fprev) > 100 || arr_ch_tmp2.length<10)
+                {
+                    arr_ch_tmp2=arr_ch_tmp2_prev;
+                }
+            }
+            /////////////////////////////////////////// DRAW BLUE TMP LINES
+            ctxmt.beginPath();
+            for (var i = 0; i < arr_ch_tmp2.length ; i++)
+            {
+                ctxmt.lineTo(arr_ch_tmp2[i].x, arr_ch_tmp2[i].y);
+            }
+            ctxmt.closePath();
+            ctxmt.fillStyle = "blue";
+            ctxmt.fill();
+            /////////////////////////replace blue with imgd colors
+            arr_bl = [];
+            var blimg = ctxmt.getImageData(0, 0, iw, ih);
+            bl = blimg.data;
+            for (var i = 0; i < bl.length; i += 4)
+            {
+                if (bl[i] == 0 && bl[i + 1] == 0 && bl[i + 2] == 255 && bl[i + 3] == 255)
+                {
+                    var x = (i % (iw * 4)) / 4;
+                    var y = ((i / 4) / iw) >> 0;
+                    var gxy = getxy(imgd, x, y, iw, ih);
+                    arr_bl.push({ x: x, y: y, c: gxy });
+                }
             }
 
-            avgcp.x = avgc.x;
-            avgcp.y = avgc.y;
-
-
-            imgd = ctxbg.getImageData(0, 0, cbg.width, cbg.height).data;
-            tri_canv(ctxbg, imgd);
-            arr_ch = [];
+            ctxbg.clearRect(0, 0, iw, ih);
+            cbl = ctxmt.createImageData(iw, ih);
+            for (var i = 0; i < arr_bl.length; i++)
+            {
+                var x = arr_bl[i].x;
+                var y = arr_bl[i].y;
+                var num = (y * iw + x) * 4;
+                var cc = getxy(imgd, x, y, iw, ih);
+                cbl.data[num] = cc[0];
+                cbl.data[num + 1] = cc[1];
+                cbl.data[num + 2] = cc[2];
+                cbl.data[num + 3] = 255;
+                arr_bls.push({ x: x, y: y, c: cc });
+            }
+            ctxmt.putImageData(cbl, 0, 0);
+            /////////////////////////////////////////////
+            //for (var i = 0; i < arr_bls.length; i++)
+            //{
+            //    var cc=arr_bls[i];
+            //    var clsst={x:0,y:0,val:999999};
+            //    for (var j = 0; j < imgd.length; j+=4)
+            //    {
+            //        var x = (j % (iw * 4)) / 4;
+            //        var y = ((j / 4) / iw) >> 0;
+            //        var tot = Math.abs(cc[0] - imgd[j]) + Math.abs(cc[1] - imgd[j + 1]) + Math.abs(cc[2] - imgd[j + 2]);
+            //        if(tot<clsst.num)
+            //        {
+            //            clsst.x = x;
+            //            clsst.y = y;
+            //            clsst.val = tot;
+            //        }
+            //    }
+            //    ctxmt.beginPath();
+            //    ctxmt.moveTo(clsst.x - 0.5, clsst.y);
+            //    ctxmt.lineTo(clsst.x + 0.5, clsst.y);
+            //    ctxmt.closePath();
+            //    ctxmt.stroke();
+            //}
             ////////////////////////////////////////////////
             //for (var x = 0; x < dc.length; x++)
             //{
@@ -741,7 +815,7 @@
 <body onresize="or();">
     <video id="vd"></video>
     <canvas id="c_bg" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>
-    <canvas id="c_mt" style="left: 0; top: 0; margin: 0; position: fixed;z-index:-1;width:200%;height:200%; "></canvas>
+    <canvas id="c_mt" style="left: 0; top: 0; margin: 0; position: fixed;z-index:-1; "></canvas>
     <!--<canvas id="c_webgl" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>-->
 
 

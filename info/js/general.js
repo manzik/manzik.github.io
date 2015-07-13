@@ -28,6 +28,7 @@ function ore()
     var l = document.getElementById("ci");
     l.style.fontSize = innerWidth / 18 + "px";
     document.getElementById("mi").style.fontSize = innerWidth / 11 + "px";
+    document.getElementById("cr").style.fontSize = innerWidth /50 + "px";
 }
 function m_oc()
 {

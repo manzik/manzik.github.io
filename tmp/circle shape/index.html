@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>circle shape</title>
+    <script src="dat.gui.min.js"></script>
     <script>
         var name = "SLM :)";
         var imgd;
@@ -20,8 +21,64 @@
             var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
             return [imgd[idx], imgd[idx + 1], imgd[idx + 2], imgd[idx + 3]]
         }
+        function options_obj()
+        {
+            this.txt = "SLM :)";
+            this.ss = 0.5;
+            this.wx = "-0.5";
+            this.wy = "0.5";
+            this.lt = 0.2;
+            this.a = 5000;
+        }
+        var wx=-0.5, wy=0.5;
         window.addEventListener("load", function ()
         {
+            options = new options_obj();
+
+            var gui = new dat.GUI();
+            controller = gui.add(options, "ss", 0.1).step(0.1).name("spreading speed");
+            controller1 = gui.add(options, "wx").name("wind x");
+            controller2 = gui.add(options, "wy").name("wind y");
+            controller3 = gui.add(options, "txt").name("Text");
+            controller4 = gui.add(options, "lt").name("Live time");
+            controller5 = gui.add(options, "a").name("Circle amount");
+            controller5.onFinishChange(function (val)
+            {
+                if (val > a)
+                {
+                    for (var i = a ; i < val; i++)
+                    {
+                        var x = (Math.random() * innerWidth) >> 0;
+                        var y = (Math.random() * innerHeight) >> 0;
+                        while (getxy(imgd, x, y, innerWidth, innerHeight)[3] < 1)
+                        {
+                            x = (Math.random() * innerWidth) >> 0;
+                            y = (Math.random() * innerHeight) >> 0;
+                        }
+                        arr_o[i] = new p(x, y);
+                        arr_os[i] = new p(0, 0);
+                    }
+                }
+                a = val;
+            });
+            controller3.onFinishChange(function (val)
+            {
+                ctx.clearRect(0, 0, innerWidth, innerHeight);
+                ctx.font = '300pt Arial'
+                ctx.textAlign = "center";
+                ctx.moveTo(innerWidth / 2, innerHeight / 2);
+                ctx.fillText(val, innerWidth / 2, innerHeight / 2);
+                img = ctx.getImageData(0, 0, innerWidth, innerHeight);
+                imgd = img.data;
+            });
+            controller1.onFinishChange(function (val)
+            {
+                wx = parseFloat(val);
+            });
+            controller2.onFinishChange(function (val)
+            {
+                wy = parseFloat(val);
+            });
             c = document.getElementById("c");
             ctx = c.getContext("2d");
             c.height = innerHeight;
@@ -58,8 +115,8 @@
             ctx.clearRect(0, 0, innerWidth, innerHeight);
             for (var i = 0; i < a; i++)
             {
-                if (arr_o[i].r > 0.1)
-                    arr_o[i].r -= 0.1;
+                if (arr_o[i].r > options.lt)
+                    arr_o[i].r -= options.lt;
                 else
                 {
                     var x = (Math.random() * innerWidth) >> 0;
@@ -75,8 +132,8 @@
                     arr_os[i].x = 0;
                     arr_os[i].y = 0;
                 }
-                arr_os[i].x += Math.random() - 0.5;
-                arr_os[i].y += Math.random() - 0.5;
+                arr_os[i].x += (Math.random() - 0.5) * options.ss + wx;
+                arr_os[i].y += (Math.random() - 0.5) * options.ss + wy;
                 arr_o[i].x += arr_os[i].x;
                 arr_o[i].y += arr_os[i].y;
             }

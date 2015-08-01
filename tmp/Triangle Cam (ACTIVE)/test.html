@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Triangle Cam | Manzik Lab
+    </title>
+    <script>
+        window.onload = function ()
+        {
+            vid = document.createElement("video");
+            c = document.getElementById("c");
+            c.height = innerHeight;
+            c.width = innerWidth;
+            ctx = c.getContext("2d");
+            navigator.getUserMedia = navigator.getUserMedia ||
+                          navigator.webkitGetUserMedia ||
+                          navigator.mozGetUserMedia ||
+                          navigator.msGetUserMedia;
+            if (navigator.getUserMedia)
+                navigator.getUserMedia({ video: true }, function (stream)
+                {
+                    vid.src = window.URL.createObjectURL(stream);
+                    vid.play();
+                    
+                }, function () { alert("error"); });
+            else
+                alert("Your browser does not support getUserMedia");
+            render();
+        }
+        function  getxy(imgd, x, y, wdth, hght)
+        {
+            var idx = (x + (y * wdth)) * 4;
+            return [imgd[idx], imgd[idx + 1], imgd[idx + 2], imgd[idx + 3]]
+        }
+        function render()
+        {
+            ctx.drawImage(vid, 0, 0, c.width, c.height);
+            //var imgd = ctx.getImageData(0, 0, innerWidth, innerHeight).data;
+
+            requestAnimationFrame(render);
+        }
+    </script>
+</head>
+<body>
+    <video id="vd"></video>
+    <canvas id="c" style="left:0;top:0;position:fixed;"></canvas>
+</body>
+</html>

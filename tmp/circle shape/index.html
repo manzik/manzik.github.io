@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>circle shape</title>
+    <script>
+        var name = "SLM :)";
+        var imgd;
+        var arr_o = [];
+        var a = 5000;
+        function p(x, y)
+        {
+            this.x = x;
+            this.y = y;
+            this.r = Math.random() * 10;
+            this.c = "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")";
+        }
+        function getxy(imgd, x, y, wdth, hght)
+        {
+            var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
+            return [imgd[idx], imgd[idx + 1], imgd[idx + 2], imgd[idx + 3]]
+        }
+        window.addEventListener("load", function ()
+        {
+            c = document.getElementById("c");
+            ctx = c.getContext("2d");
+            c.height = innerHeight;
+            c.width = innerWidth;
+            ctx.font = '300pt Arial'
+            ctx.textAlign = "center";
+            ctx.moveTo(innerWidth / 2, innerHeight / 2);
+            ctx.fillText(name, innerWidth / 2, innerHeight / 2);
+            //var ct = document.createElement("canvas");
+            //ctxt = ct.getContext("2d");
+            //ctxt.fillText(name, 150, 140);
+            img = ctx.getImageData(0, 0, innerWidth, innerHeight);
+            imgd = img.data;
+            //ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (var i = 0; i < a; i++)
+            {
+                var x = (Math.random() * innerWidth) >> 0;
+                var y = (Math.random() * innerHeight) >> 0;
+                while (getxy(imgd, x, y, innerWidth, innerHeight)[3] < 1)
+                {
+                    x = (Math.random() * innerWidth) >> 0;
+                    y = (Math.random() * innerHeight) >> 0;
+                }
+                arr_o[i] = new p(x, y);
+            }
+            for (var i = 0; i < a; i++)
+            {
+                ctx.beginPath();
+                ctx.arc(arr_o[i].x, arr_o[i].y, arr_o[i].r, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fillStyle = arr_o[i].c;
+                ctx.fill();
+            }
+            render();
+        });
+        function render()
+        {
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (var i = 0; i < a; i++)
+            {
+                if (arr_o[i].r > 0.1)
+                    arr_o[i].r -= 0.1;
+                else
+                {
+                    var x = (Math.random() * innerWidth) >> 0;
+                    var y = (Math.random() * innerHeight) >> 0;
+                    while (getxy(imgd, x, y, innerWidth, innerHeight)[3] < 1)
+                    {
+                        x = (Math.random() * innerWidth) >> 0;
+                        y = (Math.random() * innerHeight) >> 0;
+                    }
+                    arr_o[i].x = x;
+                    arr_o[i].y = y;
+                    arr_o[i].r = Math.random()*10;
+                }
+                arr_o[i].x += Math.random() - 0.5;
+                arr_o[i].y += Math.random() - 0.5;
+            }
+            for (var i = 0; i < a; i++)
+            {
+
+                ctx.beginPath();
+                ctx.arc(arr_o[i].x, arr_o[i].y, arr_o[i].r, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fillStyle = arr_o[i].c;
+                ctx.fill();
+            }
+            requestAnimationFrame(render);
+        }
+    </script>
+</head>
+<body>
+    <canvas id="c" style="position:fixed;left:0;top:0;"></canvas>
+</body>
+</html>

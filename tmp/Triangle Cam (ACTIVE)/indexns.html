@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
+<html>
+<head>
+    <title>Triangle cam | Manzik lab</title>
+    <meta charset="us-ascii" />
+    <script src="dat.gui.min.js"></script>
+    <!--<script src="ivank.js"></script>-->
+    <script>
+        var s = function (x, y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        var d;
+        var size = 20;
+        var u = function ()
+        {
+            if (localStorage.getItem("triangles_0"))
+                if (localStorage)
+                {
+                    this.s = parseInt(localStorage.getItem("triangles_0"));
+                    size = this.s;
+                }
+                else
+                {
+                    this.s = parseInt(window.localStorage.getItem("triangles_0"));
+                    size = this.s;
+                }
+            else
+                if (localStorage)
+                {
+                    this.s = 20;
+                    localStorage.setItem("triangles_0", 20);
+                    size = this.s;
+                }
+                else
+                {
+                    this.s = 20;
+                    window.localStorage.setItem("triangles_0", 20);
+                    size = this.s;
+                }
+            if (localStorage.getItem("triangles_1"))
+                if (localStorage)
+                {
+                    this.lw = parseFloat(localStorage.getItem("triangles_1"));
+                }
+                else
+                {
+                    this.lw = parseFloat(window.localStorage.getItem("triangles_1"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.lw = 0.5;
+                    localStorage.setItem("triangles_1", 0.5);
+                }
+                else
+                {
+                    this.lw = 0.5;
+                    window.localStorage.setItem("triangles_1", 0.5);
+                }
+            if (localStorage.getItem("triangles_2"))
+                if (localStorage)
+                {
+                    this.g = localStorage.getItem("triangles_2") == "true";
+                }
+                else
+                {
+                    this.g = window.localStorage.getItem("triangles_2") == "true";
+                }
+            else
+                if (localStorage)
+                {
+                    this.g = true;
+                    localStorage.setItem("triangles_2", true);
+                }
+                else
+                {
+                    this.g = true;
+                    window.localStorage.setItem("triangles_2", true);
+                }
+            this.ss = function ()
+            {
+                var link = document.createElement('a');
+                link.download = "Triangles.png";
+                link.href = cbg.toDataURL("image/png").replace("image/png", "image/octet-stream");;
+                link.click();
+            };
+            if (localStorage.getItem("triangles_4"))
+                if (localStorage)
+                {
+                    this.fwt = localStorage.getItem("triangles_4") == "true";
+                }
+                else
+                {
+                    this.fwt = window.localStorage.getItem("triangles_4") == "true";
+                }
+            else
+                if (localStorage)
+                {
+                    this.fwt = true;
+                    localStorage.setItem("triangles_4", true);
+                }
+                else
+                {
+                    this.fwt = true;
+                    window.localStorage.setItem("triangles_4", true);
+                }
+            if (localStorage.getItem("triangles_5"))
+                if (localStorage)
+                {
+                    this.n = parseInt(localStorage.getItem("triangles_5"));
+                }
+                else
+                {
+                    this.n = parseInt(window.localStorage.getItem("triangles_5"));
+                }
+            else
+                if (localStorage)
+                {
+                    this.n = 5;
+                    localStorage.setItem("triangles_5", 5);
+                }
+                else
+                {
+                    this.n = 5;
+                    window.localStorage.setItem("triangles_5", 5);
+                }
+        };
+        function getxy(imgd, x, y, wdth, hght)
+        {
+            var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
+            return [imgd[idx], imgd[idx + 1], imgd[idx + 2]];
+        }
+        var bg = { tri: '', reg: '', dc: '' }, tmp_c = { dom: document.createElement("canvas") };
+        tmp_c.ctxbg = tmp_c.dom.getContext("2d");
+        window.onload = function ()
+        {
+            vid = document.createElement("video");
+            navigator.getUserMedia = navigator.getUserMedia ||
+                          navigator.webkitGetUserMedia ||
+                          navigator.mozGetUserMedia ||
+                          navigator.msGetUserMedia;
+            if (navigator.getUserMedia)
+                navigator.getUserMedia({ video: true }, function (stream)
+                {
+                    vid.src = window.URL.createObjectURL(stream);
+                    vid.play();
+                    rndr();
+                }, function () { alert("error"); });
+            else
+                alert("Your browser does not support getUserMedia");
+
+            q = new u();
+            var gui = new dat.GUI();
+
+            controller6 = gui.add(q, "fwt").name("Fill with triangles");
+            controller4 = gui.add(q, "g").name("Gradient")
+            controller = gui.add(q, 's', 2, 250).step(1).name("Size");
+            controller2 = gui.add(q, "lw", 0, 4).step(0.1).name("Line Width");
+            controller7 = gui.add(q, "n", 0, 100).name("Noise");
+            controller3 = gui.add(q, "ss").name("Save As Image");
+            controller7.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_5", v);
+                else
+                    window.localStorage.setItem("triangles_5", v);
+            });
+            controller6.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_4", v);
+                else
+                    window.localStorage.setItem("triangles_4", v);
+            });
+            controller4.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_2", v);
+                else
+                    window.localStorage.setItem("triangles_2", v);
+            });
+            controller.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_0", v);
+                else
+                    window.localStorage.setItem("triangles_0", v);
+                size = v;
+                load(size);
+            });
+            controller2.onFinishChange(function (v)
+            {
+                if (localStorage)
+                    localStorage.setItem("triangles_1", v);
+                else
+                    window.localStorage.setItem("triangles_1", v);
+            });
+            cbg = document.getElementById("c_bg");
+            ctxbg = cbg.getContext("2d");
+            cbg.height = ih;
+            cbg.width = iw;
+            cmt = document.getElementById("c_mt");
+            ctxmt = c_mt.getContext("2d");
+            cmt.height = ih;
+            cmt.width = iw;
+            //stage = new Stage("c_webgl");
+            //sp = new Sprite();
+            //stage.addChild(sp);
+        }
+        var iw = 150, ih = 100;
+        var hist_imgd = ['', '', ''];
+        function rndr()
+        {
+            ctxbg.clearRect(0, 0, innerWidth, innerHeight);
+            ctxbg.drawImage(vid, 0, 0, iw, ih);
+            var img = ctxbg.getImageData(0, 0, iw, ih);
+            imgd = img.data;
+            //for (var i = 0; i < 1; i++)
+            //{
+            //    hist_imgd[i] = JSON.parse(JSON.stringify(hist_imgd[i + 1]));
+            //}
+            var new_imgd = ctxbg.createImageData(iw, ih);
+            //if (hist_imgd[0])
+            //{
+                for (var y = 0; y < ih; y++)
+                {
+                    for (var x = 0; x < iw; x++)
+                    {
+                        idx = (Math.round(x) + (Math.round(y) * iw)) * 4;
+                        var a = getxy(imgd, x, y, iw, ih);
+                        a = (a[0] + a[1] + a[2]) / 3;
+                        new_imgd.data[idx] = a;
+                        new_imgd.data[idx + 1] = a;
+                        new_imgd.data[idx + 2] = a;
+                        new_imgd.data[idx + 3] = 255;
+                        
+                        //var prev = "";
+                        //var isns = false;
+                        //for (var i = 0; i < 2; i++)
+                        //{
+                        //    var a = getxy(hist_imgd[i], x, y, iw, ih);
+                        //    a = (a[0] + a[1] + a[2]) / 3;
+                        //    var b = getxy(hist_imgd[i + 1], x, y, iw, ih);
+                        //    b = (b[0] + b[1] + b[2]) / 3;
+                        ////    var curr = a > b ? ">" : "<";
+                        ////    if (curr == prev)
+                        ////    {
+                        ////        isns = false;
+                        ////        break;
+                        ////    }
+                        ////    else
+                        ////        if (i == 2)
+                        ////        {
+                        ////            isns = true;
+                        ////            break;
+                        ////        }
+                        ////    prev = curr;
+                        ////}
+                        ////if(isns)
+                        ////{
+                        ////    var idx = (Math.round(x) + (Math.round(y) * wdth)) * 4;
+                        ////    imgd[idx] = 0;
+                        ////    imgd[idx+1] =0;
+                        ////    imgd[idx+2] =0;
+                        ////}
+                    }
+                }
+                var a = getxy(new_imgd.data, 0, 0, iw, ih);
+                a = (a[0] + a[1] + a[2]) / 3;
+                console.log(a);
+            //}
+            //hist_imgd[2] = JSON.parse(JSON.stringify(imgd));
+            ctxbg.clearRect(0, 0, innerWidth, innerHeight);
+            ctxbg.putImageData(new_imgd, 0, 0);
+            requestAnimationFrame(rndr);
+        }
+        function or()
+        {
+            cbg.height = ih;
+            cbg.width = iw;
+        }
+    </script>
+</head>
+<body onresize="or();">
+    <video id="vd"></video>
+    <canvas id="c_bg" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff; z-index: -1; width: 100%; height: 100%;"></canvas>
+    <canvas id="c_mt" style="left: 0; top: 0; margin: 0; position: fixed;z-index:-1;width:100%;height:100%; "></canvas>
+    <!--<canvas id="c_webgl" style="left: 0; top: 0; margin: 0; position: fixed; color: #f00; background-color: #fff;z-index:-1; "></canvas>-->
+
+
+
+</body>
+</html>

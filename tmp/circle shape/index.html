@@ -9,11 +9,12 @@
         var arr_o = [];
         var arr_os = [];
         var a = 5000;
+        var iw = innerWidth, ih = innerHeight;
         function p(x, y)
         {
             this.x = x;
             this.y = y;
-            this.r = Math.random() * 10;
+            this.r = Math.random() * options.cs;
             this.c = "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")";
         }
         function getxy(imgd, x, y, wdth, hght)
@@ -29,8 +30,33 @@
             this.wy = "0";
             this.lt = 0.2;
             this.a = 5000;
+            this.fs = 300;
+            this.fn = "Arial";
+            this.cs = 10;
         }
-        var wx=0, wy=0;
+        var wx = 0, wy = 0;
+        var arr_avl = [];
+        function avll(val)
+        {
+            ctx.clearRect(0, 0, iw, ih);
+            ctx.font = options.fs + "pt " + options.fn;
+            ctx.textAlign = "center";
+            ctx.moveTo(iw / 2, ih / 2);
+            ctx.fillText(options.txt, iw / 2, ih / 2);
+            img = ctx.getImageData(0, 0, iw, ih);
+            imgd = img.data;
+            arr_avl = [];
+            for (var x = 0; x < iw; x++)
+            {
+                for (var y = 0; y < ih; y++)
+                {
+                    if (getxy(imgd, x, y, iw, ih)[3] > 1)
+                    {
+                        arr_avl[arr_avl.length] = new p(x, y);
+                    }
+                }
+            }
+        }
         window.addEventListener("load", function ()
         {
             options = new options_obj();
@@ -40,21 +66,28 @@
             controller1 = gui.add(options, "wx").name("wind x");
             controller2 = gui.add(options, "wy").name("wind y");
             controller3 = gui.add(options, "txt").name("Text");
-            controller4 = gui.add(options, "lt").name("Live time");
-            controller5 = gui.add(options, "a").name("Circle amount");
+            controller6 = gui.add(options, "fs").name("font size");
+            controller7 = gui.add(options, "fn").name("font name");
+            controller4 = gui.add(options, "lt",0).name("Live time");
+            controller5 = gui.add(options, "a",1).name("Circle amount");
+            controller8 = gui.add(options, "cs",0.1).name("Circle size");
+            controller6.onFinishChange(function (val)
+            {
+                avll(val);
+            });
+            controller7.onFinishChange(function (val)
+            {
+                avll(val);
+            });
             controller5.onFinishChange(function (val)
             {
                 if (val > a)
                 {
                     for (var i = a ; i < val; i++)
                     {
-                        var x = (Math.random() * innerWidth) >> 0;
-                        var y = (Math.random() * innerHeight) >> 0;
-                        while (getxy(imgd, x, y, innerWidth, innerHeight)[3] < 1)
-                        {
-                            x = (Math.random() * innerWidth) >> 0;
-                            y = (Math.random() * innerHeight) >> 0;
-                        }
+                        var num = arr_avl[(Math.random() * arr_avl.length) >> 0];
+                        var x = num.x;
+                        var y = num.y;
                         arr_o[i] = new p(x, y);
                         arr_os[i] = new p(0, 0);
                     }
@@ -63,45 +96,45 @@
             });
             controller3.onFinishChange(function (val)
             {
-                ctx.clearRect(0, 0, innerWidth, innerHeight);
-                ctx.font = '300pt Arial'
-                ctx.textAlign = "center";
-                ctx.moveTo(innerWidth / 2, innerHeight / 2);
-                ctx.fillText(val, innerWidth / 2, innerHeight / 2);
-                img = ctx.getImageData(0, 0, innerWidth, innerHeight);
-                imgd = img.data;
+                avll();
             });
             controller1.onFinishChange(function (val)
             {
-                wx = parseFloat(val);
+                wx = parseFloat();
             });
             controller2.onFinishChange(function (val)
             {
-                wy = parseFloat(val);
+                wy = parseFloat();
             });
             c = document.getElementById("c");
             ctx = c.getContext("2d");
-            c.height = innerHeight;
-            c.width = innerWidth;
-            ctx.font = '300pt Arial'
+            c.height = ih;
+            c.width = iw;
+            ctx.font = options.fs + "pt " + options.fn;
             ctx.textAlign = "center";
-            ctx.moveTo(innerWidth / 2, innerHeight / 2);
-            ctx.fillText(name, innerWidth / 2, innerHeight / 2);
+            ctx.moveTo(iw / 2, ih / 2);
+            ctx.fillText(name, iw / 2,ih / 2);
             //var ct = document.createElement("canvas");
             //ctxt = ct.getContext("2d");
             //ctxt.fillText(name, 150, 140);
-            img = ctx.getImageData(0, 0, innerWidth, innerHeight);
+            img = ctx.getImageData(0, 0, iw, ih);
             imgd = img.data;
+            for (var x = 0; x< iw; x++)
+            {
+                for(var y=0;y<ih;y++)
+                {
+                    if(getxy(imgd, x, y, iw, ih)[3] > 1)
+                    {
+                        arr_avl[arr_avl.length] = new p(x, y);
+                    }
+                }
+            }
             //ctx.clearRect(0, 0, innerWidth, innerHeight);
             for (var i = 0; i < a; i++)
             {
-                var x = (Math.random() * innerWidth) >> 0;
-                var y = (Math.random() * innerHeight) >> 0;
-                while (getxy(imgd, x, y, innerWidth, innerHeight)[3] < 1)
-                {
-                    x = (Math.random() * innerWidth) >> 0;
-                    y = (Math.random() * innerHeight) >> 0;
-                }
+                var num = arr_avl[(Math.random() * arr_avl.length) >> 0];
+                var x = num.x;
+                var y = num.y;
                 arr_o[i] = new p(x, y);
             }
             for (var i = 0; i < a; i++)
@@ -112,23 +145,17 @@
         });
         function render()
         {
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            ctx.clearRect(0, 0, iw, ih);
             for (var i = 0; i < a; i++)
             {
                 if (arr_o[i].r > options.lt)
                     arr_o[i].r -= options.lt;
                 else
                 {
-                    var x = (Math.random() * innerWidth) >> 0;
-                    var y = (Math.random() * innerHeight) >> 0;
-                    while (getxy(imgd, x, y, innerWidth, innerHeight)[3] < 1)
-                    {
-                        x = (Math.random() * innerWidth) >> 0;
-                        y = (Math.random() * innerHeight) >> 0;
-                    }
-                    arr_o[i].x = x;
-                    arr_o[i].y = y;
-                    arr_o[i].r = Math.random() * 10;
+                    var num = arr_avl[(Math.random() * arr_avl.length) >> 0];
+                    var x = num.x;
+                    var y = num.y;
+                    arr_o[i] = new p(x,y);
                     arr_os[i].x = 0;
                     arr_os[i].y = 0;
                 }
@@ -148,9 +175,36 @@
             }
             requestAnimationFrame(render);
         }
+        function or()
+        {
+            ih = innerHeight;
+            iw = innerWidth;
+            c.width = iw;
+            c.height = ih;
+            ctx.font = options.fs + "pt " + options.fn;
+            ctx.textAlign = "center";
+            ctx.moveTo(iw / 2, ih / 2);
+            ctx.fillText(name, iw / 2, ih / 2);
+            //var ct = document.createElement("canvas");
+            //ctxt = ct.getContext("2d");
+            //ctxt.fillText(name, 150, 140);
+            img = ctx.getImageData(0, 0, iw, ih);
+            imgd = img.data;
+            arr_avl = [];
+            for (var x = 0; x < iw; x++)
+            {
+                for (var y = 0; y < ih; y++)
+                {
+                    if (getxy(imgd, x, y, iw, ih)[3] > 1)
+                    {
+                        arr_avl[arr_avl.length] = new p(x, y);
+                    }
+                }
+            }
+        }
     </script>
 </head>
-<body>
+<body onresize="or()">
     <canvas id="c" style="position:fixed;left:0;top:0;"></canvas>
 </body>
 </html>

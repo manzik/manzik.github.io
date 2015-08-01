@@ -100,11 +100,11 @@
             });
             controller1.onFinishChange(function (val)
             {
-                wx = parseFloat();
+                wx = parseFloat(val);
             });
             controller2.onFinishChange(function (val)
             {
-                wy = parseFloat();
+                wy = parseFloat(val);
             });
             c = document.getElementById("c");
             ctx = c.getContext("2d");

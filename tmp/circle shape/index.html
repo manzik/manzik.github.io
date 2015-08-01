@@ -6,6 +6,7 @@
         var name = "SLM :)";
         var imgd;
         var arr_o = [];
+        var arr_os = [];
         var a = 5000;
         function p(x, y)
         {
@@ -48,11 +49,7 @@
             }
             for (var i = 0; i < a; i++)
             {
-                ctx.beginPath();
-                ctx.arc(arr_o[i].x, arr_o[i].y, arr_o[i].r, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.fillStyle = arr_o[i].c;
-                ctx.fill();
+                arr_os[i] = new p(0, 0);
             }
             render();
         });
@@ -76,8 +73,10 @@
                     arr_o[i].y = y;
                     arr_o[i].r = Math.random()*10;
                 }
-                arr_o[i].x += Math.random() - 0.5;
-                arr_o[i].y += Math.random() - 0.5;
+                arr_os[i].x = Math.random() - 0.5;
+                arr_os[i].y += Math.random() - 0.5;
+                arr_o[i].x += arr_os[i].x;
+                arr_o[i].y += arr_os[i].y;
             }
             for (var i = 0; i < a; i++)
             {

@@ -41,8 +41,7 @@
             ctx.clearRect(0, 0, iw, ih);
             ctx.font = options.fs + "pt " + options.fn;
             ctx.textAlign = "center";
-            ctx.moveTo(iw / 2, ih / 2);
-            ctx.fillText(options.txt, iw / 2, ih / 2);
+            ctx.fillText(options.txt, iw / 2, ih / 2 + options.fs / 2.3);
             img = ctx.getImageData(0, 0, iw, ih);
             imgd = img.data;
             arr_avl = [];
@@ -96,7 +95,7 @@
             });
             controller3.onFinishChange(function (val)
             {
-                avll();
+                avll(val);
             });
             controller1.onFinishChange(function (val)
             {
@@ -112,8 +111,7 @@
             c.width = iw;
             ctx.font = options.fs + "pt " + options.fn;
             ctx.textAlign = "center";
-            ctx.moveTo(iw / 2, ih / 2);
-            ctx.fillText(name, iw / 2,ih / 2);
+            ctx.fillText(name, iw / 2, ih / 2 + options.fs / 2.3);
             //var ct = document.createElement("canvas");
             //ctxt = ct.getContext("2d");
             //ctxt.fillText(name, 150, 140);
@@ -183,8 +181,7 @@
             c.height = ih;
             ctx.font = options.fs + "pt " + options.fn;
             ctx.textAlign = "center";
-            ctx.moveTo(iw / 2, ih / 2);
-            ctx.fillText(name, iw / 2, ih / 2);
+            ctx.fillText(options.txt, iw / 2, ih / 2 + options.fs / 2.3);
             //var ct = document.createElement("canvas");
             //ctxt = ct.getContext("2d");
             //ctxt.fillText(name, 150, 140);

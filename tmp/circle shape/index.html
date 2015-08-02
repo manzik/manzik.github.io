@@ -33,31 +33,167 @@
             this.fs = 300;
             this.fn = "Arial";
             this.cs = 10;
+            this.ci = ci;
+            this.cfi = false;
+        }
+        function foc()
+        {
+            if (this.files && this.files[0].type.indexOf("image") > -1)
+            {
+                var FR = new FileReader();
+                FR.onload = function (e)
+                {
+                    currt = false;
+                    var img = new Image();
+                    img.src = e.target.result;
+                    avll(img);
+                };
+                FR.readAsDataURL(this.files[0]);
+            }
+            else
+            {
+                alert("file you selected is not an image")
+            }
+        }
+        function ci()
+        {
+            performClick("theFile");
+        }
+        function performClick(elemId)
+        {
+            var elem = document.getElementById(elemId);
+            if (elem && document.createEvent)
+            {
+                var evt = document.createEvent("MouseEvents");
+                evt.initEvent("click", true, false);
+                elem.dispatchEvent(evt);
+            }
+
         }
         var wx = 0, wy = 0;
         var arr_avl = [];
+        var currt = true;
+        var imgg;
         function avll(val)
         {
+            
             ctx.clearRect(0, 0, iw, ih);
-            ctx.font = options.fs + "pt " + options.fn;
-            ctx.textAlign = "center";
-            ctx.fillText(options.txt, iw / 2, ih / 2 + options.fs / 2.3);
+            if (currt)
+            {
+                document.getElementById("theFile").value = "";
+                ctx.font = options.fs + "pt " + options.fn;
+                ctx.textAlign = "center";
+                ctx.fillText(options.txt, iw / 2, ih / 2 + options.fs / 2.3);
+            }
+            else
+            {
+                imgg = val;
+                imgw = val.width, imgh = val.height;
+
+                //if (imgw > iw )
+                //{
+                //    if (imgh < ih)
+                //    {
+                //        n = (iw / imgw);
+                //    }
+                //    else
+                //    {
+                //        if (imgw < imgh)
+                //        {
+                //            n = (iw / imgw);
+                //        }
+                //        else
+                //        {
+                //            n = (ih / imgh);
+                //        }
+                //    }
+                //}
+                //else
+                //    if (imgw < iw && imgh > ih)
+                //    {
+                //        n = (ih / imgh);
+                //    }
+                var vl = imgw > iw ? imgh < ih ? true : imgw < imgh : imgw < iw && imgh > ih ? false : 1;
+                var n = vl == 1 ? 1 : vl ? (iw / imgw) : (ih / imgh);
+                imgh *= n;
+                imgw *= n;
+                ctx.drawImage(val, (iw - imgw) / 2, (ih - imgh) / 2, imgw, imgh);
+                img = ctx.getImageData((iw - imgw) / 2, (ih - imgh) / 2, imgw, imgh);
+                imgd = img.data;
+                tr = false;
+                for (var x = 0; x < iw; x++)
+                {
+                    for (var y = 0; y < ih; y++)
+                    {
+                        if (getxy(imgd, x, y, iw, ih)[3] < 1)
+                        {
+                            tr = true;
+                            y = ih;
+                            x = iw;
+                        }
+                    }
+                }
+                arr_avl = [];
+                aavl = 0;
+                img = ctx.getImageData(0, 0, iw, ih);
+                imgd = img.data;
+                if (tr)
+                {
+                    for (var x = 0; x < iw; x++)
+                    {
+                        for (var y = 0; y < ih; y++)
+                        {
+                            var px = getxy(imgd, x, y, iw, ih);
+                            if (px[3] > 0 && px[0] + px[1] + px[2] + px[3] != 1020)
+                            {
+                                arr_avl[aavl] = new p(x, y);
+                                aavl++;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (var x = 0; x < iw; x++)
+                    {
+                        for (var y = 0; y < ih; y++)
+                        {
+                            var px = getxy(imgd, x, y, iw, ih);
+                            if (px[0] + px[1] + px[2] + px[3] < 1010 && px[3] > 0)
+                            {
+                                arr_avl[aavl] = new p(x, y);
+                                aavl++;
+                            }
+                        }
+                    }
+                }
+            }
+
             img = ctx.getImageData(0, 0, iw, ih);
             imgd = img.data;
-            arr_avl = [];
-            for (var x = 0; x < iw; x++)
+
+            if (currt)
             {
-                for (var y = 0; y < ih; y++)
+                arr_avl = [];
+                arr_navl = [];
+                aavl = 0;
+                anavl = 0;
+                for (var x = 0; x < iw; x++)
                 {
-                    if (getxy(imgd, x, y, iw, ih)[3] > 1)
+                    for (var y = 0; y < ih; y++)
                     {
-                        arr_avl[arr_avl.length] = new p(x, y);
+                        if (getxy(imgd, x, y, iw, ih)[3] > 1)
+                        {
+                            arr_avl[aavl] = new p(x, y);
+                            aavl++;
+                        }
                     }
                 }
             }
         }
         window.addEventListener("load", function ()
         {
+            document.getElementById("theFile").addEventListener("change", foc);
             options = new options_obj();
 
             var gui = new dat.GUI();
@@ -67,9 +203,11 @@
             controller3 = gui.add(options, "txt").name("Text");
             controller6 = gui.add(options, "fs").name("font size");
             controller7 = gui.add(options, "fn").name("font name");
-            controller4 = gui.add(options, "lt",0).name("Life time");
-            controller5 = gui.add(options, "a",1).name("Circle amount");
-            controller8 = gui.add(options, "cs",0.1).name("Circle size");
+            controller4 = gui.add(options, "lt", 0).name("Life time");
+            controller5 = gui.add(options, "a", 1).name("Circle amount");
+            controller8 = gui.add(options, "cs", 0.1).name("Circle size");
+            controller9 = gui.add(options, "ci", 0.1).name("Choose image");
+            controller10 = gui.add(options, "cfi", 0.1).name("colors from image");
             controller6.onFinishChange(function (val)
             {
                 avll(val);
@@ -95,6 +233,7 @@
             });
             controller3.onFinishChange(function (val)
             {
+                currt = true;
                 avll(val);
             });
             controller1.onFinishChange(function (val)
@@ -117,11 +256,11 @@
             //ctxt.fillText(name, 150, 140);
             img = ctx.getImageData(0, 0, iw, ih);
             imgd = img.data;
-            for (var x = 0; x< iw; x++)
+            for (var x = 0; x < iw; x++)
             {
-                for(var y=0;y<ih;y++)
+                for (var y = 0; y < ih; y++)
                 {
-                    if(getxy(imgd, x, y, iw, ih)[3] > 1)
+                    if (getxy(imgd, x, y, iw, ih)[3] > 1)
                     {
                         arr_avl[arr_avl.length] = new p(x, y);
                     }
@@ -134,6 +273,11 @@
                 var x = num.x;
                 var y = num.y;
                 arr_o[i] = new p(x, y);
+                if (options.cfi)
+                {
+                    var px = getxy(imgd, x, y, innerWidth, innerHeight);
+                    arr_o[i].c = "rgb(" + px[0] + "," + px[1] + "," + px[2] + ")";
+                }
             }
             for (var i = 0; i < a; i++)
             {
@@ -153,7 +297,12 @@
                     var num = arr_avl[(Math.random() * arr_avl.length) >> 0];
                     var x = num.x;
                     var y = num.y;
-                    arr_o[i] = new p(x,y);
+                    arr_o[i] = new p(x, y);
+                    if (options.cfi)
+                    {
+                        var px = getxy(imgd, x, y, innerWidth, innerHeight);
+                        arr_o[i].c = "rgb(" + px[0] + "," + px[1] + "," + px[2] + ")";
+                    }
                     arr_os[i].x = 0;
                     arr_os[i].y = 0;
                 }
@@ -179,29 +328,12 @@
             iw = innerWidth;
             c.width = iw;
             c.height = ih;
-            ctx.font = options.fs + "pt " + options.fn;
-            ctx.textAlign = "center";
-            ctx.fillText(options.txt, iw / 2, ih / 2 + options.fs / 2.3);
-            //var ct = document.createElement("canvas");
-            //ctxt = ct.getContext("2d");
-            //ctxt.fillText(name, 150, 140);
-            img = ctx.getImageData(0, 0, iw, ih);
-            imgd = img.data;
-            arr_avl = [];
-            for (var x = 0; x < iw; x++)
-            {
-                for (var y = 0; y < ih; y++)
-                {
-                    if (getxy(imgd, x, y, iw, ih)[3] > 1)
-                    {
-                        arr_avl[arr_avl.length] = new p(x, y);
-                    }
-                }
-            }
+            avll(currt ? options.txt : imgg);
         }
     </script>
 </head>
 <body onresize="or()">
     <canvas id="c" style="position:fixed;left:0;top:0;"></canvas>
+    <input style="visibility:hidden;" type="file" id="theFile" />
 </body>
 </html>

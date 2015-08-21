@@ -11,29 +11,38 @@
             this.c = c;
             this.dir = { x: 0, y: 0 }
         }
-        var sp = 0.2;
+        var sp = 0.12;
         //player object (circle)
         var pl_obj;
         //gravity circles
         var arr_gr_obj = [];
         var losdist = 120;
+        var pl_obj_att = true;
         window.addEventListener("load", function ()
         {
+            window.addEventListener("keydown", function (e)
+            {
+                if(e.keyCode==32)
+                {
+                    pl_obj_att = !pl_obj_att;
+                }
+            });
             c = document.getElementById("c");
             c.height = innerHeight;
             c.width = innerWidth;
             ctx = c.getContext("2d");
-            arr_gr_obj[arr_gr_obj.length] = new p(innerWidth / 2, innerHeight * 3 / 4, 40, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")");
+            arr_gr_obj.push(new p(innerWidth / 2, innerHeight * 3 / 4, 40, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"));
+            arr_gr_obj.push(new p(Math.random()*innerWidth, innerHeight * 1 / 4, 40, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"))
             var rand = Math.random() * 5;
             var x = innerWidth / 2 + Math.cos(rand) * 60;
             var y = innerHeight * 3 / 4 + Math.sin(rand) * 60;
             pl_obj = new p(x, y, 6, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")");
             pl_obj.sc = rand;
             pl_obj.f = 60;
-            rand += Math.PI / 10;
+            rand += Math.PI / 20;
             var x2 = innerWidth / 2 + Math.cos(rand) * 60;
             var y2 = innerHeight * 3 / 4 + Math.sin(rand) * 60;
-            var g = 5.355;
+            var g = 5.358;
             pl_obj.dir.x = (x2 - x)/g;
             pl_obj.dir.y = (y2 - y)/g;
             attach_pl_obj(0);
@@ -43,12 +52,6 @@
         {
             calc_pos();
             ctx.clearRect(0, 0, innerWidth, innerHeight);
-            //render pl_obj
-            ctx.beginPath();
-            ctx.arc(pl_obj.x, pl_obj.y, pl_obj.r, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fillStyle = pl_obj.c;
-            ctx.fill();
             //render arr_gr_obj
             for (var i = 0; i < arr_gr_obj.length; i++)
             {
@@ -58,11 +61,17 @@
                 ctx.fillStyle = arr_gr_obj[i].c;
                 ctx.fill();
             }
+            //render pl_obj
+            ctx.beginPath();
+            ctx.arc(pl_obj.x, pl_obj.y, pl_obj.r, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fillStyle = pl_obj.c;
+            ctx.fill();
             requestAnimationFrame(render);
         }
         function calc_pos()
         {
-            if (pl_obj.att !== '')
+            if ( pl_obj_att)
             {
                 var grav_obj = arr_gr_obj[pl_obj.att];
                 var dist = Math.sqrt(Math.pow(grav_obj.x - pl_obj.x, 2) + Math.pow(grav_obj.y - pl_obj.y, 2)) - grav_obj.r;
@@ -70,25 +79,34 @@
                 //calc pl_obj gravity get farther
                 //pl_obj.dir.y += -(grav_obj.y - pl_obj.y) * sp;
                 //pl_obj.dir.x += -(grav_obj.x - pl_obj.x) * sp;
-                ////calc pl_obj gravity
+                //calc pl_obj gravity
                 //pl_obj.dir.x += Math.abs((1 / dist) * (grav_obj.x - pl_obj.x)) < 10 ? (1 / dist) * (grav_obj.x - pl_obj.x) : 0;
                 //pl_obj.dir.y += Math.abs((1 / dist) * (grav_obj.y - pl_obj.y)) < 10 ? (1 / dist) * (grav_obj.y - pl_obj.y) : 0;
-                //pl_obj.dir.x;
-                //pl_obj.dir.y;
                 ///////////////////////////////////
-                pl_obj.sc += sp;
-                pl_obj.f += sp;
-                if (pl_obj.f > losdist)
-                {
-                    pl_obj.att = '';
-                    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
-                    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
-                }
-                pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
-                pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
+                //pl_obj.sc += sp;
+                //pl_obj.f += sp;
+                //if (pl_obj.f > losdist)
+                //{
+                //    pl_obj.att = '';
+                //    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
+                //    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
+                //}
+                //pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
+                //pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
                 ///////////////////////////////
-                //pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
-                //pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
+                pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
+                pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
+                pl_obj.sc += sp;
+                pl_obj.f += pl_obj.f/200;
+                if (dist < 70)
+                {
+                    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f))/10;
+                    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f))/10;
+                }
+                else
+                {
+                    pl_obj_att = false;
+                }
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
             }
@@ -96,6 +114,21 @@
             {
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
+                for (var i = 0; i < arr_gr_obj.length; i++)
+                {
+                    if(i!=pl_obj.att)
+                    {
+                        var dist = Math.sqrt(Math.pow(arr_gr_obj[i].x - pl_obj.x, 2) + Math.pow(arr_gr_obj[i].y - pl_obj.y, 2)) - arr_gr_obj[i].r;
+                        if(dist<70)
+                        {
+                            pl_obj.f = dist;
+                            pl_obj.sc = Math.atan2(pl_obj.x - arr_gr_obj[i].x, pl_obj.y - arr_gr_obj[i].y);
+                            pl_obj.att = i;
+                            pl_obj_att = true;
+                            break;
+                        }
+                    }
+                }
             }
         }
         function attach_pl_obj(x)

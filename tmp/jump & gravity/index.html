@@ -22,7 +22,7 @@
         {
             window.addEventListener("keydown", function (e)
             {
-                if(e.keyCode==32)
+                if (e.keyCode == 32)
                 {
                     pl_obj_att = !pl_obj_att;
                 }
@@ -31,20 +31,18 @@
             c.height = innerHeight;
             c.width = innerWidth;
             ctx = c.getContext("2d");
-            arr_gr_obj.push(new p(innerWidth / 2, innerHeight * 3 / 4, 40, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"));
-            arr_gr_obj.push(new p(Math.random()*innerWidth, innerHeight * 1 / 4, 40, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"))
+            arr_gr_obj.push(new p(innerWidth / 2, innerHeight * 3 / 4, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"));
+            arr_gr_obj.push(new p(Math.random() * innerWidth, innerHeight * 1 / 4, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"))
             var rand = Math.random() * 5;
             var x = innerWidth / 2 + Math.cos(rand) * 60;
             var y = innerHeight * 3 / 4 + Math.sin(rand) * 60;
             pl_obj = new p(x, y, 6, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")");
             pl_obj.sc = rand;
-            pl_obj.f = 60;
+            pl_obj.f = 120;
+            pl_obj.cw = true;
             rand += Math.PI / 20;
             var x2 = innerWidth / 2 + Math.cos(rand) * 60;
             var y2 = innerHeight * 3 / 4 + Math.sin(rand) * 60;
-            var g = 5.358;
-            pl_obj.dir.x = (x2 - x)/g;
-            pl_obj.dir.y = (y2 - y)/g;
             attach_pl_obj(0);
             render();
         });
@@ -71,7 +69,7 @@
         }
         function calc_pos()
         {
-            if ( pl_obj_att)
+            if (pl_obj_att)
             {
                 var grav_obj = arr_gr_obj[pl_obj.att];
                 var dist = Math.sqrt(Math.pow(grav_obj.x - pl_obj.x, 2) + Math.pow(grav_obj.y - pl_obj.y, 2)) - grav_obj.r;
@@ -96,12 +94,12 @@
                 ///////////////////////////////
                 pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
                 pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
-                pl_obj.sc += sp;
-                pl_obj.f += pl_obj.f/200;
-                if (dist < 70)
+                pl_obj.sc += pl_obj.cw ? sp : -sp;
+                pl_obj.f += pl_obj.f / 200;
+                if (dist < 140)
                 {
-                    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f))/10;
-                    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f))/10;
+                    pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f)) / 6;
+                    pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f)) / 6;
                 }
                 else
                 {
@@ -112,25 +110,35 @@
             }
             else
             {
-                pl_obj.x += pl_obj.dir.x;
-                pl_obj.y += pl_obj.dir.y;
                 for (var i = 0; i < arr_gr_obj.length; i++)
                 {
-                    if(i!=pl_obj.att)
+                    if (i != pl_obj.att)
                     {
-                        var dist = Math.sqrt(Math.pow(arr_gr_obj[i].x - pl_obj.x, 2) + Math.pow(arr_gr_obj[i].y - pl_obj.y, 2)) - arr_gr_obj[i].r;
-                        if(dist<70)
+                        var d = Math.sqrt(Math.pow(arr_gr_obj[i].x - pl_obj.x, 2) + Math.pow(arr_gr_obj[i].y - pl_obj.y, 2));
+
+                        if (d < 220)
                         {
-                            pl_obj.f = dist;
-                            pl_obj.sc = Math.atan2(pl_obj.x - arr_gr_obj[i].x, pl_obj.y - arr_gr_obj[i].y);
+                            pl_obj.f =  120;
+                            console.log("x:", arr_gr_obj[i].x - pl_obj.x, ",y:", arr_gr_obj[i].y - pl_obj.y,",deg:",Math.atan2(arr_gr_obj[i].x - pl_obj.x, arr_gr_obj[i].y - pl_obj.y)*(180/Math.PI))
+                            pl_obj.sc = Math.atan2(arr_gr_obj[i].x - pl_obj.x, pl_obj.y-arr_gr_obj[i].y)+Math.PI/2;
                             pl_obj.att = i;
                             pl_obj_att = true;
-                            break;
+                            a = pl_obj.dir.y / pl_obj.dir.x;
+                            b = (pl_obj.y - arr_gr_obj[i].y) / (pl_obj.x - arr_gr_obj[i].x);
+                            pl_obj.cw = a < b;
+                            if (pl_obj.dir.x < 0 != 0 < (pl_obj.x - arr_gr_obj[i].x))
+                            {
+                                pl_obj.cw = !pl_obj.cw;
+                            }
                         }
                     }
                 }
+                pl_obj.x += pl_obj.dir.x;
+                pl_obj.y += pl_obj.dir.y;
+
             }
         }
+        var d1, d2;
         function attach_pl_obj(x)
         {
             pl_obj.att = x;

@@ -11,7 +11,7 @@
             this.c = c;
             this.dir = { x: 0, y: 0 }
         }
-        var sp = 0.12;
+        var sp = 0.05;
         //player object (circle)
         var pl_obj;
         //gravity circles
@@ -95,7 +95,7 @@
                 pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
                 pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
                 pl_obj.sc += pl_obj.cw ? sp : -sp;
-                pl_obj.f += pl_obj.f / 200;
+                pl_obj.f += pl_obj.f / 500;
                 if (dist < 140)
                 {
                     pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f)) / 6;
@@ -119,7 +119,6 @@
                         if (d < 220)
                         {
                             pl_obj.f =  120;
-                            console.log("x:", arr_gr_obj[i].x - pl_obj.x, ",y:", arr_gr_obj[i].y - pl_obj.y,",deg:",Math.atan2(arr_gr_obj[i].x - pl_obj.x, arr_gr_obj[i].y - pl_obj.y)*(180/Math.PI))
                             pl_obj.sc = Math.atan2(arr_gr_obj[i].x - pl_obj.x, pl_obj.y-arr_gr_obj[i].y)+Math.PI/2;
                             pl_obj.att = i;
                             pl_obj_att = true;

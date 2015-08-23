@@ -11,13 +11,14 @@
             this.c = c;
             this.dir = { x: 0, y: 0 }
         }
-        var sp = 0.05;
+        var sp = 0.1;
         //player object (circle)
         var pl_obj;
         //gravity circles
         var arr_gr_obj = [];
         var losdist = 120;
         var pl_obj_att = true;
+        var glob_y = 0;
         window.addEventListener("load", function ()
         {
             window.addEventListener("keydown", function (e)
@@ -48,20 +49,21 @@
         });
         function render()
         {
-            calc_pos();
             ctx.clearRect(0, 0, innerWidth, innerHeight);
+            calc_pos();
+            
             //render arr_gr_obj
             for (var i = 0; i < arr_gr_obj.length; i++)
             {
                 ctx.beginPath();
-                ctx.arc(arr_gr_obj[i].x, arr_gr_obj[i].y, arr_gr_obj[i].r, 0, Math.PI * 2);
+                ctx.arc(arr_gr_obj[i].x, arr_gr_obj[i].y+glob_y, arr_gr_obj[i].r, 0, Math.PI * 2);
                 ctx.closePath();
                 ctx.fillStyle = arr_gr_obj[i].c;
                 ctx.fill();
             }
             //render pl_obj
             ctx.beginPath();
-            ctx.arc(pl_obj.x, pl_obj.y, pl_obj.r, 0, Math.PI * 2);
+            ctx.arc(pl_obj.x, pl_obj.y + glob_y, pl_obj.r, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fillStyle = pl_obj.c;
             ctx.fill();
@@ -92,10 +94,10 @@
                 //pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f));
                 //pl_obj.dir.y = -(pl_obj.y - (grav_obj.y + Math.sin(pl_obj.sc) * pl_obj.f));
                 ///////////////////////////////
-                pl_obj.dir.x += 1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x);
-                pl_obj.dir.y += 1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y);
+                //pl_obj.dir.x += (1 / (Math.pow(dist, 2)) * (grav_obj.x - pl_obj.x));
+                //pl_obj.dir.y += (1 / (Math.pow(dist, 2)) * (grav_obj.y - pl_obj.y));
                 pl_obj.sc += pl_obj.cw ? sp : -sp;
-                pl_obj.f += pl_obj.f / 500;
+                pl_obj.f += pl_obj.f / 200;
                 if (dist < 140)
                 {
                     pl_obj.dir.x = -(pl_obj.x - (grav_obj.x + Math.cos(pl_obj.sc) * pl_obj.f)) / 6;
@@ -107,20 +109,44 @@
                 }
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
+                glob_y += (-glob_y + (-grav_obj.y + innerHeight * 3 / 4)) / 50;
+                console.log("a: ",(-glob_y + (-grav_obj.y + innerHeight * 3 / 4)) / 50);
             }
             else
             {
+                
                 for (var i = 0; i < arr_gr_obj.length; i++)
                 {
                     if (i != pl_obj.att)
                     {
                         var d = Math.sqrt(Math.pow(arr_gr_obj[i].x - pl_obj.x, 2) + Math.pow(arr_gr_obj[i].y - pl_obj.y, 2));
+                        //var m_p = pl_obj.dir.y / pl_obj.dir.x;
+                        //var m_c = -m_p;
+                        //var d_p = -m_p * pl_obj.x + pl_obj.y;
+                        //var d_c = -m_c * arr_gr_obj[i].x + arr_gr_obj[i].y;
+                        //xx = (d_c - d_p) / (m_p - m_c);
+                        //yy = m_p * xx + d_p;
 
                         if (d < 220)
                         {
-                            pl_obj.f =  120;
-                            pl_obj.sc = Math.atan2(arr_gr_obj[i].x - pl_obj.x, pl_obj.y-arr_gr_obj[i].y)+Math.PI/2;
-                            pl_obj.att = i;
+                            pl_obj.f = 120;
+
+                            res = checkLineIntersection(pl_obj.x, pl_obj.y, pl_obj.x + pl_obj.dir.x, pl_obj.y + pl_obj.dir.y,
+                                arr_gr_obj[i].x + Math.cos(Math.atan2(arr_gr_obj[i].x - pl_obj.x, arr_gr_obj[i].y - pl_obj.y) + Math.PI / 2) * arr_gr_obj[i].r,
+                                arr_gr_obj[i].y + Math.sin(Math.atan2(arr_gr_obj[i].x - pl_obj.x, arr_gr_obj[i].y - pl_obj.y) + Math.PI / 2) * arr_gr_obj[i].r,
+                                arr_gr_obj[i].x + Math.cos(Math.atan2(arr_gr_obj[i].x - pl_obj.x, arr_gr_obj[i].y - pl_obj.y) - Math.PI / 2) * arr_gr_obj[i].r,
+                                arr_gr_obj[i].y + Math.sin(Math.atan2(arr_gr_obj[i].x - pl_obj.x, arr_gr_obj[i].y - pl_obj.y) - Math.PI / 2) * arr_gr_obj[i].r);
+                            if (res.onLine2)
+                                pl_obj.sc = Math.atan2(arr_gr_obj[i].x - pl_obj.x, pl_obj.y - arr_gr_obj[i].y) + Math.PI / 2;
+                            else
+                            {
+                                res = checkLineIntersection(pl_obj.x, pl_obj.y, pl_obj.x + pl_obj.dir.x, pl_obj.y + pl_obj.dir.y, arr_gr_obj[i].x, arr_gr_obj[i].y, arr_gr_obj[i].x - pl_obj.dir.x, arr_gr_obj[i].y + pl_obj.dir.y);
+                                xx = res.x;
+                                yy = res.y;
+                                pl_obj.sc = Math.atan2(arr_gr_obj[i].x - (xx+pl_obj.x)/2, (yy+pl_obj.y)/2 - arr_gr_obj[i].y) + Math.PI / 2;
+                            }
+
+                            attach_pl_obj(i);
                             pl_obj_att = true;
                             a = pl_obj.dir.y / pl_obj.dir.x;
                             b = (pl_obj.y - arr_gr_obj[i].y) / (pl_obj.x - arr_gr_obj[i].x);
@@ -134,14 +160,64 @@
                 }
                 pl_obj.x += pl_obj.dir.x;
                 pl_obj.y += pl_obj.dir.y;
-
+                glob_y += (-glob_y + (-pl_obj.y + innerHeight * 3 / 4)) / 10;
+                console.log("b: ",(-glob_y + (-Math.max(pl_obj.y, arr_gr_obj[pl_obj.att].y) + innerHeight * 3 / 4)) / 10);
             }
+            
         }
-        var d1, d2;
+        var d1, d2, xx = 0, yy = 0;
         function attach_pl_obj(x)
         {
             pl_obj.att = x;
+            if(x==arr_gr_obj.length-1)
+            {
+                console.log(x);
+                arr_gr_obj.push(new p(Math.random() * innerWidth, arr_gr_obj[x].y-innerHeight*1/2, 80, "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"))
+            }
+            console.log(x);
         }
+        function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY)
+        {
+            // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
+            var denominator, a, b, numerator1, numerator2, result = {
+                x: null,
+                y: null,
+                onLine1: false,
+                onLine2: false
+            };
+            denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
+            if (denominator == 0)
+            {
+                return result;
+            }
+            a = line1StartY - line2StartY;
+            b = line1StartX - line2StartX;
+            numerator1 = ((line2EndX - line2StartX) * a) - ((line2EndY - line2StartY) * b);
+            numerator2 = ((line1EndX - line1StartX) * a) - ((line1EndY - line1StartY) * b);
+            a = numerator1 / denominator;
+            b = numerator2 / denominator;
+
+            // if we cast these lines infinitely in both directions, they intersect here:
+            result.x = line1StartX + (a * (line1EndX - line1StartX));
+            result.y = line1StartY + (a * (line1EndY - line1StartY));
+            /*
+                    // it is worth noting that this should be the same as:
+                    x = line2StartX + (b * (line2EndX - line2StartX));
+                    y = line2StartX + (b * (line2EndY - line2StartY));
+                    */
+            // if line1 is a segment and line2 is infinite, they intersect if:
+            if (a > 0 && a < 1)
+            {
+                result.onLine1 = true;
+            }
+            // if line2 is a segment and line1 is infinite, they intersect if:
+            if (b > 0 && b < 1)
+            {
+                result.onLine2 = true;
+            }
+            // if line1 and line2 are segments, they intersect if both of the above are true
+            return result;
+        };
     </script>
 </head>
 <body>

@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+<head>
+    <title>
+
+    </title>
+    <script id="5">
+        function tri(p1,p2,p3,tp)
+        {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
+            this.type = tp;
+        }
+        function p(x,y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        function or()
+        {
+            c.height = innerHeight;
+            c.width = innerWidth;
+        }
+        var arr_tris = [];
+        var pl = { x: innerWidth / 5, y: innerHeight / 3, g: 1, v: 0, r: 8, l_isintri: false, m_jmp: false, going_up: false, jump_c: { count: 0, abil: 15 } };
+        window.addEventListener("load", function ()
+        {
+            document.addEventListener('keydown', function (e) { pl.m_jmp = true; });
+            document.addEventListener('keyup', function (e) { pl.m_jmp = false; pl.going_up = false; });
+            c = document.getElementById("c");
+            or();
+            window.addEventListener("resize",or);
+            ctx = c.getContext("2d");
+            init();
+            render();
+        });
+        var tri_size = 60;
+        function init()
+        {
+            for (var x = 0; x - tri_size < innerWidth; x += tri_size)
+            {
+                arr_tris.push(new tri(new p(x, innerHeight / 2 - tri_size / 2), new p(x , innerHeight / 2 + tri_size / 2), new p(x  + tri_size, innerHeight / 2 - tri_size / 2)));
+                arr_tris.push(new tri(new p(x, innerHeight / 2 + tri_size / 2), new p(x  + tri_size, innerHeight / 2 - tri_size / 2), new p(x  + tri_size, innerHeight / 2 + tri_size / 2)));
+            }
+            trans = arr_tris[arr_tris.length - 1].p3.x % tri_size+2;
+        }
+        function render()
+        {
+            calc_ph();
+            tri_ctrl();
+            
+            draw();
+            requestAnimationFrame(render);
+        }
+        var trans;
+        var trans_sp = 3;
+        function tri_ctrl()
+        {
+            
+            if (trans>tri_size)
+            {
+                
+                trans -= tri_size;
+                var x = innerWidth - trans + tri_size;
+                
+                arr_tris.push(new tri(new p(x , innerHeight / 2 - tri_size / 2), new p(x, innerHeight / 2 + tri_size / 2), new p(x  + tri_size, innerHeight / 2 - tri_size / 2),0));
+                arr_tris.push(new tri(new p(x , innerHeight / 2 + tri_size / 2), new p(x  + tri_size, innerHeight / 2 - tri_size / 2), new p(x  + tri_size, innerHeight / 2 + tri_size / 2),1));
+            }
+            for (var i = 0; i < arr_tris.length; i++)
+            {
+                var tr = arr_tris[i];
+                tr.p1.x -= trans_sp;
+                tr.p2.x -= trans_sp;
+                tr.p3.x -= trans_sp;
+                
+                if(Math.max(tr.p1.x,tr.p2.x,tr.p3.x)<=0)
+                {
+                    arr_tris.splice(i, 1);
+                }
+            }
+            trans += trans_sp;
+            
+        }
+        function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY)
+        {
+            // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
+            var denominator, a, b, numerator1, numerator2, result = {
+                x: null,
+                y: null,
+                onLine1: false,
+                onLine2: false
+            };
+            denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
+            if (denominator == 0)
+            {
+                return result;
+            }
+            a = line1StartY - line2StartY;
+            b = line1StartX - line2StartX;
+            numerator1 = ((line2EndX - line2StartX) * a) - ((line2EndY - line2StartY) * b);
+            numerator2 = ((line1EndX - line1StartX) * a) - ((line1EndY - line1StartY) * b);
+            a = numerator1 / denominator;
+            b = numerator2 / denominator;
+
+            // if we cast these lines infinitely in both directions, they intersect here:
+            result.x = line1StartX + (a * (line1EndX - line1StartX));
+            result.y = line1StartY + (a * (line1EndY - line1StartY));
+            /*
+                    // it is worth noting that this should be the same as:
+                    x = line2StartX + (b * (line2EndX - line2StartX));
+                    y = line2StartX + (b * (line2EndY - line2StartY));
+                    */
+            // if line1 is a segment and line2 is infinite, they intersect if:
+            if (a > 0 && a < 1)
+            {
+                result.onLine1 = true;
+            }
+            // if line2 is a segment and line1 is infinite, they intersect if:
+            if (b > 0 && b < 1)
+            {
+                result.onLine2 = true;
+            }
+            // if line1 and line2 are segments, they intersect if both of the above are true
+            return result;
+        };        function wch_lns(tri,p1,p2)
+        {
+            if (checkLineIntersection(tri.p1.x, tri.p1.y, tri.p2.x, tri.p2.y, p1.x, p1.y, p2.x, p2.y).onLine1)
+                return [1, 2];
+            else
+                if (checkLineIntersection(tri.p2.x, tri.p2.y, tri.p3.x, tri.p3.y, p1.x, p1.y, p2.x, p2.y).onLine1)
+                    return [2, 3];
+                else
+                    if (checkLineIntersection(tri.p3.x, tri.p3.y, tri.p1.x, tri.p1.y, p1.x, p1.y, p2.x, p2.y).onLine1)
+                        return [1, 3];
+        }
+        trans_sp_a = 0.1;
+        function calc_ph()
+        {
+                pl.v += pl.g;
+                pl.y += pl.v;
+            var l_isintri=false
+            for (var i = 0; i < arr_tris.length; i++)
+            {
+                if (isintri(pl, arr_tris[i]).b)
+                {
+                    if (pl.v < 1)
+                    {
+                        avg = new p((arr_tris[i].p1.x + arr_tris[i].p2.x + arr_tris[i].p3.x) / 3 , (arr_tris[i].p1.y + arr_tris[i].p2.y + arr_tris[i].p3.y) / 3);
+                        var lns=wch_lns(arr_tris[i],new p(pl.x,pl.y),new p(pl.x,pl.y-pl.v));
+                        if (lns != undefined && arr_tris[i].type==1 && lns.indexOf(1) > -1 && lns.indexOf(2) > -1)
+                        {
+                            trans_sp_a += 0.1;
+                            pl.v = trans_sp;
+                        }
+                        else
+                            if (lns != undefined && arr_tris[i].type == 0 && lns.indexOf(1) > -1 && lns.indexOf(2) > -1)
+                            {
+                                alert("wow");
+                                pl.v = -50;
+                            }
+                            else
+                                pl.v = trans_sp;
+                    }
+                    if (pl.m_jmp)
+                    {
+                        pl.going_up = true;
+                    }
+                    if (!l_isintri)
+                    pl.v = -pl.v * 0.5;
+                    pl.y += pl.v / 2;
+                    l_isintri = true;
+                }
+            }
+            //if (pl.v < 0) pl.going_up = false;
+            if (pl.going_up && pl.m_jmp)
+            {
+                if (pl.jump_c.count<pl.jump_c.abil)
+                    pl.jump_c.count += 1;
+                else
+                {
+                    pl.jump_c.count = 0;
+                    pl.going_up = false;
+                }
+                if (pl.v>-10)
+                pl.v -=3;
+            }
+            trans_sp_a = Math.max(trans_sp_a - 0.05, 0);
+            trans_sp += (trans_sp_a > 0 || trans_sp <=3)? trans_sp_a : -0.05;
+            pl.l_isintri =l_isintri;
+        }
+        function wch_tri(pl,tri)
+        {
+
+        }
+        function sign(p1,p2,p3)
+        {
+            return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y + pl.r - p3.y);
+        }
+        function isintri(p,tri)
+        {
+            var b1, b2, b3;
+            b1 = sign(p, tri.p1, tri.p2) < 0;
+            b2 = sign(p, tri.p2, tri.p3) < 0;
+            b3 = sign(p, tri.p3, tri.p1) < 0;
+
+            return {b:((b1 == b2) && (b2 == b3)),b1:[b1,b2,b3]};
+        }
+        function draw()
+        {
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for(var i=0;i<arr_tris.length;i++)
+            {
+                var tr = arr_tris[i];
+                ctx.beginPath();
+                ctx.moveTo(tr.p1.x-0.5, tr.p1.y);
+                ctx.lineTo(tr.p2.x - 0.5, tr.p2.y);
+                ctx.lineTo(tr.p3.x - 0.5, tr.p3.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.beginPath();
+            ctx.arc(pl.x, pl.y, pl.r, 0, Math.PI*2);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+    </script>
+</head>
+<body>
+    <canvas id="c" style="left:0;position:fixed;top:0;"></canvas>
+</body>
+</html>

@@ -216,7 +216,7 @@
                 avg+=frequencyData[i];
             }
             avg /= frequencyData.length;
-            if (!bar.hold)
+            if (!bar.hold && bar.val-avg>2)
             {
                 bar.val -= f.sp;
             }
@@ -434,10 +434,15 @@
             this.holding= 500;
             this.sp= 0.08;
         }
+        function or()
+        {
+            c.width = innerWidth;
+            c.height=innerHeight;
+        }
         var isr = false;
     </script>
 </head>
-<body>
+<body onresize="or()">
     <canvas id="c" style="left:0;top:0;position:fixed;"></canvas>
     <div id="container" style="top:0;left:0;position:fixed;width:100%;">
         <b id="hid" style="position:fixed;">Press H key to hide/show options</b>

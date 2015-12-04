@@ -187,7 +187,8 @@
                         else
                             y = -tri_size * 2;
                         var tween = TweenLite.to([arr_tris[((arr_tris.length * 80 / 100) >> 0)].p1, arr_tris[((arr_tris.length * 80 / 100) >> 0)].p2, arr_tris[((arr_tris.length * 80 / 100) >> 0)].p3], 1, { y: y });
-                        var tween = TweenLite.to([arr_tris[((arr_tris.length * 80 / 100 + 1) >> 0)].p1, arr_tris[((arr_tris.length * 80 / 100 + 1) >> 0)].p2, arr_tris[((arr_tris.length * 80 / 100 + 1) >> 0)].p3], 1, { y: y });
+						var nem=((Math.random() * 10) >> 0) % 2 == 0?-1:1;
+                        var tween = TweenLite.to([arr_tris[((arr_tris.length * 80 / 100 + nem) >> 0)].p1, arr_tris[((arr_tris.length * 80 / 100 + nem) >> 0)].p2, arr_tris[((arr_tris.length * 80 / 100 + nem) >> 0)].p3], 1, { y: y });
                         n_av_tris++;
                     }
                     else
@@ -265,7 +266,7 @@
                     else
                         if ((!pl.l_isintri && lns == false) || (arr_tris[lns[0]].type == 1 && lns[1].indexOf(1) > -1 && lns[1].indexOf(2) > -1))
                         {
-                            trans_sp_a += 0.15;
+                            trans_sp_a += 0.25;
                             pl.y -= pl.v;
                             pl.v = -trans_sp - pl.g;
                             pl.y += pl.v;

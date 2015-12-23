@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+    <title></title>
+    <script>
+        window.addEventListener("load", function ()
+        {
+            c = document.getElementById("c");
+            ctx = c.getContext("2d");
+        });
+        var imgd, txt;
+        function onch(e)
+        {
+            input = e;
+            if (input.files && input.files[0])
+            {
+                var reader = new FileReader();
+                reader.onload = function (e)
+                {
+                    img = new Image();
+                    img.src = e.target.result;
+                    c.height = img.height;
+                    c.width = img.width;
+                    ctx.drawImage(img, 0, 0, img.width, img.height);
+                    imgd = ctx.getImageData(0, 0, img.width, img.height);
+                    txt = (document.getElementById("txt").innerHTML).split(" ");
+                    txt.sort(function (a, b)
+                    {
+                        if (a.length > b.length) return 1;
+                        else
+                            if (a.length < b.length) return -1;
+                            else
+                                if (a.length == b.length)
+                                    return 0;
+
+                    });
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(0, 0, img.width, img.height);
+                    sz = (img.height / 30)>>0;
+                    make_photo();
+                };
+                reader.readAsDataURL(input.files[0]);
+
+            }
+        }
+        function gettxt(cnt)
+        {
+            if (cnt == 11)
+            {
+                var text = "";
+                var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+                for (var i = 0; i < cnt; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                return text;
+            }
+            if (txt.length > cnt)
+                return false;
+            var num=((cnt  * txt.length / 250) >> 0) > (txt.length - 1) ? txt.length - 1 : ((cnt * txt.length /250) >> 0);
+            numr = num + (((Math.random() - 0.5) * 40) >> 0);
+            return txt[(numr < txt.length && numr > 0 && txt [numr].length==txt[num].length? numr : num)]
+        }
+        var sz = 0;
+        function make_photo()
+        {
+            last_m = false;
+            txt_max=0;
+            for(var i=0;i<txt.length;i++)
+            {
+                if(txt[i].length>txt_max)
+                    txt_max=txt[i].length;
+            }
+            txt_max *=sz;
+            for (var i = 0,szd=(sz); i < img.height; i +=szd )
+            {
+                var tmp = 0;
+                var cnt = 0, cntc = 0;
+                px = getpx(imgd.data, 0, i, img.width, img.height);
+                tmp = 170;
+                for (var j = 0; j < img.width; j += 1)
+                {
+                    px = getpx(imgd.data, j, i, img.width, img.height);
+                    avg = (px[0] + px[1] + px[2]) / 3;
+                    if ((Math.abs(avg - tmp) > 10 && cnt > 10) || cnt>50)
+                    {
+                            var px2 = getpx(imgd.data, (j - cnt / 2) >> 0, i, img.width, img.height);
+                            ctx.fillStyle = "rgb(" + px2[0] + "," + px2[1] + "," + px2[2] + ")";
+                            ctx.font = (sz) + "px Tycho";
+                            var txtx=gettxt(cnt);
+                            for (var n = 0, nn = cnt / txtx.length; n < txtx.length; n++)
+                            {
+                                ctx.fillText(txtx[n], j + nn*(n-1), i, nn);
+                            }
+                            
+                            //console.log(txt[((cnt * txt.length / 100) >> 0) > (txt.length - 1) ? txt.length - 1 : ((cnt * txt.length / 100) >> 0)]);
+                            cnt = 0;
+                            
+                        
+                    }
+                    else
+                    {
+                        cnt++;
+                    }
+                    //console.log(Math.abs(avg - tmp));
+                    tmp = avg;
+                }
+            }
+        }
+        function getpx(imgdat, x, y, w, h)
+        {
+            var ind = (y * w + x) * 4;
+            return [imgdat[ind], imgdat[ind + 1], imgdat[ind + 2], imgdat[ind + 3]];
+        }
+    </script>
+</head>
+<body>
+    <canvas height="500" width="500" id="c"></canvas>
+    <textarea placeholder="texts" id="txt">dust nauseating last loaf wrap plausible cobweb rhythm bore curly lumber unbecoming preserve tearful believe road natural twist solid pets</textarea>
+    <input type="file" value="photo" onchange="onch(this)" />
+</body>
+</html>

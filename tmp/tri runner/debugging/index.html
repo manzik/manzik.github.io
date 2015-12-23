@@ -42,7 +42,7 @@
         var clcing = false;
         var arr_tris = [];
         var started = false;
-        var pl = { l_isintri_c:0,cont: [], x: innerWidth / 5, y: innerHeight / 3, g: 0.9, v: 0, r: 8, l_isintri: false, m_jmp: false, going_up: false, jump_c: { count: 0, abil: 15 } };
+        var pl = { cont: [], x: innerWidth / 5, y: innerHeight / 3, g: 0.9, v: 0, r: 8, l_isintri: false, m_jmp: false, going_up: false, jump_c: { count: 0, abil: 15 } };
         function ts(e)
         {
             pl.m_jmp = true;
@@ -274,27 +274,8 @@
             [
                 function ()
                 {
-                    if (this.height == undefined)
-                    {
-                        this.height = height - ((Math.random() * 15) >> 0);;
-                        this.count = Math.ceil((20 * innerHeight / 100) / tri_size) * 3;
-                        height = this.height;
-                    }
-                    else
-                    {
-
-                        this.count--;
-                        if (this.count <= 0)
-                            return true;
-                    }
-                    var indd = ((arr_tris.length * 80 / 100) >> 0) + 1;
-                    TweenLite.to(arr_tris[indd].p1, 1, { y: this.height * innerHeight / 100 + tri_size / 2 });
-                    TweenLite.to(arr_tris[indd].p2, 1, { y: this.height * innerHeight / 100 - tri_size / 2 });
-                    TweenLite.to(arr_tris[indd].p3, 1, { y: this.height * innerHeight / 100 + tri_size / 2 });
-                    var indd = ((arr_tris.length * 80 / 100) >> 0);
-                    TweenLite.to(arr_tris[indd].p1, 1, { y: this.height * innerHeight / 100 - tri_size / 2 });
-                    TweenLite.to(arr_tris[indd].p2, 1, { y: this.height * innerHeight / 100 + tri_size / 2 });
-                    TweenLite.to(arr_tris[indd].p3, 1, { y: this.height * innerHeight / 100 - tri_size / 2 });
+                    height = height - ((Math.random() * 15) >> 0);
+                    return true;
                 }
                 ,
                 function ()
@@ -302,11 +283,11 @@
                     if (this.rt == undefined)
                     {
                         this.rt = ((height - 35) / (tri_size * 100 / innerHeight)) >> 0;
-                        if (this.rt <= 2)
+                        if (this.rt <= 1)
                             return true;
                         anims.current.count = 0;
                         this.f1 = true;
-                        height = height - ((this.rt - 1) * tri_size * 100 / innerHeight);
+                        height = height - ((this.rt-1) * tri_size*100/innerHeight);
                     }
                     if (this.f1)
                     {
@@ -317,9 +298,9 @@
                         TweenLite.to(arr_tris[indd].p2, 1, { y: arr_tris[indd].p2.y - (anims.current.count - 1) * tri_size });
                         TweenLite.to(arr_tris[indd].p3, 1, { y: arr_tris[indd].p3.y - (anims.current.count - 1) * tri_size });
                         var indd = ((arr_tris.length * 80 / 100) >> 0);
-                        TweenLite.to(arr_tris[indd].p1, 1, { y: arr_tris[indd].p1.y - (anims.current.count - 2) * tri_size });
-                        TweenLite.to(arr_tris[indd].p2, 1, { y: arr_tris[indd].p2.y - (anims.current.count - 2) * tri_size });
-                        TweenLite.to(arr_tris[indd].p3, 1, { y: arr_tris[indd].p3.y - (anims.current.count - 2) * tri_size });
+                        TweenLite.to(arr_tris[indd].p1, 1, { y: arr_tris[indd].p1.y - (anims.current.count -2) * tri_size });
+                        TweenLite.to(arr_tris[indd].p2, 1, { y: arr_tris[indd].p2.y - (anims.current.count -2) * tri_size });
+                        TweenLite.to(arr_tris[indd].p3, 1, { y: arr_tris[indd].p3.y - (anims.current.count -2) * tri_size });
                         if (anims.current.count == this.rt)
                         {
                             this.f1 = false;
@@ -432,12 +413,12 @@
                     if (this.height == undefined)
                     {
                         this.height = (((Math.random() * 50) >> 0) + 50);
-                        this.count = Math.ceil((20 * innerHeight / 100) / tri_size) * 4;
+                        this.count = Math.ceil((20 * innerHeight / 100) / tri_size)*2;
                         height = this.height;
                     }
                     else
                     {
-
+                        
                         this.count--;
                         if (this.count <= 0)
                             return true;
@@ -566,7 +547,6 @@
                 {
                     if (isintri(pl, arr_tris[i]).b)
                     {
-                        l_isintri = true;
                         var lns = wch_lns(new p(pl.x, pl.y), new p(pl.x - trans_sp, pl.y - pl.v));
                         if (lns == false)
                         {
@@ -579,8 +559,11 @@
                             //}
                             //else
                             //{
-                            trans_sp = 0;
+                            if (arr_tris[i].type == 0)
+                            {
+                                trans_sp = 0;
                                 pl.v = trans_sp + trans_sp_a;
+                            }
                             //}
                         }
                         else
@@ -599,7 +582,6 @@
                                 }
                                 else
                                 {
-                                    l_isintri = false;
                                     pl.y -= pl.v;
                                     pl.y = lns[2].y - pl.r * 1.11;
                                     pl.v = 0;
@@ -626,18 +608,12 @@
                         }
 
 
-                        
+                        l_isintri = true;
                         //break;
                     }
                 }
-            if (l_isintri)
-                pl.l_isintri_c++;
-            else
-                pl.l_isintri_c = 0;
-            if (pl.l_isintri_c >= 2)
-            {
-                pl.v -= 5;
-            }
+
+
             //if (pl.v < 0) pl.going_up = false;
             if (pl.going_up && pl.m_jmp)
             {

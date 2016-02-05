@@ -221,7 +221,7 @@ window.msAudioContext);
         var bar = { val: 0, holding: 500, sp: 0.08, hold: true };
         function beat(a, i)
         {
-            arr[i].y += Math.min(a * (a * 0.15), 400);
+            arr[i].y += Math.min(a * 2 * (a * 0.15), 400);
         }
         var fdprev = [];
         function render()
@@ -358,9 +358,9 @@ window.msAudioContext);
                     //arr[n].vx += (-arr[n].x);
                     //arr[n].vy += (-arr[n].y) / 100;
                     if (kl == 0)
-                        ctx.lineTo(Math.sin((n) / arr.length * Math.PI * 2) * (100 + arr[n].y / 10) * Math.max(avg / 40, 1) + innerWidth / 2, Math.cos(n / arr.length * Math.PI * 2) * (100 + arr[n].y / 10) * Math.max(avg / 40, 1) + innerHeight / 2);
+                        ctx.lineTo(Math.sin((n) / arr.length * Math.PI * 2) * (100 + arr[n].y / 10) * Math.max(avg / 30, 1) + innerWidth / 2, Math.cos(n / arr.length * Math.PI * 2) * (100 + arr[n].y / 10) * Math.max(avg / 30, 1) + innerHeight / 2);
                 }
-            ctx.lineTo(Math.sin((0) / arr.length * Math.PI * 2) * (100 + arr[0].y / 10) * Math.max(avg / 40, 1) + innerWidth / 2, Math.cos(0 / arr.length * Math.PI * 2) * (100 + arr[0].y / 10) * Math.max(avg / 40, 1) + innerHeight / 2);
+            ctx.lineTo(Math.sin((0) / arr.length * Math.PI * 2) * (100 + arr[0].y / 10) * Math.max(avg / 30, 1) + innerWidth / 2, Math.cos(0 / arr.length * Math.PI * 2) * (100 + arr[0].y / 10) * Math.max(avg / 30, 1) + innerHeight / 2);
             ctx.fill();
             requestAnimationFrame(render);
         }

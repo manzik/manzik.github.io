@@ -1,0 +1,148 @@
+﻿<!DOCTPYE html>
+<html>
+<head>
+    <title>Triangle Cam</title>
+    <style>
+        #c {
+            left: 0;
+            top: 0;
+            margin: 0;
+            position: fixed;
+        }
+    </style>
+    <script>
+        var video = document.createElement("video");
+        function p(x, y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        function tri(a, b, c, c2)
+        {
+            this.p1 = a;
+            this.p2 = b;
+            this.p3 = c;
+            this.c = { r: '', g: '', b: '' };
+        }
+        function calc_c(tri)
+        {
+            return new p((tri.p1.x + tri.p2.x + tri.p3.x) / 3, (tri.p1.y + tri.p2.y + tri.p3.y) / 3);
+        }
+        var arr_prevc = [];
+        function init()
+        {
+            var arr_ps = [];
+            for (var i = 0, ii = innerWidth / tri_size + 3; i < ii; i++)
+            {
+                arr_ps[i] = [];
+                for (var j = 0, jj = innerHeight / tri_size + 3; j < jj; j++)
+                {
+                    arr_ps[i].push(new p(i * tri_size + (Math.random() - 0.5) * tri_size / 2 - tri_size, j * tri_size + (Math.random() - 0.5) * tri_size / 2 - tri_size));
+                }
+            }
+            for (var i = 0; i < arr_ps.length - 1; i++)
+            {
+                for (var j = 0; j < arr_ps[0].length - 1; j++)
+                {
+                    tri_arr.push(new tri(new p(arr_ps[i][j].x, arr_ps[i][j].y), new p(arr_ps[i][j + 1].x, arr_ps[i][j + 1].y), new p(arr_ps[i + 1][j + 1].x, arr_ps[i + 1][j + 1].y), "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"));
+                    tri_arr.push(new tri(new p(arr_ps[i][j].x, arr_ps[i][j].y), new p(arr_ps[i + 1][j].x, arr_ps[i + 1][j].y), new p(arr_ps[i + 1][j + 1].x, arr_ps[i + 1][j + 1].y), "rgb(" + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + "," + ((Math.random() * 255) >> 0) + ")"));
+                    arr_prevc.push({ c: { r: '', g: '', b: '' } });
+                    arr_prevc.push({ c: { r: '', g: '', b: '' } });
+                }
+            }
+        }
+        var tri_size = 50;
+        window.addEventListener("load", function ()
+        {
+            c = document.getElementById("c");
+            c.height = innerHeight;
+            c.width = innerWidth;
+            ctx = c.getContext("2d");
+            navigator.getUserMedia = (navigator.getUserMedia
+                           || navigator.webkitGetUserMedia
+                           || navigator.mozGetUserMedia
+                           || navigator.msGetUserMedia)
+            if (navigator.getUserMedia)
+            {
+                navigator.getUserMedia({ audio: false, video: true },
+                   function (stream)
+                   {
+                       video.src = window.URL.createObjectURL(stream);
+                       video.onloadedmetadata = function (e)
+                       {
+                           video.play();
+                           init();
+                           render();
+                       };
+                   },
+                   function (err)
+                   {
+                       console.log("The following error occurred: " + err.name);
+                   }
+                );
+            } else
+            {
+                console.log("getUserMedia not supported");
+            }
+        });
+        var tri_arr = [];
+        function getdxy(imgd, x, y, width)
+        {
+            var i = (Math.round(Math.min(Math.max(y - 1, 0), 143)) * width + (Math.round(Math.min(Math.max(x - 1, 0), 215)))) * 4;
+            return [imgd[i], imgd[i + 1], imgd[i + 2]];
+        }
+        function render()
+        {
+
+            var nw = innerWidth / 216, nh = innerHeight / 144;
+            ctx.drawImage(video, 0, 0, 216, 144);
+            imgd = ctx.getImageData(0, 0, 216, 144).data;
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (var i = 0; i < tri_arr.length; i++)
+            {
+                
+
+                ctx.beginPath();
+                ctx.moveTo(tri_arr[i].p1.x, tri_arr[i].p1.y);
+                ctx.lineTo(tri_arr[i].p2.x, tri_arr[i].p2.y);
+                ctx.lineTo(tri_arr[i].p3.x, tri_arr[i].p3.y);
+                ctx.closePath();
+                var pp = calc_c(tri_arr[i]);
+                var cc = getdxy(imgd, pp.x / nw, pp.y / nh, 216);
+                tri_arr[i].c.r = cc[0];
+                tri_arr[i].c.g = cc[1];
+                tri_arr[i].c.b = cc[2];
+                //X
+                if (arr_prevc[i].c.r == '')
+                {
+                    arr_prevc[i].c.r = tri_arr[i].c.r;
+                    arr_prevc[i].c.g = tri_arr[i].c.g;
+                    arr_prevc[i].c.b = tri_arr[i].c.b;
+                }
+                var aa = Math.abs(arr_prevc[i].c.r - tri_arr[i].c.r);
+                var bb = Math.abs(arr_prevc[i].c.g - tri_arr[i].c.g);
+                var cc = Math.abs(arr_prevc[i].c.b - tri_arr[i].c.b);
+                if (Math.max(aa, bb, cc) > 50)
+                {
+                    arr_prevc[i].c.r = 255;
+                    arr_prevc[i].c.g = 0;
+                    arr_prevc[i].c.b = 0;
+                }
+                ///X
+
+                ctx.fillStyle = "rgb(" + arr_prevc[i].c.r + "," + arr_prevc[i].c.g + "," + arr_prevc[i].c.b + ")"; //tri_arr[i].c;
+                ctx.fill();
+                //L
+                ////arr_prevc[i].c.r = tri_arr[i].c.r;
+                //arr_prevc[i].c.g = tri_arr[i].c.g;
+                //arr_prevc[i].c.b = tri_arr[i].c.b;
+                ///L
+            }
+            requestAnimationFrame(render);
+        }
+    </script>
+</head>
+<body>
+    <canvas id="c"></canvas>
+</body>
+</html>

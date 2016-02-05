@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script>
+        var iw = innerWidth;
+        var ih = innerHeight;
+        window.addEventListener("load", function ()
+        {
+            c = document.getElementById("c");
+            c.height = ih;
+            c.width = iw;
+            ctx = c.getContext("2d");
+            init();
+            render();
+        });
+        function color(r, g, b)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.getrgb = function ()
+            {
+                return "rgb(" + ((this.r) >> 0) + "," + ((this.g) >> 0) + "," + ((this.b) >> 0) + ")";
+            };
+        }
+        function dotty(x, y, xs, ys, xss, yss, c)
+        {
+            this.c = c;
+            this.x = x;
+            this.y = y;
+            this.xs = xs;
+            this.ys = ys;
+            this.xss = xs;
+            this.yss = yss;
+            var pr = this;
+            this.dothings = function (r)
+            {
+                pr.xs += pr.xss / r;
+                pr.x += pr.xs / r;
+                pr.ys += pr.yss / r;
+                pr.y += pr.ys / r;
+            };
+        }
+        var amount = 1000;
+        var currv = new dotty(0, 0, 0, 0, 0, 0);
+        function init()
+        {
+            for (var i = 0; i < amount; i++)
+                dotties.push(new dotty(Math.random() * iw, Math.random() * ih, Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5, new color(Math.round(Math.random() * 255), Math.round(Math.random() * 255), Math.round(Math.random() * 255))));
+        }
+
+        var dotties = [];
+        function render()
+        {
+            ctx.fillStyle = "rgba(0,0,0,0.01)";
+            ctx.fillRect(0, 0, iw, ih);
+            if (currv.x > iw / 4 * 3 || currv.x < iw / 4 * 1)
+                currv.xss = -currv.xss;
+            if (currv.y > ih / 4 * 3 || currv.y < ih / 4 * 1)
+                currv.yss = -currv.yss;
+
+            if (Math.abs(currv.ys) < 1)
+                currv.yss += (Math.random() - 0.5) / 5;
+            else
+                currv.yss += -Math.sign(currv.yss) * (Math.random()) / 5;
+            if (Math.abs(currv.xs) < 1)
+                currv.xss += (Math.random() - 0.5) / 5;
+            else
+                currv.xss += -Math.sign(currv.xss) * (Math.random()) / 5;
+            currv.dothings(1);
+            
+            for (var i = 0; i < dotties.length; i++)
+            {
+                var dt = dotties[i];
+                //cacl pos
+                if (Math.abs(dt.xss) < 0.0001 || Math.abs(dt.xs) < 0.0001)
+                    dt.xss += (Math.random() - 0.5) / 1000000;
+                else
+                    dt.xss += -Math.sign(dt.xss) * (Math.random()) / 10;
+                if (Math.abs(dt.yss) < 0.0001 || Math.abs(dt.ys) < 0.0001)
+                    dt.yss += (Math.random() - 0.5) / 1000000;
+                else
+                    dt.yss += -Math.sign(dt.yss) * (Math.random()) / 10;
+                dt.dothings(2);
+
+
+
+                dt.x += currv.xs;
+                dt.y += currv.ys;
+
+                //dont let it get out
+                if (dt.x > iw || dt.x < 0)
+                    dt.xs = -dt.xs;
+                if (dt.y > ih || dt.y < 0)
+                    dt.ys = -dt.ys;
+
+
+                //draw
+                ctx.beginPath();
+                ctx.moveTo(dt.x, dt.y);
+                ctx.lineTo(dt.x + 1, dt.y + 1);
+                ctx.closePath();
+                //ctx.strokeStyle = dt.c.getrgb();
+                ctx.strokeStyle = "rgb(" + Math.round(dt.y * 255 / ih) + "," + Math.round(dt.x * 255 / iw) + ",0)";
+                ctx.stroke();
+            }
+            requestAnimationFrame(render);
+        }
+        function or()
+        {
+            iw = innerWidth;
+            ih = innerHeight;
+            c.height = ih;
+            c.width = iw;
+        }
+    </script>
+</head>
+<body onresize="or()">
+    <canvas id="c" style="left:0;top:0;position:fixed;background-color:black;"></canvas>
+</body>
+</html>

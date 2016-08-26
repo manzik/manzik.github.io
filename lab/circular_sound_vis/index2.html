@@ -117,7 +117,6 @@
             this.bgc = "rgb(0,0,0)";
             this.lw = 4;
             this.wv = false;
-            this.fl=true;
         }
         window.onload = function ()
         {
@@ -193,7 +192,6 @@
                 var ctrl2 = dg.add(f, "flsh", 0, 1).name("Background flash");
                 var ctrl3 = dg.addColor(f, "bgc").name("Background color");
                 var ctrl4 = dg.add(f, "lw", 0).name("Line width");
-                var ctrl5 = dg.add(f, "fl", 0, 1).name("Particles");
                 //var ctrl5 = dg.add(f, "wv", 0).name("Wave");
             }
             arr = [];
@@ -355,7 +353,6 @@
                 else
                     arr_wave[arr_wave.length] = new cr((avg) / 3.8, avg);
             }
-            var avgdiff=avg-avg_prev;
             avg_prev = avg;
             var mwh = Math.min(iw, ih);
 
@@ -371,62 +368,8 @@
                 ctx.stroke();
                 ctx.closePath();
             }
-            if(f.fl)
-            renderfluid(frequencyData,avgdiff,avg);
             requestAnimationFrame(render);
         };
-        var frequencyDataprev=[];
-        var arr_fluids=[];
-        function renderfluid(frequencyData,avgdiff,avg)
-        {
-            avg/=100;
-            var mwh = Math.min(iw, ih);
-            if(frequencyDataprev.length==0)
-            {
-                frequencyDataprev=JSON.parse(JSON.stringify(frequencyData));
-            }
-            else
-            {
-                for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
-                {
-                var p = frequencyData[arr[i].num] / 128;
-                var n=frequencyDataprev[arr[i].num] / 128;
-                x = Math.sin(i * m) * mwh / 3 + iw / 2;
-                y = Math.cos(i * m) * mwh / 3 + ih / 2;
-                if(p-n+avgdiff/30>0.2)
-                {
-                    var xa=iw / 2 + (x - iw / 2) * p-x;
-                    var xb=ih / 2 + (y - ih / 2) * p-y;
-                    for(var ax=0;ax<3;ax++)
-                    arr_fluids.push({c:arr[i].c,x:iw / 2 + (x - iw / 2) * p,y:ih / 2 + (y - ih / 2) * p,r:(p-n)*10+avgdiff/30,xs:((iw / 2 + (x - iw / 2) * p-x)*(p<1?-1:+1)*avg)/10,ys:((ih / 2 + (y - ih / 2) * p-y)*(p<1?-1:+1)*avg)/10});
-
-                }
-
-                }
-                frequencyDataprev=JSON.parse(JSON.stringify(frequencyData));
-            }
-            for(var i=0;i<arr_fluids.length;i++)
-            {
-                var fluid=arr_fluids[i];
-                fluid.r-=0.03;
-                if(fluid.r<=0)
-                {
-                    arr_fluids.splice(i,1);
-                }
-                else
-                {
-                    fluid.xs+=Math.random()-0.5;
-                    fluid.ys+=Math.random()-0.5;
-                    fluid.x+=fluid.xs;
-                    fluid.y+=fluid.ys;
-                ctx.beginPath();
-                ctx.arc(fluid.x,fluid.y,fluid.r,Math.PI*2,false);
-                ctx.fillStyle=fluid.c;
-                ctx.fill();
-                ctx.closePath();
-            }
-            }
-        }
         window.onresize = function ()
         {
             rw = Math.sqrt(Math.pow(innerWidth, 2) + Math.pow(innerHeight, 2)) / 2;

@@ -3,7 +3,7 @@
 <head>
     <title>Circular Sound Visualisation | Manzik lab</title>
     <script src="/js/lab.js"></script>
-    <script>
+    <!--<script>
         (function (i, s, o, g, r, a, m)
         {
             i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function ()
@@ -15,24 +15,239 @@
 
         ga('create', 'UA-52938764-1', 'auto');
         ga('send', 'pageview');
-    </script>
+    </script>-->
+    <script src="three.min.js"></script>
     <script src="dat.gui.min.js"></script>
     <style>
-        #hid
-        {
+        #hid {
             color: white;
             text-shadow: 0 0 10px black;
         }
 
-        .f
-        {
+        .f {
             position: relative;
             top: 0;
         }
     </style>
     <script>
-        var ih = innerHeight, innerWidth, frequencyData,context = AudioContext || webkitAudioContext, context = new window.context();
+        var ih = innerHeight, innerWidth, frequencyData, context = AudioContext || webkitAudioContext, context = new window.context();
+        function render()
+        {
+            //ctx.lineWidth = f.lw;
+            analyser.getByteFrequencyData(frequencyData);
+            avg = 0;
+            max = 0;
+            for (var i = 0; i < frequencyData.length; i++)
+            {
+                avg += frequencyData[i];
+                if (frequencyData[i] > max)
+                {
+                    max = frequencyData[i];
+                }
+            }
+            avg /= frequencyData.length;
+            ambientLight.intensity = avg / 128 / 1.5 +0.3;
+            ambientLight.position.z = avg / 128 * 15 +12;
+            //circle.rotation.x += 0.1;
+            circle.scale.x = (avg / 85 + 0.1)*0.9;
+            circle.scale.y = (avg / 85 + 0.1) * 0.9;
+            circle.scale.z = 3;
+
+            circle2.scale.x = (avg / 85 + 0.1) * 0.9;
+            circle2.scale.y = (avg / 85 + 0.1) * 0.9;
+            circle2.scale.z = 3;
+            for (var i = 0; i < 128; i++)
+            {
+                setsize(num("get",i), frequencyData[i]*0.8);
+            }
+            
+
+            //scene.fog.near = 5;
+
+            circlecam.visible = false;
+            circlecam.updateCubeMap(renderer, scene);
+            circlecam.visible = true;
+
+            planecam.visible = false;
+            planecam.updateCubeMap(renderer, scene);
+            planecam.visible = true;
+            //scene.fog.near = 100;
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        };
+        function num(a,i)
+        {
+            if(a=="init")
+            {
+                this.arr=[];
+                var rand = Math.round(Math.random() * 127);
+                while (arr.length < 128)
+                {
+                    while (arr.indexOf(rand) > -1)
+                    {
+                        rand = Math.round(Math.random() * 127);
+                    }
+                    arr.push(rand);
+                }
+            }
+            else
+                if(a=="get")
+                {
+                    return this.arr[i];
+                }
+        }
+        var arr_p = [];
+        function makep(c,x,y)
+        {
+            //gp = new THREE.Object3D();
+            //var sp = new THREE.SphereGeometry(0.05, 12, 12);
+            //var mat = new THREE.MeshPhongMaterial({ color:c });
+            //mes = new THREE.Mesh(sp, mat);
+            //gp.add(mes);
+            lig =  new THREE.SpotLight(0xffffff, 0.8);
+            lig.position = new THREE.Vector3(0,0,0);
+            scene.add(lig);
+            //gp.position.x = x;
+            //gp.position.y = y;
+            //gp.position.z = 0.2;
+            //scene.add(gp);
+        }
         function init()
+        {
+            c = document.getElementById("c");
+            scene = new THREE.Scene();
+            //scene.fog = new THREE.Fog(0xffffff, 0.015, 100);
+           
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            renderer = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearAlpha(0xffffff, 1);
+            
+            planecam = new THREE.CubeCamera(1, 100000, 128);
+            planecam.position = new THREE.Vector3(0, 0, 2);
+
+            scene.add(planecam);
+            var geometry = new THREE.BoxGeometry(30, 10, 1);
+            texture = new THREE.TextureLoader().load("crate.gif");;
+            
+            var material = new THREE.MeshPhongMaterial({ map:texture });
+            cube = new THREE.Mesh(geometry, material);
+            cube.position.z = 3;
+            
+            scene.add(cube);
+
+            circlecam = new THREE.CubeCamera(0.001, 10000000, 1000);
+            
+            scene.add(circlecam);
+            var material = new THREE.MeshLambertMaterial({
+                color: 0xFFFFFF, envMap: circlecam.renderTarget
+            });
+            var circleGeometry = new THREE.SphereGeometry(1, 80, 80);
+            circle = new THREE.Mesh(circleGeometry, material);
+            circlecam.position = circle.position;
+            circle.position.z = 0;
+            circlecam.position.z = 2.5;
+            circlecam.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
+            circle.material.transparent = true;
+            circle.material.opacity = 1;
+            scene.add(circle);
+
+            circle2 = new THREE.Mesh(circleGeometry, new THREE.MeshPhongMaterial({ color: "white" }));
+            circle2.position.z = 0;
+            circle2.material.transparent = true;
+            circle2.material.opacity = 1;
+            scene.add(circle2);
+            
+
+            camera.position.z = 5;
+
+            for (var i = 0; i < 128; i++)
+            {
+                var box = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+                var material = new THREE.MeshPhongMaterial({ color: parseInt((Math.round(Math.random() * 255).toString(16) + Math.round(Math.random() * 255).toString(16) + Math.round(Math.random() * 255).toString(16)), 16) });
+                var br = new THREE.Mesh(box, material);
+                br.position.x = 1;
+                br.position.x = Math.sin(i * Math.PI / 64) * 2;
+                br.position.y = Math.cos(i * Math.PI / 64) * 2;
+                br.rotation.z = Math.atan(br.position.y / br.position.x);
+                br.scale.y = 0.8;
+                br.scale.x = 3;
+                br.scale.z = 5;
+                br.geometry.verticesNeedUpdate = true;
+                scene.add(br);
+                brs.push(br);
+            }
+            //////////
+            ambientLight = new THREE.SpotLight(0xffffff, 1);
+            //ambientLight.position.z = circle.scale;
+            scene.add(ambientLight);
+            num("init");
+        }
+        function setsize(i, val)
+        {
+            val = (val - 64) * 0.0105;
+            if (i < 65)
+            {
+                if (val >= 0.025)
+                {
+                    brs[i].geometry.vertices[7].x = -0.025;
+                    brs[i].geometry.vertices[6].x = -0.025;
+                    brs[i].geometry.vertices[5].x = -0.025;
+                    brs[i].geometry.vertices[4].x = -0.025;
+
+                    brs[i].geometry.vertices[0].x = val;
+                    brs[i].geometry.vertices[1].x = val;
+                    brs[i].geometry.vertices[2].x = val;
+                    brs[i].geometry.vertices[3].x = val;
+                }
+                else
+                {
+                    brs[i].geometry.vertices[0].x = -0.025;
+                    brs[i].geometry.vertices[1].x = -0.025;
+                    brs[i].geometry.vertices[2].x = -0.025;
+                    brs[i].geometry.vertices[3].x = -0.025;
+
+                    brs[i].geometry.vertices[7].x = val;
+                    brs[i].geometry.vertices[6].x = val;
+                    brs[i].geometry.vertices[5].x = val;
+                    brs[i].geometry.vertices[4].x = val;
+                }
+            }
+            else
+            {
+                if (val >= 0.025)
+                {
+                    brs[i].geometry.vertices[0].x = 0.025;
+                    brs[i].geometry.vertices[1].x = 0.025;
+                    brs[i].geometry.vertices[2].x = 0.025;
+                    brs[i].geometry.vertices[3].x = 0.025;
+
+                    brs[i].geometry.vertices[7].x = -val;
+                    brs[i].geometry.vertices[6].x = -val;
+                    brs[i].geometry.vertices[5].x = -val;
+                    brs[i].geometry.vertices[4].x = -val;
+                }
+                else
+                {
+                    brs[i].geometry.vertices[7].x = 0.025;
+                    brs[i].geometry.vertices[6].x = 0.025;
+                    brs[i].geometry.vertices[5].x = 0.025;
+                    brs[i].geometry.vertices[4].x = 0.025;
+
+                    brs[i].geometry.vertices[0].x = -val;
+                    brs[i].geometry.vertices[1].x = -val;
+                    brs[i].geometry.vertices[2].x = -val;
+                    brs[i].geometry.vertices[3].x = -val;
+                }
+            }
+            //brs[i].geometry.vertices[4].y = val;
+            //brs[i].geometry.vertices[5].y = val;
+            //brs[i].geometry.vertices[6].y = val;
+            //brs[i].geometry.vertices[7].y = val;
+            brs[i].geometry.verticesNeedUpdate = true;
+        }
+        function inito()
         {
             try
             {
@@ -50,7 +265,7 @@
                 var file = URL.createObjectURL(files[0]);
                 A.src = file;
                 A.play();
-                init();
+                inito();
                 if (!isr)
                 {
                     requestAnimationFrame(render);
@@ -117,8 +332,8 @@
             this.bgc = "rgb(0,0,0)";
             this.lw = 4;
             this.wv = false;
-            this.fl=true;
         }
+        var brs = [];
         window.onload = function ()
         {
 
@@ -155,8 +370,8 @@
                     video.connect(analyser);
                 } catch (err) { };
             };
-            c = document.getElementById("c");
-            ctx = c.getContext("2d");
+            init();
+            //////////
             if (hd)
             {
                 ih = innerHeight;
@@ -193,42 +408,41 @@
                 var ctrl2 = dg.add(f, "flsh", 0, 1).name("Background flash");
                 var ctrl3 = dg.addColor(f, "bgc").name("Background color");
                 var ctrl4 = dg.add(f, "lw", 0).name("Line width");
-                var ctrl5 = dg.add(f, "fl", 0, 1).name("Particles");
                 //var ctrl5 = dg.add(f, "wv", 0).name("Wave");
             }
-            arr = [];
-            ctx.fillStyle = f.bgc;
-            ctx.fillRect(0, 0, iw, innerHeight);
-            for (var i = 0; i < 128; i++)
-            {
-                var num = Math.round(Math.random() * 128);
-                while (num < 6)
-                {
-                    num = Math.round(Math.random() * 128);
-                }
-                var r = Math.round(Math.random() * 255), g = Math.round(Math.random() * 255), b = Math.round(Math.random() * 255);
-                while (r + g + b < 192)
-                {
-                    r = Math.round(Math.random() * 255);
-                    g = Math.round(Math.random() * 255);
-                    b = Math.round(Math.random() * 255);
-                }
-                arr[i] = { num: num, c: "rgb(" + r + "," + g + "," + b + ")" };
-            }
-            ctx.lineWidth = f.lw;
-            var mwh = Math.min(iw, ih);
-            for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
-            {
-                ctx.beginPath();
-                x = Math.sin(i * m) * mwh / 3 + iw / 2;
-                y = Math.cos(i * m) * mwh / 3 + ih / 2;
-                ctx.moveTo(x, y);
+            //arr = [];
+            //ctx.fillStyle = f.bgc;
+            //ctx.fillRect(0, 0, iw, innerHeight);
+            //for (var i = 0; i < 128; i++)
+            //{
+            //    var num = Math.round(Math.random() * 128);
+            //    while (num < 6)
+            //    {
+            //        num = Math.round(Math.random() * 128);
+            //    }
+            //    var r = Math.round(Math.random() * 255), g = Math.round(Math.random() * 255), b = Math.round(Math.random() * 255);
+            //    while (r + g + b < 192)
+            //    {
+            //        r = Math.round(Math.random() * 255);
+            //        g = Math.round(Math.random() * 255);
+            //        b = Math.round(Math.random() * 255);
+            //    }
+            //    arr[i] = { num: num, c: "rgb(" + r + "," + g + "," + b + ")" };
+            //}
+            //ctx.lineWidth = f.lw;
+            //var mwh = Math.min(iw, ih);
+            //for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
+            //{
+            //    ctx.beginPath();
+            //    x = Math.sin(i * m) * mwh / 3 + iw / 2;
+            //    y = Math.cos(i * m) * mwh / 3 + ih / 2;
+            //    ctx.moveTo(x, y);
 
-                ctx.lineTo(iw / 2, ih / 2);
-                ctx.strokeStyle = arr[i].c;
-                ctx.stroke();
-                ctx.closePath();
-            }
+            //    ctx.lineTo(iw / 2, ih / 2);
+            //    ctx.strokeStyle = arr[i].c;
+            //    ctx.stroke();
+            //    ctx.closePath();
+            //}
         };
         var avg = 0;
         function invertColor(hexTripletColor)
@@ -279,154 +493,7 @@
         }
         var rw = Math.sqrt(Math.pow(innerWidth, 2) + Math.pow(innerHeight, 2)) / 2;
         var isr = false;
-        function render()
-        {
-            ctx.lineWidth = f.lw;
-            analyser.getByteFrequencyData(frequencyData);
-            avg = 0;
-            max = 0;
-            for (var i = 0; i < frequencyData.length; i++)
-            {
-                avg += frequencyData[i];
-                if (frequencyData[i] > max)
-                {
-                    max = frequencyData[i];
-                }
-            }
-            avg /= frequencyData.length;
-
-            var avgc = Math.round(avg * 3.2);
-            if (f.flsh)
-            {
-                ctx.fillStyle = "rgb(" + avgc + "," + avgc + "," + avgc + ")";
-                ctx.fillRect(0, 0, iw, innerHeight);
-                ctx.fillStyle = "rgb(" + rev_from(avgc, 128) + "," + rev_from(avgc, 128) + "," + rev_from(avgc, 128) + ")";
-            }
-            else
-            {
-                ctx.fillStyle = f.bgc;
-                ctx.fillRect(0, 0, iw, innerHeight);
-                ctx.fillStyle = invertColor(f.bgc);
-            }
-            rt = ctx.fillStyle;
-            ctx.fillStyle = hexAverage(rt, invertColor(rt));
-            ctx.beginPath();
-            ctx.arc(iw / 2, ih / 2, ih / 1024 * (max * 2 + avg) / 3, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = rt;
-            ctx.beginPath();
-            ctx.arc(iw / 2, ih / 2, ih / 512 * avg, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.fill();
-
-            for (var i = 0; i < arr_wave.length; i++)
-            {
-                if (arr_wave[i].r > rw || arr_wave[i].a - arr_wave[i].f <= 0)
-                {
-                    arr_wave.splice(i, 1);
-                }
-                else
-                {
-                    if (arr_wave[i].r < ih / 512 * avg)
-                        arr_wave[i].r = ih / 512 * avg;
-                    arr_wave[i].a -= arr_wave[i].f;
-                    arr_wave[i].a = arr_wave[i].a;
-                    arr_wave[i].r += 5;
-                    ctx.strokeStyle = rt;
-                    ctx.beginPath();
-                    ctx.globalAlpha = arr_wave[i].a < 0 ? 0 : arr_wave[i].a;
-                    ctx.arc(iw / 2, ih / 2, arr_wave[i].r, 0, Math.PI * 2);
-                    ctx.closePath();
-                    if (f.wv)
-                        ctx.stroke();
-                }
-            }
-            ctx.globalAlpha = 1;
-
-            if ((avg - avg_prev) * avg > 400)
-            {
-                if (arr_wave.length > 0)
-                {
-                    if (Math.abs(arr_wave[arr_wave.length - 1].r - avg) > 90)
-                        arr_wave[arr_wave.length] = new cr((avg) / 3.8, avg);
-                }
-                else
-                    arr_wave[arr_wave.length] = new cr((avg) / 3.8, avg);
-            }
-            var avgdiff=avg-avg_prev;
-            avg_prev = avg;
-            var mwh = Math.min(iw, ih);
-
-            for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
-            {
-                ctx.beginPath();
-                var p = frequencyData[arr[i].num] / 128;
-                x = Math.sin(i * m) * mwh / 3 + iw / 2;
-                y = Math.cos(i * m) * mwh / 3 + ih / 2;
-                ctx.moveTo(x, y);
-                ctx.lineTo(iw / 2 + (x - iw / 2) * p, ih / 2 + (y - ih / 2) * p);
-                ctx.strokeStyle = arr[i].c;
-                ctx.stroke();
-                ctx.closePath();
-            }
-            if(f.fl)
-            renderfluid(frequencyData,avgdiff,avg);
-            requestAnimationFrame(render);
-        };
-        var frequencyDataprev=[];
-        var arr_fluids=[];
-        function renderfluid(frequencyData,avgdiff,avg)
-        {
-            avg/=100;
-            var mwh = Math.min(iw, ih);
-            if(frequencyDataprev.length==0)
-            {
-                frequencyDataprev=JSON.parse(JSON.stringify(frequencyData));
-            }
-            else
-            {
-                for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
-                {
-                var p = frequencyData[arr[i].num] / 128;
-                var n=frequencyDataprev[arr[i].num] / 128;
-                x = Math.sin(i * m) * mwh / 3 + iw / 2;
-                y = Math.cos(i * m) * mwh / 3 + ih / 2;
-                if(p-n+avgdiff/30>0.2)
-                {
-                    var xa=iw / 2 + (x - iw / 2) * p-x;
-                    var xb=ih / 2 + (y - ih / 2) * p-y;
-                    for(var ax=0;ax<3;ax++)
-                    arr_fluids.push({c:arr[i].c,x:iw / 2 + (x - iw / 2) * p,y:ih / 2 + (y - ih / 2) * p,r:(p-n)*10+avgdiff/30,xs:((iw / 2 + (x - iw / 2) * p-x)*(p<1?-1:+1)*avg)/10,ys:((ih / 2 + (y - ih / 2) * p-y)*(p<1?-1:+1)*avg)/10});
-
-                }
-
-                }
-                frequencyDataprev=JSON.parse(JSON.stringify(frequencyData));
-            }
-            for(var i=0;i<arr_fluids.length;i++)
-            {
-                var fluid=arr_fluids[i];
-                fluid.r-=0.03;
-                if(fluid.r<=0)
-                {
-                    arr_fluids.splice(i,1);
-                }
-                else
-                {
-                    fluid.xs+=Math.random()-0.5;
-                    fluid.ys+=Math.random()-0.5;
-                    fluid.x+=fluid.xs;
-                    fluid.y+=fluid.ys;
-                ctx.beginPath();
-                ctx.arc(fluid.x,fluid.y,fluid.r,Math.PI*2,false);
-                ctx.fillStyle=fluid.c;
-                ctx.fill();
-                ctx.closePath();
-            }
-            }
-        }
+        
         window.onresize = function ()
         {
             rw = Math.sqrt(Math.pow(innerWidth, 2) + Math.pow(innerHeight, 2)) / 2;
@@ -441,22 +508,22 @@
             iw = innerWidth;
             c.width = iw;
             c.height = innerHeight;
-            ctx.fillStyle = f.bgc;
-            ctx.fillRect(0, 0, iw, innerHeight);
-            ctx.lineWidth = f.lw;
-            var mwh = Math.min(iw, ih);
-            for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
-            {
-                ctx.beginPath();
-                x = Math.sin(i * m) * mwh / 3 + iw / 2;
-                y = Math.cos(i * m) * mwh / 3 + ih / 2;
-                ctx.moveTo(x, y);
+            //ctx.fillStyle = f.bgc;
+            //ctx.fillRect(0, 0, iw, innerHeight);
+            //ctx.lineWidth = f.lw;
+            //var mwh = Math.min(iw, ih);
+            //for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
+            //{
+            //    ctx.beginPath();
+            //    x = Math.sin(i * m) * mwh / 3 + iw / 2;
+            //    y = Math.cos(i * m) * mwh / 3 + ih / 2;
+            //    ctx.moveTo(x, y);
 
-                ctx.lineTo(iw / 2, ih / 2);
-                ctx.strokeStyle = arr[i].c;
-                ctx.stroke();
-                ctx.closePath();
-            }
+            //    ctx.lineTo(iw / 2, ih / 2);
+            //    ctx.strokeStyle = arr[i].c;
+            //    ctx.stroke();
+            //    ctx.closePath();
+            //}
         };
         function rev_from(a, b)
         {
@@ -474,7 +541,7 @@
                 var file = URL.createObjectURL(files[0]);
                 A.src = file;
                 A.play();
-                init();
+                inito();
                 if (!isr)
                 {
                     requestAnimationFrame(render);

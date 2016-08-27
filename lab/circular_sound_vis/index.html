@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html>
 <head>
     <title>Circular Sound Visualisation | Manzik lab</title>
@@ -40,6 +41,22 @@
             } catch (err) { }
             analyser.smoothingTimeConstant = 0.8;
             dd.style.display = "none";
+        }
+        function getcolor()
+        {
+            var num = Math.round(Math.random() * 128);
+                while (num < 6)
+                {
+                    num = Math.round(Math.random() * 128);
+                }
+                var r = Math.round(Math.random() * 255), g = Math.round(Math.random() * 255), b = Math.round(Math.random() * 255);
+                while (r + g + b < 192)
+                {
+                    r = Math.round(Math.random() * 255);
+                    g = Math.round(Math.random() * 255);
+                    b = Math.round(Math.random() * 255);
+                }
+                return {r:r,g:g,b:b,num:num};
         }
         var A;
         function foc()
@@ -201,19 +218,10 @@
             ctx.fillRect(0, 0, iw, innerHeight);
             for (var i = 0; i < 128; i++)
             {
-                var num = Math.round(Math.random() * 128);
-                while (num < 6)
-                {
-                    num = Math.round(Math.random() * 128);
-                }
-                var r = Math.round(Math.random() * 255), g = Math.round(Math.random() * 255), b = Math.round(Math.random() * 255);
-                while (r + g + b < 192)
-                {
-                    r = Math.round(Math.random() * 255);
-                    g = Math.round(Math.random() * 255);
-                    b = Math.round(Math.random() * 255);
-                }
-                arr[i] = { num: num, c: "rgb(" + r + "," + g + "," + b + ")" };
+                var cc=getcolor();
+                var r=cc.r,g=cc.g,b=cc.b;
+                var cc2=getcolor();
+                arr[i] = { num: cc.num, c: {r:cc.r,g:cc.g,b:cc.b},nc:{r:cc2.r,g:cc2.g,b:cc2.b} };
             }
             ctx.lineWidth = f.lw;
             var mwh = Math.min(iw, ih);
@@ -225,7 +233,7 @@
                 ctx.moveTo(x, y);
 
                 ctx.lineTo(iw / 2, ih / 2);
-                ctx.strokeStyle = arr[i].c;
+                ctx.strokeStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
                 ctx.stroke();
                 ctx.closePath();
             }
@@ -321,6 +329,7 @@
             ctx.closePath();
             ctx.fill();
 
+            if(0)
             for (var i = 0; i < arr_wave.length; i++)
             {
                 if (arr_wave[i].r > rw || arr_wave[i].a - arr_wave[i].f <= 0)
@@ -358,18 +367,25 @@
             var avgdiff=avg-avg_prev;
             avg_prev = avg;
             var mwh = Math.min(iw, ih);
-
+            changecolors();
             for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
             {
                 ctx.beginPath();
                 var p = frequencyData[arr[i].num] / 128;
-                x = Math.sin(i * m) * mwh / 3 + iw / 2;
-                y = Math.cos(i * m) * mwh / 3 + ih / 2;
-                ctx.moveTo(x, y);
-                ctx.lineTo(iw / 2 + (x - iw / 2) * p, ih / 2 + (y - ih / 2) * p);
-                ctx.strokeStyle = arr[i].c;
-                ctx.stroke();
-                ctx.closePath();
+                arr[i].freq=p;
+                x = Math.cos((i+0.5) * m ) * mwh / 3 + iw / 2;
+                y = Math.sin((i+0.5) * m ) * mwh / 3 + ih / 2;
+
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(iw / 2 + (x - iw / 2) * p, ih / 2 + (y - ih / 2) * p);
+                    ctx.strokeStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
+                    ctx.stroke();
+
+                    //ctx.arc(iw/2,ih/2,mwh/3,i * m,(i+1) * m);
+                    //ctx.lineTo(iw / 2 + (x - iw / 2) * p, ih / 2 + (y - ih / 2) * p);
+                    //ctx.closePath();
+                    //ctx.fillStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
+                    //ctx.fill();
             }
             if(f.fl)
             renderfluid(frequencyData,avgdiff,avg);
@@ -377,50 +393,70 @@
         };
         var frequencyDataprev=[];
         var arr_fluids=[];
+        function changecolors()
+        {
+            for (var i = 0; i < 128; i++)
+            {
+                var bar=arr[i];
+                if(bar.nc.r==bar.c.r&&bar.nc.g==bar.c.g&&bar.nc.b==bar.c.b)
+                {
+                    var cc=getcolor();
+                    bar.nc.r=cc.r;
+                    bar.nc.g=cc.g;
+                    bar.nc.b=cc.b;
+                }
+                bar.c.r+=Math.round(Math.sign(bar.nc.r-bar.c.r));
+                bar.c.g+=Math.round(Math.sign(bar.nc.g-bar.c.g));
+                bar.c.b+=Math.round(Math.sign(bar.nc.b-bar.c.b));
+            }
+        }
         function renderfluid(frequencyData,avgdiff,avg)
         {
-            avg/=100;
+            avg2=avg/100;
             var mwh = Math.min(iw, ih);
             if(frequencyDataprev.length==0)
             {
-                frequencyDataprev=JSON.parse(JSON.stringify(frequencyData));
+                frequencyDataprev=frequencyData.slice();
             }
             else
             {
                 for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
                 {
-                var p = frequencyData[arr[i].num] / 128;
+                var p=arr[i].freq;
                 var n=frequencyDataprev[arr[i].num] / 128;
                 x = Math.sin(i * m) * mwh / 3 + iw / 2;
                 y = Math.cos(i * m) * mwh / 3 + ih / 2;
                 if(p-n+avgdiff/30>0.2)
                 {
-                    var xa=iw / 2 + (x - iw / 2) * p-x;
-                    var xb=ih / 2 + (y - ih / 2) * p-y;
                     for(var ax=0;ax<3;ax++)
-                    arr_fluids.push({c:arr[i].c,x:iw / 2 + (x - iw / 2) * p,y:ih / 2 + (y - ih / 2) * p,r:(p-n)*10+avgdiff/30,xs:((iw / 2 + (x - iw / 2) * p-x)*(p<1?-1:+1)*avg)/10,ys:((ih / 2 + (y - ih / 2) * p-y)*(p<1?-1:+1)*avg)/10});
+                    arr_fluids.push({from:i,c:"rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")",x:iw / 2 + (x - iw / 2) * p,y:ih / 2 + (y - ih / 2) * p,r:Math.min((p-n)*10+avgdiff/30,8),xs:((iw / 2 + (x - iw / 2) * p-x)*(p<1?-1:+1)*avg2)/10,ys:((ih / 2 + (y - ih / 2) * p-y)*(p<1?-1:+1)*avg2)/10});
 
                 }
 
                 }
-                frequencyDataprev=JSON.parse(JSON.stringify(frequencyData));
+                frequencyDataprev=frequencyData.slice();
             }
-            for(var i=0;i<arr_fluids.length;i++)
+            var vali=((avg/128*2+1)/3);
+            for(var i=0,flen=arr_fluids.length;i<flen;i++)
             {
                 var fluid=arr_fluids[i];
-                fluid.r-=0.03;
-                if(fluid.r<=0)
+                
+                fluid.r-=0.03/vali;
+                var flo=fluid.r*(arr[fluid.from].freq);
+                var fl2=flo/2;
+                if(flo<=0||fluid.x-fl2>iw||fluid.x+fl2<0||fluid.y+fl2<0||fluid.y-fl2>ih)
                 {
                     arr_fluids.splice(i,1);
+                    flen--;
                 }
                 else
                 {
                     fluid.xs+=Math.random()-0.5;
                     fluid.ys+=Math.random()-0.5;
-                    fluid.x+=fluid.xs;
-                    fluid.y+=fluid.ys;
+                    fluid.x+=fluid.xs*vali;
+                    fluid.y+=fluid.ys*vali;
                 ctx.beginPath();
-                ctx.arc(fluid.x,fluid.y,fluid.r,Math.PI*2,false);
+                ctx.arc(fluid.x,fluid.y,flo,Math.PI*2,false);
                 ctx.fillStyle=fluid.c;
                 ctx.fill();
                 ctx.closePath();
@@ -453,7 +489,7 @@
                 ctx.moveTo(x, y);
 
                 ctx.lineTo(iw / 2, ih / 2);
-                ctx.strokeStyle = arr[i].c;
+                ctx.strokeStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
                 ctx.stroke();
                 ctx.closePath();
             }
@@ -532,7 +568,7 @@
                     ctx.moveTo(x, y);
 
                     ctx.lineTo(iw / 2, ih / 2);
-                    ctx.strokeStyle = arr[i].c;
+                    ctx.strokeStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
                     ctx.stroke();
                     ctx.closePath();
                 }

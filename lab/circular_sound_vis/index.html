@@ -287,6 +287,7 @@
         }
         var rw = Math.sqrt(Math.pow(innerWidth, 2) + Math.pow(innerHeight, 2)) / 2;
         var isr = false;
+        var mwh = Math.min(iw, ih);
         function render()
         {
             ctx.lineWidth = f.lw;
@@ -366,7 +367,7 @@
             }
             var avgdiff=avg-avg_prev;
             avg_prev = avg;
-            var mwh = Math.min(iw, ih);
+            
             changecolors();
             for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
             {

@@ -32,7 +32,7 @@
         }
     </style>
     <script>
-        var ih = innerHeight, innerWidth, frequencyData,context = AudioContext || webkitAudioContext, context = new window.context();
+        var ih = innerHeight,iw = innerWidth, innerWidth, frequencyData,context = AudioContext || webkitAudioContext, context = new window.context();
         function init()
         {
             try
@@ -320,13 +320,13 @@
             rt = ctx.fillStyle;
             ctx.fillStyle = hexAverage(rt, invertColor(rt));
             ctx.beginPath();
-            ctx.arc(iw / 2, ih / 2, mhw / 1024 * (max * 2 + avg) / 3, 0, Math.PI * 2);
+            ctx.arc(iw / 2, ih / 2, mwh / 1024 * (max * 2 + avg) / 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
 
             ctx.fillStyle = rt;
             ctx.beginPath();
-            ctx.arc(iw / 2, ih / 2, mhw / 512 * avg, 0, Math.PI * 2);
+            ctx.arc(iw / 2, ih / 2, mwh / 512 * avg, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
 
@@ -414,7 +414,6 @@
         function renderfluid(frequencyData,avgdiff,avg)
         {
             avg2=avg/100;
-            var mwh = Math.min(iw, ih);
             if(frequencyDataprev.length==0)
             {
                 frequencyDataprev=frequencyData.slice();
@@ -481,7 +480,7 @@
             ctx.fillStyle = f.bgc;
             ctx.fillRect(0, 0, iw, innerHeight);
             ctx.lineWidth = f.lw;
-            var mwh = Math.min(iw, ih);
+            mwh = Math.min(iw, ih);
             for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
             {
                 ctx.beginPath();

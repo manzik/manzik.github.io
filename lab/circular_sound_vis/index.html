@@ -319,13 +319,13 @@
             rt = ctx.fillStyle;
             ctx.fillStyle = hexAverage(rt, invertColor(rt));
             ctx.beginPath();
-            ctx.arc(iw / 2, ih / 2, ih / 1024 * (max * 2 + avg) / 3, 0, Math.PI * 2);
+            ctx.arc(iw / 2, ih / 2, mhw / 1024 * (max * 2 + avg) / 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
 
             ctx.fillStyle = rt;
             ctx.beginPath();
-            ctx.arc(iw / 2, ih / 2, ih / 512 * avg, 0, Math.PI * 2);
+            ctx.arc(iw / 2, ih / 2, mhw / 512 * avg, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
 

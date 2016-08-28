@@ -1,5 +1,6 @@
-﻿
+
 <!DOCTYPE html>
+<!-- By Manzik: Mohsen Yousefian -->
 <html>
 <head>
     <title>Circular Sound Visualisation | Manzik lab</title>
@@ -135,6 +136,7 @@
             this.lw = 4;
             this.wv = false;
             this.fl=true;
+            this.gl=true;
         }
         window.onload = function ()
         {
@@ -211,6 +213,7 @@
                 var ctrl3 = dg.addColor(f, "bgc").name("Background color");
                 var ctrl4 = dg.add(f, "lw", 0).name("Line width");
                 var ctrl5 = dg.add(f, "fl", 0, 1).name("Particles");
+                var ctrl5 = dg.add(f, "gl", 0, 1).name("Glowing");
                 //var ctrl5 = dg.add(f, "wv", 0).name("Wave");
             }
             arr = [];
@@ -294,7 +297,7 @@
         {
             if(!ord)
             {
-            shake=-shake/2;
+            shake=-shake/1.5;
             var rot=shake;
         }
             ctx.translate(iw/2, ih/2);
@@ -334,16 +337,32 @@
             rt = ctx.fillStyle;
             ctx.fillStyle = hexAverage(rt, invertColor(rt));
             ctx.beginPath();
+            ctx.save();
+            if(f.gl)
+            {
+            ctx.shadowColor = ctx.fillStyle;
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
             ctx.arc(iw / 2, ih / 2, mwh / 1024 * (max * 2 + avg) / 3, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
-
+ctx.restore();
+ctx.save();
             ctx.fillStyle = rt;
             ctx.beginPath();
+            if(f.gl)
+            {
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
             ctx.arc(iw / 2, ih / 2, mwh / 512 * avg, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
-
+ctx.restore();
             if(0)
             for (var i = 0; i < arr_wave.length; i++)
             {
@@ -380,17 +399,25 @@
                     arr_wave[arr_wave.length] = new cr((avg) / 3.8, avg);
             }
             var avgdiff=avg-avg_prev;
-            shake=Math.abs(shake)+avgdiff/2000;
+            shake=Math.abs(shake)+avgdiff/3000;
             avg_prev = avg;
             
             changecolors();
             for (var i = 0, m = Math.PI * 2 / 128; i < 128; i++)
             {
+                ctx.save();
+                ctx.shadowColor = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
+                if(f.gl)
+                {
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
                 ctx.beginPath();
                 var p = frequencyData[arr[i].num] / 128;
                 arr[i].freq=p;
-                x = Math.cos((i+0.5) * m ) * mwh / 3 + iw / 2;
-                y = Math.sin((i+0.5) * m ) * mwh / 3 + ih / 2;
+                x = Math.cos((i) * m ) * mwh / 3 + iw / 2;
+                y = Math.sin((i) * m ) * mwh / 3 + ih / 2;
 
                     ctx.moveTo(x, y);
                     ctx.lineTo(iw / 2 + (x - iw / 2) * p, ih / 2 + (y - ih / 2) * p);
@@ -402,7 +429,44 @@
                     //ctx.closePath();
                     //ctx.fillStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
                     //ctx.fill();
+                    ctx.restore();
             }
+            ctx.lineJoin="round";
+            ctx.lineWidth=3;
+            for (var i = 0,step=1,step2=step/2, m = Math.PI * 2 / (128/step); i < 128; i+=step)
+            {
+                //var pp1 = (frequencyData[i==0?128:i-1] / 256)+1;
+                ctx.save();
+                ctx.shadowColor = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
+                if(f.gl)
+                {
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
+                ctx.strokeStyle = "rgb("+arr[i].c.r+","+arr[i].c.g+","+arr[i].c.b+")";
+                var p = Math.min(Math.max(frequencyData[i] / 256+(frequencyData[i] / 256-0.5)/(1/(avg)),0)/((avg)*1.7)+1);
+                var pp1 = Math.min(Math.max(frequencyData[i+step>127?0:i+step] / 256+(frequencyData[i+step>127?0:i+step] / 256-0.5)/(1/((avg))),0)/((avg)*1.7)+1);
+                //var p = Math.min(Math.max(frequencyData[i] / 256-((max+max)/2/430),0)/((max+max)/2/150)+1);
+                //var pp1 = Math.min(Math.max(frequencyData[i+step>127?0:i+step] / 256-((max+max)/2/430),0)/((max+max)/2/150)+1);
+                var rr= (mwh / 512 * ((max * 2 + avg) / 3/2)+mwh/3)/2;
+                x = Math.cos((i) * m ) * rr + iw / 2;
+                y = Math.sin((i) * m ) * rr + ih / 2;
+
+                ctx.beginPath();
+                //ctx.moveTo(iw / 2 + ((Math.cos((i) * m ) * rr  + iw / 2) - iw / 2) * pp1,ih / 2 + ((Math.sin((i+step2) * m ) * rr + ih / 2) - ih / 2) * pp1);
+                ctx.moveTo(iw / 2 + ((Math.cos((i) * m ) * rr  + iw / 2) - iw / 2) * p,ih / 2 + ((Math.sin((i) * m ) * rr  + ih / 2) - ih / 2) * p);
+                ctx.lineTo(iw / 2 + ((Math.cos((i+step) * m ) * rr  + iw / 2) - iw / 2) * pp1, ih / 2 + ((Math.sin((i+step) * m ) * rr  + ih / 2) - ih / 2) * pp1);
+                ctx.lineTo(iw / 2 + ((Math.cos((i+step) * m ) * rr  + iw / 2) - iw / 2) / pp1, ih / 2 + ((Math.sin((i+step) * m ) * rr  + ih / 2) - ih / 2) / pp1);
+                
+                
+                //ctx.moveTo(iw / 2 + ((Math.cos((i) * m ) * rr  + iw / 2) - iw / 2) * pp1,ih / 2 + ((Math.sin((i+step2) * m ) * rr  + ih / 2) - ih / 2) * pp1);
+                ctx.lineTo(iw / 2 + ((Math.cos((i) * m ) * rr  + iw / 2) - iw / 2) / p,ih / 2 + ((Math.sin((i) * m ) * rr  + ih / 2) - ih / 2) / p);
+                
+                ctx.stroke();
+                ctx.restore();
+            }
+            ctx.shadowColor=undefined;
             if(f.fl)
             renderfluid(frequencyData,avgdiff,avg);
         ctx.translate(iw/2, ih/2);
@@ -415,6 +479,10 @@
   ord=!ord;
             requestAnimationFrame(render);
         };
+        function ave(a,b,x)
+        {
+            return (a*x+b)/(x+1);
+        }
         var frequencyDataprev=[];
         var arr_fluids=[];
         function changecolors()
